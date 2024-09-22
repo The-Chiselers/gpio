@@ -1,0 +1,41 @@
+ # This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Chisel CI
+ 
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+permissions:
+  contents: read
+
+jobs:
+  generate_verilog:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          src:
+            - 'src/**'
+    
+    - uses: cachix/install-nix-action@v27
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - if: steps.changes.outputs.src == 'true'
+      run: nix develop --extra-experimental-features nix-command --extra-experimental-features flakes -c $SHELL
+
+        
+    - name: Run
+      if: steps.changes.outputs.src == 'true'
+      run: sbt run

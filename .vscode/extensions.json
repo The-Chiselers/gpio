@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "scala-lang.scala",
+    "scalameta.metals",
+    "bbenoist.nix",
+    "mathematic.vscode-latex"
+  ]
+}
