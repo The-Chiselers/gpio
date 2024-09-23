@@ -2,10 +2,7 @@
 //> using dep "org.chipsalliance::chisel:6.5.0"
 //> using plugin "org.chipsalliance:::chisel-plugin:6.5.0"
 //> using options "-unchecked", "-deprecation", "-language:reflectiveCalls", "-feature", "-Xcheckinit", "-Xfatal-warnings", "-Ywarn-dead-code", "-Ymacro-annotations"
-
-
-// first-party imports
-import com.chisel.ip.FirFilter
+package tech.rocksavage.chiselware.GPIO
 
 import _root_.circt.stage.ChiselStage
 import _root_.circt.stage.FirtoolOption
@@ -21,17 +18,21 @@ object Main extends App {
   val outputDir = s"$output/generated"
 
   // firtool options for generating verilog
-  val firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
-
+  // val firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+  val myParams = BaseParams(
+    dataWidth = 32,
+    coverage = false,
+    physicalPorts = 1,
+    virtualPorts = 1
+  )
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
   if (!javaOutputDir.exists) javaOutputDir.mkdirs
 
   // ######### Set Up Top Module HERE #########
-  val top_name = "FirFilter.sv"
+  val top_name = "GPIO.sv"
   val verilog = ChiselStage.emitSystemVerilog(
-    gen = new FirFilter(8, Seq(1.U, 1.U, 3.U)),
-    firtoolOpts = firtoolOpts,
+    gen = new GPIO(myParams)
   )
   // ##########################################
 
@@ -39,7 +40,8 @@ object Main extends App {
   println(verilog)
 
   // write verilog to file
-  val writer = new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
+  val writer =
+    new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
   writer.write(verilog)
 
   // close writer
