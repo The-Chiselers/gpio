@@ -69,3 +69,8 @@ module FirFilter(
   assign io_out = zs_0 + zs_1 + zs_2 * 8'h3;
 endmodule
 ```
+
+### Testbench
+To run test with waveform: "sbt "testOnly <\TestName\> -- -DwriteVcd=1"
+
+To open waveform: "gtkwave test_run_dir/->/*.vcd"
