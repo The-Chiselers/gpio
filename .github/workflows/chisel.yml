@@ -33,6 +33,9 @@ jobs:
     - name: Source Dev Shell
       run: nix --extra-experimental-features nix-command --extra-experimental-features flakes develop --ignore-environment -c $SHELL
 
-        
+    - name: DEBUG STEP
+      run: echo $PATH; which firtool
+
+     
     - name: Run
       run: sbt run
