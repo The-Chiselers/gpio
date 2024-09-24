@@ -27,6 +27,11 @@ jobs:
       - name: Enter Nix shell environment
         run: nix develop --extra-experimental-features 'nix-command flakes' -c $SHELL
 
+      - name: Add firtool to PATH
+        run: |
+          export CHISEL_FIRTOOL_PATH="$(nix develop --extra-experimental-features 'nix-command flakes' -c which firtool)"
+          export PATH="$CHISEL_FIRTOOL_PATH:$PATH"
+
       - name: Set output environment variable
         run: export output=out
 
