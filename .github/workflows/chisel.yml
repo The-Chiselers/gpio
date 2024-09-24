@@ -29,16 +29,16 @@ jobs:
         
     - name: Run Nix Cache
       uses: DeterminateSystems/magic-nix-cache-action@v2
-      
-    - name: Source Dev Shell
-      run: nix --extra-experimental-features nix-command --extra-experimental-features flakes develop --ignore-environment -c $SHELL
 
-    - name: Install firtool
-      run: nix-env -iA nixpkgs.firtool
+    - name: Run  
+      uses: workflow/nix-shell-action@v3
+      with:
+        flakes-from-devshell: true
+        script: |
+          # Runs hello from a local flake.nix with a `devShell`
+          sbt run
       
-    - name: DEBUG STEP
-      run: echo $PATH; which firtool
 
      
-    - name: Run
-      run: sbt run
+    # - name: Run
+    #   run: sbt run
