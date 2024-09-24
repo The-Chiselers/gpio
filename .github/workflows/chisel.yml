@@ -41,4 +41,4 @@ jobs:
 
      
     - uses: nicknovitski/nix-develop@1
-    - run: sbt run
+    - run: echo $PATH
