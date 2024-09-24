@@ -44,5 +44,5 @@ jobs:
     # - run: echo $PATH
 
     - name: DEBUG STEP
-      run: nix develop --command \
+      run: nix develop --ignore-environment --keep PATH --command \
              echo $PATH
