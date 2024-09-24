@@ -40,5 +40,9 @@ jobs:
     #   run: echo $PATH; which firtool
 
      
-    - uses: nicknovitski/nix-develop@1
-    - run: echo $PATH
+    # - uses: nicknovitski/nix-develop@1
+    # - run: echo $PATH
+
+    - name: DEBUG STEP
+      run: nix develop --command \
+             echo $PATH
