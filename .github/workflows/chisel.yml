@@ -1,48 +1,20 @@
-name: CI Pipeline
-
+name: 'Test with Flakes from DevShell'
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
-
+  push:
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    # Install Nix using DeterminateSystems actions
-    - name: Set up Nix
-      uses: DeterminateSystems/nix-installer-action@v4
-      with:
-        install-flake-support: true
-
-    - name: Set up Nix cache
-      uses: DeterminateSystems/magic-nix-cache-action@v2
-
-    - name: Enter Nix shell environment
-      run: nix develop --extra-experimental-features 'nix-command flakes' -c $SHELL
-
-    # Correct firtool download and installation step
-    - name: Download and install firtool
-      run: |
-        FIRTOOL_URL="https://github.com/llvm/circt/releases/download/v1.0.0/circt-linux-x86_64-ubuntu-20.04-release.tgz"
-        curl -L $FIRTOOL_URL -o circt.tgz
-        mkdir -p circt
-        tar -xzf circt.tgz -C circt --strip-components 1
-        sudo mv circt/bin/firtool /usr/local/bin/
-        sudo chmod +x /usr/local/bin/firtool
-
-    - name: Verify firtool installation
-      run: firtool --version
-
-    - name: Set output environment variable
-      run: export output=out
-
-    - name: Run sbt command
-      run: sbt run
+      - uses: actions/checkout@v3
+      - name: Install Nix
+        uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - uses: workflow/nix-shell-action@v3
+        with:
+          flakes-from-devshell: true
+          script: |
+            # Runs hello from a local flake.nix with a `devShell`
+            hello
