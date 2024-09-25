@@ -43,5 +43,5 @@ jobs:
     # - uses: nicknovitski/nix-develop@1
     # - run: echo $PATH
 
-    - name: DEBUG STEP
+    - name: Run
       run: nix develop --command sbt run
