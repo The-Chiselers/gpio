@@ -7,7 +7,7 @@ name: Chisel CI
  
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "nick" ]
   pull_request:
     branches: [ "main" ]
 
