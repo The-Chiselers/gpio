@@ -1,4 +1,4 @@
- # This workflow uses actions that are not certified by GitHub.
+# This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
@@ -27,8 +27,8 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
         
-    # - name: Run Nix Cache
-    #   uses: DeterminateSystems/magic-nix-cache-action@v2
+    - name: Run Nix Cache
+      uses: DeterminateSystems/magic-nix-cache-action@v2
       
     # - name: Source Dev Shell
     #   run: nix --extra-experimental-features nix-command --extra-experimental-features flakes develop --ignore-environment -c $SHELL
@@ -44,4 +44,4 @@ jobs:
     # - run: echo $PATH
 
     - name: DEBUG STEP
-      run: nix develop --command echo hi
+      run: nix develop --command echo $PATH
