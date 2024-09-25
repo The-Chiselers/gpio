@@ -44,4 +44,4 @@ jobs:
     # - run: echo $PATH
 
     - name: DEBUG STEP
-      run: nix develop --command echo $PATH
+      run: nix develop --command sbt run
