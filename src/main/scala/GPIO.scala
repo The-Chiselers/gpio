@@ -11,9 +11,7 @@ class GPIO(p: BaseParams) extends Module {
   val io = IO(new Bundle {
     val apb = new ApbInterface(p)
     val pins = new Bundle {
-      val GPIO_I = Input(UInt(p.dataWidth.W))
-      val GPIO_O = Output(UInt(p.dataWidth.W))
-      val GPIO_OE = Output(UInt(p.dataWidth.W))
+      val pads = Vec(p.dataWidth, UInt(1.W))
     }
   })
 
@@ -21,15 +19,23 @@ class GPIO(p: BaseParams) extends Module {
   val DIRECTION = RegInit(0.U(p.dataWidth.W)) // RW
   val OUTPUT = RegInit(0.U(p.dataWidth.W)) // RW
   val INPUT = RegInit(0.U(p.dataWidth.W)) // RO
+  val MODE = RegInit(0.U(p.dataWidth.W)) // RW
+
+  val GPIO_I = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val GPIO_O = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val GPIO_OE = Wire(Vec(p.dataWidth, UInt(1.W)))
 
   io.apb.PRDATA := 0.U // Init value
   when(io.apb.PSEL && io.apb.PENABLE) {
     when(io.apb.PWRITE) { // Write Operation
       switch(io.apb.PADDR) { // Address for OUTPUT Register
         is(0.U) {
+          MODE := io.apb.PWDATA
+        }
+        is(2.U) {
           OUTPUT := io.apb.PWDATA
         }
-        is(4.U) { // Address for DIRECTION Register
+        is(1.U) { // Address for DIRECTION Register
           DIRECTION := io.apb.PWDATA // Takes LSB of PWDATA
         }
       }
@@ -37,12 +43,15 @@ class GPIO(p: BaseParams) extends Module {
     }.otherwise { // Read Operation
       switch(io.apb.PADDR) {
         is(0.U) {
+          io.apb.PRDATA := MODE
+        }
+        is(2.U) {
           io.apb.PRDATA := OUTPUT
         }
-        is(4.U) {
+        is(1.U) {
           io.apb.PRDATA := DIRECTION
         }
-        is(8.U) {
+        is(3.U) {
           io.apb.PRDATA := INPUT
         }
       }
@@ -52,12 +61,23 @@ class GPIO(p: BaseParams) extends Module {
     io.apb.PREADY := false.B
   }
 
-  io.pins.GPIO_O := OUTPUT & DIRECTION // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in GPIO_O
-  io.pins.GPIO_OE := DIRECTION
-  INPUT := io.pins.GPIO_I
+  for (i <- 0 until p.dataWidth) {
+    when(MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in GPIO_O
+      GPIO_O(i) := OUTPUT(i) & DIRECTION(i)
+      GPIO_OE(i) := DIRECTION(i)
+    }.otherwise {
+      GPIO_O(i) := 0.U
+      GPIO_OE(i) := ~OUTPUT(i) & DIRECTION(i)
+    }
+    io.pins.pads(i) := Mux(GPIO_OE(i) === 1.U, GPIO_O(i), 0.U)
+    GPIO_I(i) := Mux(GPIO_OE(i) === 0.U, io.pins.pads(i), 0.U)
+  }
+  INPUT := Cat(GPIO_I)
 
   // Handle invalid address case
-  when(io.apb.PADDR =/= 0.U && io.apb.PADDR =/= 4.U && io.apb.PADDR =/= 8.U) {
+  when(
+    io.apb.PADDR =/= 0.U && io.apb.PADDR =/= 1.U && io.apb.PADDR =/= 2.U && io.apb.PADDR =/= 3.U
+  ) {
     io.apb.PSLVERR := true.B // Set error signal
   }.otherwise {
     io.apb.PSLVERR := false.B // Clear error signal if valid
