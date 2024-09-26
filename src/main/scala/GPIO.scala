@@ -11,7 +11,9 @@ class GPIO(p: BaseParams) extends Module {
   val io = IO(new Bundle {
     val apb = new ApbInterface(p)
     val pins = new Bundle {
-      val pads = Vec(p.dataWidth, UInt(1.W))
+      val GPIO_I = Input(UInt(p.dataWidth.W))
+      val GPIO_O = Output(UInt(p.dataWidth.W))
+      val GPIO_OE = Output(UInt(p.dataWidth.W))
     }
   })
 
@@ -21,9 +23,9 @@ class GPIO(p: BaseParams) extends Module {
   val INPUT = RegInit(0.U(p.dataWidth.W)) // RO
   val MODE = RegInit(0.U(p.dataWidth.W)) // RW
 
-  val GPIO_I = Wire(Vec(p.dataWidth, UInt(1.W)))
-  val GPIO_O = Wire(Vec(p.dataWidth, UInt(1.W)))
-  val GPIO_OE = Wire(Vec(p.dataWidth, UInt(1.W)))
+  // Intermediary Signals
+  val GPIO_O_VEC = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val GPIO_OE_VEC = Wire(Vec(p.dataWidth, UInt(1.W)))
 
   io.apb.PRDATA := 0.U // Init value
   when(io.apb.PSEL && io.apb.PENABLE) {
@@ -63,16 +65,19 @@ class GPIO(p: BaseParams) extends Module {
 
   for (i <- 0 until p.dataWidth) {
     when(MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in GPIO_O
-      GPIO_O(i) := OUTPUT(i) & DIRECTION(i)
-      GPIO_OE(i) := DIRECTION(i)
+      GPIO_O_VEC(p.dataWidth - i - 1) := OUTPUT(i) & DIRECTION(i)
+      GPIO_OE_VEC(p.dataWidth - i - 1) := DIRECTION(i)
     }.otherwise {
-      GPIO_O(i) := 0.U
-      GPIO_OE(i) := ~OUTPUT(i) & DIRECTION(i)
+      GPIO_O_VEC(p.dataWidth - i - 1) := 0.U
+      GPIO_OE_VEC(p.dataWidth - i - 1) := ~OUTPUT(i) & DIRECTION(i)
     }
-    io.pins.pads(i) := Mux(GPIO_OE(i) === 1.U, GPIO_O(i), 0.U)
-    GPIO_I(i) := Mux(GPIO_OE(i) === 0.U, io.pins.pads(i), 0.U)
+    // Pads Implementation
+    // io.pins.pads(i) := Mux(GPIO_OE(i) === 1.U, GPIO_O(i), 0.U)
+    // GPIO_I(i) := Mux(GPIO_OE(i) === 0.U, io.pins.pads(i), 0.U)
   }
-  INPUT := Cat(GPIO_I)
+  INPUT := io.pins.GPIO_I
+  io.pins.GPIO_O := Cat(GPIO_O_VEC)
+  io.pins.GPIO_OE := Cat(GPIO_OE_VEC)
 
   // Handle invalid address case
   when(

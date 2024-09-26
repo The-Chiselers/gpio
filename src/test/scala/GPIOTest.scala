@@ -57,55 +57,63 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
       // APB Tests
       // Test 1: Write to OUTPUT register and read back
       println("Test 1: Write to OUTPUT register")
-      writeAPB(2.U, 10.U) // Write 0b1010 to OUTPUT
+      writeAPB(2.U, 30.U) // Write 0b1010 to OUTPUT
       val outputData = readAPB(2.U)
       println(
         s"Output Register Read: ${outputData.toString()}"
       ) // Should be 10
-      require(outputData == 10)
+      require(outputData == 30)
 
       // Test 2: Write to DIRECTION register and read back
       println("Test 2: Write to DIRECTION register")
-      writeAPB(1.U, 32.U) // Set DIRECTION to all outputs
+      writeAPB(1.U, 31.U) // Set DIRECTION to all outputs
       val gpioO = readAPB(1.U) // Read DIRECTION Register
       println(
         s"GPIO_O after DIRECTION set: ${gpioO.toString()}"
       )
-      require(gpioO == 32)
+      require(gpioO == 31)
 
       // Test 3: Write to MODE register and read back
       println("Test 3: Write to MODE register")
-      writeAPB(0.U, 16.U) // Set DIRECTION to all outputs
+      writeAPB(0.U, 30.U) // Set DIRECTION to all outputs
       val MODE = readAPB(0.U) // Read DIRECTION Register
       println(
         s"After MODE set: ${MODE.toString()}"
       )
-      require(MODE == 16)
+      require(MODE == 30)
 
-      // Test 4: Test Push-Pull Mode
-      // println("Test 4: Push/Pull Mode")
-      // val GPIO_O = dut.GPIO_O.peek()
-      // println(
-      //  s"Push/Pull Mode: ${GPIO_O.toString()}"
-      // )
-      // require(MODE == 16)
+      // Test PPL and Open-Drain Mode:
+      val PPL = dut.io.pins.GPIO_O.peekInt()
+      println(s"Output Reg: ${outputData.toString(2)}")
+      println(s"Direction Reg: ${gpioO.toString(2)}")
+      println(s"Mode Reg: ${MODE.toString(2)}")
+      println(s"GPIO_O: ${PPL.toString(2)}")
+      println(s"GPIO_OE: ${dut.io.pins.GPIO_OE.peekInt().toString(2)}")
+
+      /*
+      val PPL: Array[BigInt] = new Array[BigInt](myParams.dataWidth)
+      for (i <- 0 until myParams.dataWidth) {
+        PPL(i) = dut.io.pins.GPIO_O(i).peekInt()
+        println(
+          s"${PPL(i)}"
+        )
+      }
+       */
+
+      // Test 4: Test reading of INPUT register
+      println("Test 4: INPUT Register")
+      dut.io.pins.GPIO_I.poke(16.U)
+      val gpioI = readAPB(3.U) // Read DIRECTION Register
+      println(
+        s"GPIO_I after Input set: ${gpioI.toString()}"
+      )
+      require(gpioI == 16)
 
       // Test 5: Invalid address handling
       println("Test 5: Invalid address handling")
       dut.io.apb.PADDR.poke(10.U) // Invalid address
       dut.clock.step(1)
       require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
-
-      /*
-      // Test 4: Test reading of INPUT register
-      println("Test 4: Read from INPUT register")
-      val inputData = dut.io.pins.pads.poke(10.U) // Set GPIO_I input
-      // val inputData = readAPB(3.U)
-      println(
-        s"Input Register Read: ${inputData.toString()}"
-      ) // Should be 10
-      require(inputData == 10)
-       */
 
     }
 
