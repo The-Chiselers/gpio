@@ -64,11 +64,11 @@ class GPIO(p: BaseParams) extends Module {
     //         0  1
     //  Mask 0 p1 p0
     //       1 p3 p2
-    val output = Wire(Vec(p.dataWidth, UInt(1.W)))
-    for (i <- 0 until p.dataWidth) output(i) :=
+    val output_inner = Wire(Vec(p.dataWidth, UInt(1.W)))
+    for (i <- 0 until p.dataWidth) output_inner(i) :=
       atomicOperationTruthTable(regs.ATOMIC_MASK(i))(regs.OUTPUT(i))
 
-    regs.OUTPUT := Cat(output)
+    regs.OUTPUT := Reverse(Cat(output_inner))
   }
 
   for (i <- 0 until p.dataWidth) when(regs.MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in GPIO_O

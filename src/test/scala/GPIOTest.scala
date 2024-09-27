@@ -113,7 +113,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
     // Test 6: Test Atomic Set
     println("Test 6: Atomic Set")
-    writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 11.U) // Write 0b1011 to ATOMIC_OPERATION (AND bits to zero)
+    writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U) // Write 0b0010 to ATOMIC_OPERATION (AND bits to zero)
     writeAPB(dut.regs.ATOMIC_MASK_ADDR.U, 12.U) // Write 0b1100 to ATOMIC_MASK
     // set all regs to output 1
     writeAPB(dut.regs.OUTPUT_ADDR.U, 15.U) // Write 0b1111 to OUTPUT
@@ -121,7 +121,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     val outputDataBefore = readAPB(dut.regs.OUTPUT_ADDR.U)
     println(s"Output Register Read Before: ${outputDataBefore.toString()}") // Should be 12
     require(outputDataBefore == 15)
-    writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U) // Write 0b1010 to ATOMIC_OPERATION (OR bits to one)
+    writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U)
     val outputDataAfter = readAPB(dut.regs.OUTPUT_ADDR.U)
     println(s"Output Register Read After: ${outputDataAfter.toString()}") // Should be 12
     require(outputDataAfter == 12)
