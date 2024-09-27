@@ -111,6 +111,20 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     dut.clock.step(1)
     require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
 
+    // Test 6: Test Atomic Set
+    println("Test 6: Atomic Set")
+    writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 11.U) // Write 0b1011 to ATOMIC_OPERATION (AND bits to zero)
+    writeAPB(dut.regs.ATOMIC_MASK_ADDR.U, 12.U) // Write 0b1100 to ATOMIC_MASK
+    // set all regs to output 1
+    writeAPB(dut.regs.OUTPUT_ADDR.U, 15.U) // Write 0b1111 to OUTPUT
+    // require outputs to be 0b1100
+    val outputDataBefore = readAPB(dut.regs.OUTPUT_ADDR.U)
+    println(s"Output Register Read: ${outputDataBefore.toString()}") // Should be 12
+    require(outputDataBefore == 15)
+    writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U) // Write 0b1010 to ATOMIC_OPERATION (OR bits to one)
+    val outputDataAfter = readAPB(dut.regs.OUTPUT_ADDR.U)
+    println(s"Output Register Read: ${outputDataAfter.toString()}") // Should be 12
+    require(outputDataAfter == 12)
   }
 
 }

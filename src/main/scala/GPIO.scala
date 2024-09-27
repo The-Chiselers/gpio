@@ -75,139 +75,62 @@ class GPIO(p: BaseParams) extends Module {
 
   // function to take addr and data from APB and write to gpio register space and or child modules if applicable
   def registerDecodeWrite(addr: UInt): Unit = {
-    val REG_SIZE: Int = p.wordWidth
 
-    val DIRECTION_SIZE: Int = p.dataWidth
-    val OUTPUT_SIZE: Int = p.dataWidth
-    val INPUT_SIZE: Int = p.dataWidth
-    val MODE_SIZE: Int = p.dataWidth
-
-    val ATOMIC_OPERATION_SIZE: Int = 4
-    val ATOMIC_MASK_SIZE: Int = p.dataWidth
-    val ATOPIC_SET_SIZE: Int = 1
-
-    val DIRECTION_ADDR: Int = 0
-    val DIRECTION_REG_SIZE: Int = (DIRECTION_SIZE + REG_SIZE - 1) / REG_SIZE
-    val DIRECTION_ADDR_MAX: Int = DIRECTION_ADDR + DIRECTION_REG_SIZE - 1
-
-    val OUTPUT_ADDR: Int = DIRECTION_ADDR_MAX + 1
-    val OUTPUT_REG_SIZE: Int = (OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-    val OUTPUT_ADDR_MAX: Int = OUTPUT_ADDR + OUTPUT_REG_SIZE - 1
-
-    val INPUT_ADDR: Int = OUTPUT_ADDR_MAX + 1
-    val INPUT_REG_SIZE: Int = (INPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-    val INPUT_ADDR_MAX: Int = INPUT_ADDR + INPUT_REG_SIZE - 1
-
-    val MODE_ADDR: Int = INPUT_ADDR_MAX + 1
-    val MODE_REG_SIZE: Int = (MODE_SIZE + REG_SIZE - 1) / REG_SIZE
-    val MODE_ADDR_MAX: Int = MODE_ADDR + MODE_REG_SIZE - 1
-
-    val ATOMIC_OPERATION_ADDR: Int = MODE_ADDR_MAX + 1
-    val ATOMIC_OPERATION_REG_SIZE: Int =
-      (ATOMIC_OPERATION_SIZE + REG_SIZE - 1) / REG_SIZE
-    val ATOMIC_OPERATION_ADDR_MAX: Int = ATOMIC_OPERATION_ADDR +
-      ATOMIC_OPERATION_REG_SIZE - 1
-
-    val ATOMIC_MASK_ADDR: Int = ATOMIC_OPERATION_ADDR_MAX + 1
-    val ATOMIC_MASK_REG_SIZE: Int = (ATOMIC_MASK_SIZE + REG_SIZE - 1) / REG_SIZE
-    val ATOMIC_MASK_ADDR_MAX: Int = ATOMIC_MASK_ADDR + ATOMIC_MASK_REG_SIZE - 1
-
-    val ATOMIC_SET_ADDR: Int = ATOMIC_MASK_ADDR_MAX + 1
-    val ATOMIC_SET_REG_SIZE: Int = (ATOPIC_SET_SIZE + REG_SIZE - 1) / REG_SIZE
-    val ATOMIC_SET_ADDR_MAX: Int = ATOMIC_SET_ADDR + ATOMIC_SET_REG_SIZE - 1
-
-    when(addr >= DIRECTION_ADDR.U && addr <= DIRECTION_ADDR_MAX.U) {
+    when(addr >= regs.DIRECTION_ADDR.U && addr <= regs.DIRECTION_ADDR_MAX.U) {
       printf(
         "Writing DIRECTION Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr,
       )
-      regs.DIRECTION := io.apb.PWDATA(DIRECTION_SIZE - 1, 0)
+      regs.DIRECTION := io.apb.PWDATA(regs.DIRECTION_SIZE - 1, 0)
     }
-    when(addr >= OUTPUT_ADDR.U && addr <= OUTPUT_ADDR_MAX.U) {
+    when(addr >= regs.OUTPUT_ADDR.U && addr <= regs.OUTPUT_ADDR_MAX.U) {
       printf(
         "Writing OUTPUT Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr,
       )
-      regs.OUTPUT := io.apb.PWDATA(OUTPUT_SIZE - 1, 0)
+      regs.OUTPUT := io.apb.PWDATA(regs.OUTPUT_SIZE - 1, 0)
     }
-    when(addr >= MODE_ADDR.U && addr <= MODE_ADDR_MAX.U) {
+    when(addr >= regs.MODE_ADDR.U && addr <= regs.MODE_ADDR_MAX.U) {
       printf("Writing MODE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
-      regs.MODE := io.apb.PWDATA(MODE_SIZE - 1, 0)
+      regs.MODE := io.apb.PWDATA(regs.MODE_SIZE - 1, 0)
     }
-    when(addr >= ATOMIC_OPERATION_ADDR.U && addr <= ATOMIC_OPERATION_ADDR_MAX.U) {
+    when(
+      addr >= regs.ATOMIC_OPERATION_ADDR.U &&
+        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U,
+    ) {
       printf(
         "Writing ATOMIC_OPERATION Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr,
       )
-      regs.ATOMIC_OPERATION := io.apb.PWDATA(ATOMIC_OPERATION_SIZE - 1, 0)
+      regs.ATOMIC_OPERATION := io.apb.PWDATA(regs.ATOMIC_OPERATION_SIZE - 1, 0)
     }
-    when(addr >= ATOMIC_MASK_ADDR.U && addr <= ATOMIC_MASK_ADDR_MAX.U) {
+    when(addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U) {
       printf(
         "Writing ATOMIC_MASK Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr,
       )
-      regs.ATOMIC_MASK := io.apb.PWDATA(ATOMIC_MASK_SIZE - 1, 0)
+      regs.ATOMIC_MASK := io.apb.PWDATA(regs.ATOMIC_MASK_SIZE - 1, 0)
     }
-    when(addr >= ATOMIC_SET_ADDR.U && addr <= ATOMIC_SET_ADDR_MAX.U) {
+    when(addr >= regs.ATOMIC_SET_ADDR.U && addr <= regs.ATOMIC_SET_ADDR_MAX.U) {
       printf(
         "Writing ATOMIC_SET Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr,
       )
-      regs.ATOMIC_SET := io.apb.PWDATA(ATOPIC_SET_SIZE - 1, 0)
+      regs.ATOMIC_SET := io.apb.PWDATA(regs.ATOMIC_SET_SIZE - 1, 0)
     }
   }
 
   // function to take addr and data from APB and write to gpio register space and or child modules if applicable
   def registerDecodeRead(addr: UInt): Unit = {
-    val REG_SIZE: Int = p.wordWidth
-
-    val DIRECTION_SIZE: Int = p.dataWidth
-    val OUTPUT_SIZE: Int = p.dataWidth
-    val INPUT_SIZE: Int = p.dataWidth
-    val MODE_SIZE: Int = p.dataWidth
-
-    val ATOMIC_OPERATION_SIZE: Int = 4
-    val ATOMIC_MASK_SIZE: Int = p.dataWidth
-    val ATOPIC_SET_SIZE: Int = 1
-
-    val DIRECTION_ADDR: Int = 0
-    val DIRECTION_REG_SIZE: Int = (DIRECTION_SIZE + REG_SIZE - 1) / REG_SIZE
-    val DIRECTION_ADDR_MAX: Int = DIRECTION_ADDR + DIRECTION_REG_SIZE - 1
-
-    val OUTPUT_ADDR: Int = DIRECTION_ADDR_MAX + 1
-    val OUTPUT_REG_SIZE: Int = (OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-    val OUTPUT_ADDR_MAX: Int = OUTPUT_ADDR + OUTPUT_REG_SIZE - 1
-
-    val INPUT_ADDR: Int = OUTPUT_ADDR_MAX + 1
-    val INPUT_REG_SIZE: Int = (INPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-    val INPUT_ADDR_MAX: Int = INPUT_ADDR + INPUT_REG_SIZE - 1
-
-    val MODE_ADDR: Int = INPUT_ADDR_MAX + 1
-    val MODE_REG_SIZE: Int = (MODE_SIZE + REG_SIZE - 1) / REG_SIZE
-    val MODE_ADDR_MAX: Int = MODE_ADDR + MODE_REG_SIZE - 1
-
-    val ATOMIC_OPERATION_ADDR: Int = MODE_ADDR_MAX + 1
-    val ATOMIC_OPERATION_REG_SIZE: Int =
-      (ATOMIC_OPERATION_SIZE + REG_SIZE - 1) / REG_SIZE
-    val ATOMIC_OPERATION_ADDR_MAX: Int = ATOMIC_OPERATION_ADDR +
-      ATOMIC_OPERATION_REG_SIZE - 1
-
-    val ATOMIC_MASK_ADDR: Int = ATOMIC_OPERATION_ADDR_MAX + 1
-    val ATOMIC_MASK_REG_SIZE: Int = (ATOMIC_MASK_SIZE + REG_SIZE - 1) / REG_SIZE
-    val ATOMIC_MASK_ADDR_MAX: Int = ATOMIC_MASK_ADDR + ATOMIC_MASK_REG_SIZE - 1
-
-    val ATOMIC_SET_ADDR: Int = ATOMIC_MASK_ADDR_MAX + 1
-    val ATOMIC_SET_REG_SIZE: Int = (ATOPIC_SET_SIZE + REG_SIZE - 1) / REG_SIZE
-    val ATOMIC_SET_ADDR_MAX: Int = ATOMIC_SET_ADDR + ATOMIC_SET_REG_SIZE - 1
 
     printf("Reading Register, addr: %x\n", addr)
 
-    when(addr >= DIRECTION_ADDR.U && addr <= DIRECTION_ADDR_MAX.U) {
+    when(addr >= regs.DIRECTION_ADDR.U && addr <= regs.DIRECTION_ADDR_MAX.U) {
 
       printf(
         "Reading DIRECTION Register, data: %x, addr: %x\n",
@@ -216,19 +139,22 @@ class GPIO(p: BaseParams) extends Module {
       )
       io.apb.PRDATA := regs.DIRECTION
     }
-    when(addr >= OUTPUT_ADDR.U && addr <= OUTPUT_ADDR_MAX.U) {
+    when(addr >= regs.OUTPUT_ADDR.U && addr <= regs.OUTPUT_ADDR_MAX.U) {
       printf("Reading OUTPUT Register, data: %x, addr: %x\n", regs.OUTPUT, addr)
       io.apb.PRDATA := regs.OUTPUT
     }
-    when(addr >= INPUT_ADDR.U && addr <= INPUT_ADDR_MAX.U) {
+    when(addr >= regs.INPUT_ADDR.U && addr <= regs.INPUT_ADDR_MAX.U) {
       printf("Reading INPUT Register, data: %x, addr: %x\n", regs.INPUT, addr)
       io.apb.PRDATA := regs.INPUT
     }
-    when(addr >= MODE_ADDR.U && addr <= MODE_ADDR_MAX.U) {
+    when(addr >= regs.MODE_ADDR.U && addr <= regs.MODE_ADDR_MAX.U) {
       printf("Reading MODE Register, data: %x, addr: %x\n", regs.MODE, addr)
       io.apb.PRDATA := regs.MODE
     }
-    when(addr >= ATOMIC_OPERATION_ADDR.U && addr <= ATOMIC_OPERATION_ADDR_MAX.U) {
+    when(
+      addr >= regs.ATOMIC_OPERATION_ADDR.U &&
+        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U,
+    ) {
       printf(
         "Reading ATOMIC_OPERATION Register, data: %x, addr: %x\n",
         regs.ATOMIC_OPERATION,
@@ -236,12 +162,12 @@ class GPIO(p: BaseParams) extends Module {
       )
       printf(
         "ATOMIC_OPERATION_MIN: %x\nATOMIC_OPERATION_MAX: %x\n",
-        ATOMIC_OPERATION_ADDR.U,
-        ATOMIC_OPERATION_ADDR_MAX.U,
+        regs.ATOMIC_OPERATION_ADDR.U,
+        regs.ATOMIC_OPERATION_ADDR_MAX.U,
       )
       io.apb.PRDATA := regs.ATOMIC_OPERATION.asUInt
     }
-    when(addr >= ATOMIC_MASK_ADDR.U && addr <= ATOMIC_MASK_ADDR_MAX.U) {
+    when(addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U) {
       printf(
         "Reading ATOMIC_MASK Register, data: %x, addr: %x\n",
         regs.ATOMIC_MASK,
@@ -249,7 +175,7 @@ class GPIO(p: BaseParams) extends Module {
       )
       io.apb.PRDATA := regs.ATOMIC_MASK
     }
-    when(addr >= ATOMIC_SET_ADDR.U && addr <= ATOMIC_SET_ADDR_MAX.U) {
+    when(addr >= regs.ATOMIC_SET_ADDR.U && addr <= regs.ATOMIC_SET_ADDR_MAX.U) {
       printf(
         "Reading ATOMIC_SET Register, data: %x, addr: %x\n",
         regs.ATOMIC_SET,
@@ -262,14 +188,56 @@ class GPIO(p: BaseParams) extends Module {
 }
 
 class GPIORegs(p: BaseParams) extends Bundle {
+
+  // Internal Register Sizes
+  val REG_SIZE: Int = p.wordWidth
+  val DIRECTION_SIZE: Int = p.dataWidth
+  val OUTPUT_SIZE: Int = p.dataWidth
+  val INPUT_SIZE: Int = p.dataWidth
+  val MODE_SIZE: Int = p.dataWidth
+
+  val ATOMIC_OPERATION_SIZE: Int = 4
+  val ATOMIC_MASK_SIZE: Int = p.dataWidth
+  val ATOMIC_SET_SIZE: Int = 1
+
   // User Accessible Control Registers
-  val DIRECTION = RegInit(0.U(p.dataWidth.W)) // RW
-  val OUTPUT = RegInit(0.U(p.dataWidth.W)) // RW
-  val INPUT = RegInit(0.U(p.dataWidth.W)) // RO
-  val MODE = RegInit(0.U(p.dataWidth.W)) // RW
+  val DIRECTION = RegInit(0.U(DIRECTION_SIZE.W)) // RW
+  val OUTPUT = RegInit(0.U(OUTPUT_SIZE.W)) // RW
+  val INPUT = RegInit(0.U(INPUT_SIZE.W)) // RO
+  val MODE = RegInit(0.U(MODE_SIZE.W)) // RW
 
   // Atomic Operations
-  val ATOMIC_OPERATION = RegInit(0.U(4.W))
-  val ATOMIC_MASK = RegInit(0.U(p.dataWidth.W))
-  val ATOMIC_SET = RegInit(0.U(1.W))
+  val ATOMIC_OPERATION = RegInit(0.U(ATOMIC_OPERATION_SIZE.W))
+  val ATOMIC_MASK = RegInit(0.U(ATOMIC_MASK_SIZE.W))
+  val ATOMIC_SET = RegInit(0.U(ATOMIC_SET_SIZE.W))
+
+  val DIRECTION_ADDR: Int = 0
+  val DIRECTION_REG_SIZE: Int = (DIRECTION_SIZE + REG_SIZE - 1) / REG_SIZE
+  val DIRECTION_ADDR_MAX: Int = DIRECTION_ADDR + DIRECTION_REG_SIZE - 1
+
+  val OUTPUT_ADDR: Int = DIRECTION_ADDR_MAX + 1
+  val OUTPUT_REG_SIZE: Int = (OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
+  val OUTPUT_ADDR_MAX: Int = OUTPUT_ADDR + OUTPUT_REG_SIZE - 1
+
+  val INPUT_ADDR: Int = OUTPUT_ADDR_MAX + 1
+  val INPUT_REG_SIZE: Int = (INPUT_SIZE + REG_SIZE - 1) / REG_SIZE
+  val INPUT_ADDR_MAX: Int = INPUT_ADDR + INPUT_REG_SIZE - 1
+
+  val MODE_ADDR: Int = INPUT_ADDR_MAX + 1
+  val MODE_REG_SIZE: Int = (MODE_SIZE + REG_SIZE - 1) / REG_SIZE
+  val MODE_ADDR_MAX: Int = MODE_ADDR + MODE_REG_SIZE - 1
+
+  val ATOMIC_OPERATION_ADDR: Int = MODE_ADDR_MAX + 1
+  val ATOMIC_OPERATION_REG_SIZE: Int =
+    (ATOMIC_OPERATION_SIZE + REG_SIZE - 1) / REG_SIZE
+  val ATOMIC_OPERATION_ADDR_MAX: Int = ATOMIC_OPERATION_ADDR +
+    ATOMIC_OPERATION_REG_SIZE - 1
+
+  val ATOMIC_MASK_ADDR: Int = ATOMIC_OPERATION_ADDR_MAX + 1
+  val ATOMIC_MASK_REG_SIZE: Int = (ATOMIC_MASK_SIZE + REG_SIZE - 1) / REG_SIZE
+  val ATOMIC_MASK_ADDR_MAX: Int = ATOMIC_MASK_ADDR + ATOMIC_MASK_REG_SIZE - 1
+
+  val ATOMIC_SET_ADDR: Int = ATOMIC_MASK_ADDR_MAX + 1
+  val ATOMIC_SET_REG_SIZE: Int = (ATOMIC_SET_SIZE + REG_SIZE - 1) / REG_SIZE
+  val ATOMIC_SET_ADDR_MAX: Int = ATOMIC_SET_ADDR + ATOMIC_SET_REG_SIZE - 1
 }
