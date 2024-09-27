@@ -46,8 +46,30 @@ class GPIO(p: BaseParams) extends Module {
       // }
       registerDecodeRead(io.apb.PADDR)
       io.apb.PREADY := true.B
+
     }
   }.otherwise(io.apb.PREADY := false.B)
+
+  // atomic set
+  val atomicOperationTruthTable = Wire(Vec(2, Vec(2, UInt(1.W))))
+  atomicOperationTruthTable(0)(0) := regs.ATOMIC_OPERATION(1)
+  atomicOperationTruthTable(0)(1) := regs.ATOMIC_OPERATION(0)
+  atomicOperationTruthTable(1)(0) := regs.ATOMIC_OPERATION(3)
+  atomicOperationTruthTable(1)(1) := regs.ATOMIC_OPERATION(2)
+  when(regs.ATOMIC_SET === 1.U) {
+    // truth table for atomic set from atomic operation
+    // p3_p2_p1_p0 ->
+    //
+    //         Out
+    //         0  1
+    //  Mask 0 p1 p0
+    //       1 p3 p2
+    val output = Wire(Vec(p.dataWidth, UInt(1.W)))
+    for (i <- 0 until p.dataWidth) output(i) :=
+      atomicOperationTruthTable(regs.ATOMIC_MASK(i))(regs.OUTPUT(i))
+
+    regs.OUTPUT := Cat(output)
+  }
 
   for (i <- 0 until p.dataWidth) when(regs.MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in GPIO_O
     GPIO_O_VEC(p.dataWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
@@ -200,6 +222,9 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val ATOMIC_MASK_SIZE: Int = p.dataWidth
   val ATOMIC_SET_SIZE: Int = 1
 
+  // #####################################################################
+  // REGS
+  // #####################################################################
   // User Accessible Control Registers
   val DIRECTION = RegInit(0.U(DIRECTION_SIZE.W)) // RW
   val OUTPUT = RegInit(0.U(OUTPUT_SIZE.W)) // RW
@@ -210,6 +235,7 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val ATOMIC_OPERATION = RegInit(0.U(ATOMIC_OPERATION_SIZE.W))
   val ATOMIC_MASK = RegInit(0.U(ATOMIC_MASK_SIZE.W))
   val ATOMIC_SET = RegInit(0.U(ATOMIC_SET_SIZE.W))
+  // #####################################################################
 
   val DIRECTION_ADDR: Int = 0
   val DIRECTION_REG_SIZE: Int = (DIRECTION_SIZE + REG_SIZE - 1) / REG_SIZE
