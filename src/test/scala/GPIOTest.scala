@@ -101,7 +101,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     // Test 4: Test reading of INPUT register
     println("Test 4: INPUT Register")
     dut.io.pins.GPIO_I.poke(16.U)
-    val gpioI = readAPB(3.U) // Read DIRECTION Register
+    val gpioI = readAPB(8.U) // Read DIRECTION Register
     println(s"GPIO_I after Input set: ${gpioI.toString()}")
     require(gpioI == 16)
 
