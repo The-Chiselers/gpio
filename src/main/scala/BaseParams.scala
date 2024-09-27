@@ -27,8 +27,9 @@ import chisel3.util._
   *   [[http://www.rocksavage.tech]] for more information
   */
 case class BaseParams(
+    wordWidth: Int = 8,
     dataWidth: Int = 32,
     coverage: Boolean = false,
     physicalPorts: Int = 1,
-    virtualPorts: Int = 1
+    virtualPorts: Int = 1,
 )
