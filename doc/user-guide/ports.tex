@@ -4,12 +4,10 @@
 \subsection{GPIO Interface}
 
 The ports for \textbf{GPIO} are shown below in 
-Table~\ref{table:ports}. The width of several ports is controlled 
+Table 1. The width of several ports is controlled 
 by the following input parameters:
 
-\begin{itemize}[noitemsep]
-  \item \textit{dataWidth} is the width of the gpioInput, gpioOutput, and gpioOutputEnable ports in bits
-\end{itemize}
+\textit{dataWidth} is the width of the gpioInput, gpioOutput, and gpioOutputEnable ports in bits
  
 \renewcommand*{\arraystretch}{1.4}
 \begin{longtable}[H]{
@@ -23,16 +21,6 @@ by the following input parameters:
   \textbf{Width} &   
   \textbf{Direction} &   
   \textbf{Description} \\ \hline \hline
-
-  clock &       
-  1 &       
-  Input &       
-  Positive edge clock \\ \hline
-
-  reset &       
-  1 &       
-  Input &       
-  Active high reset \\ \hline
 
   gpioInput &       
   \textit{dataWidth} & 
@@ -49,7 +37,82 @@ by the following input parameters:
   Output &     
   Enable data to be recieved from the GPIO \\ \hline
  
-  \caption{Port Descriptions}\label{table:ports}
+  \caption{GPIO Ports Descriptions}\label{table:ports}
 \end{longtable}
 
+\subsection{APB3 Interface}
+The \textbf{APB3 Interface} is a regular APB3 Slave Interface. All signals supported are shown below in 
+Table 2. See the \textit{AMBA APB Protocol Specifications} for a complete description of the signals. The width of several ports is controlled 
+by the following input parameters:
+
+\begin{itemize}[noitemsep]
+  \item \textit{PDATA\_WIDTH} is the width of PWDATA and PRDATA in bits
+  \item \textit{PADDR\_WIDTH} is the width of PADDR in bits
+\end{itemize}
+ 
+\renewcommand*{\arraystretch}{1.4}
+\begin{longtable}[H]{
+  | p{0.20\textwidth}
+  | p{0.20\textwidth}
+  | p{0.12\textwidth}
+  | p{0.43\textwidth} |
+  }
+  \hline
+  \textbf{Port Name} &   
+  \textbf{Width} &   
+  \textbf{Direction} &   
+  \textbf{Description} \\ \hline \hline
+
+  PCLK &       
+  1 &       
+  Input &       
+  Positive edge clock \\ \hline
+
+  PRESETN &       
+  1 &       
+  Input &       
+  Active low reset \\ \hline
+
+  PSEL &       
+  1 & 
+  Input &       
+  Indicates slave is selected and a data transfer is required \\ \hline
+
+  PENABLE &        
+  1 & 
+  Input &       
+  Indicates second cycle of APB transfer \\ \hline
+
+  PWRITE &        
+  1 & 
+  Input &       
+  Indicates write access when HIGH and read access when LOW\\ \hline
+
+  PADDR &      
+  \textit{PADDR\_WIDTH} & 
+  Input &     
+  Address bus \\ \hline
+
+  PWDATA &      
+  \textit{PDATA\_WIDTH} & 
+  Input &     
+  Write data bus driven when PWRITE is HIGH\\ \hline
+
+  PRDATA &      
+  \textit{PDATA\_WIDTH} & 
+  Output &     
+  Read data bus driven when PWRITE is LOW\\ \hline
+ 
+  PREADY &        
+  1 & 
+  Output &       
+  Transfer ready \\ \hline
+
+  PSLVERR &        
+  1 & 
+  Output &       
+  Transfer error \\ \hline
+
+  \caption{APB Ports Descriptions}\label{table:interface}
+\end{longtable}
 

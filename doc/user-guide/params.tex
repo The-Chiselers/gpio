@@ -2,8 +2,8 @@
 
 \section{Parameter Descriptions}
 
-The parameters for \textbf{DynamicFifo} are shown below in
-Table~\ref{table:params}.
+The parameters for \textbf{GPIO} are shown below in
+Table 3.
 
 \renewcommand*{\arraystretch}{1.4}
 \begin{longtable}[H]{
@@ -20,24 +20,23 @@ Table~\ref{table:params}.
   \textbf{Max}  &
   \textbf{Description}            \\ \hline \hline
 
-  externalRam   &
-  Boolean       &
-  false         &
-  true          &
-  Determines whether to build FIFO memory with flip-flops or provide and
-  an external interface to a SRAM \\ \hline
+  dataWidth   &
+  Int       &
+  1         &
+  $\geq$ 1          &
+  The data width of GPIO ports \\ \hline
 
-  dataWidth     &
+  PADDR\_WIDTH     &
   Int           &
   1             &
-  $\ge$ 1       &
-  The data width of the FIFO      \\ \hline
+  $\leq$ 32       &
+  The APB address bus width  \\ \hline
 
-  fifoDepth     &
+  PDATA\_WIDTH     &
   Int           &
-  2             &
-  $\ge$ 2       &
-  The depth of the FIRO           \\ \hline
+  8             &
+  $\leq$ 32       &
+  The APB PWDATA and PRDATA bus width. Can be 8, 16, or 32 bits wide        \\ \hline
 
   \caption{Parameter Descriptions}\label{table:params}
 \end{longtable}

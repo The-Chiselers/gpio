@@ -3,6 +3,7 @@
 \contentsline {subsection}{\numberline {1.2}Known Issues}{3}{subsection.1.2}%
 \contentsline {section}{\numberline {2}Port Descriptions}{4}{section.2}%
 \contentsline {subsection}{\numberline {2.1}GPIO Interface}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}APB3 Interface}{4}{subsection.2.2}%
 \contentsline {section}{\numberline {3}Parameter Descriptions}{5}{section.3}%
 \contentsline {section}{\numberline {4}Theory of Operations}{6}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Introduction}{6}{subsection.4.1}%
