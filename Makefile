@@ -1,6 +1,8 @@
 MAKEFLAGS += --silent
 	
 SBT = sbt
+TOP = GPIO
+BROWSER = firefox
 	
 # Run everything and scan for errors
 list:
@@ -30,20 +32,20 @@ clean:
 # Publish the documentation (locally)
 publish: 
 	@echo Publishing local
-	rm -rf /home/tws/.ivy2/local/tech.rocksavage/dynamicfifo_2.13
+	rm -rf /home/tws/.ivy2/local/tech.rocksavage/$(TOP)_2.13
 	$(SBT) "publishLocal" | tee doc/publish.rpt
 
 # Generate the documentation
 docs:
 	@echo Generating docs
 	$(SBT) "doc" | tee doc/doc.rpt
-#	google-chrome --new-window ./target/scala-2.13/api/index.html & 
-	cd doc/user-guide && pdflatex DynamicFifo.tex | tee -a ../doc.rpt
-# Rerun to generate TOC
-	cd doc/user-guide && pdflatex DynamicFifo.tex | tee -a ../doc.rpt
-# Clean up temp files
+	# google-chrome --new-window ./target/scala-2.13/api/index.html & 
+	cd doc/user-guide && pdflatex $(TOP).tex | tee -a ../doc.rpt
+	# Rerun to generate TOC
+	cd doc/user-guide && pdflatex $(TOP).tex | tee -a ../doc.rpt
+	# Clean up temp files
 	cd doc/user-guide && rm *.aux *.toc *.out *.log
-#	google-chrome --new-window doc/user-guide/DynamicFifo.pdf & 
+	$(BROWSER) --new-window doc/user-guide/$(TOP).pdf & 
 
 # Generate Verilog and synthesize
 verilog:
@@ -58,6 +60,11 @@ test:
 	mkdir -p generated
 	$(SBT) "test" | tee generated/test.rpt
 
+test_vcd:
+	@echo Running tests with VCD
+	mkdir -p generated
+	$(SBT) "testOnly -- -DwriteVcd=1" | tee generated/test.rpt
+
 # Run the tests with Scala code coverage enables
 cov:
 	@echo Running tests with coverage enabled
@@ -66,8 +73,8 @@ cov:
 	$(SBT) clean \
 	coverageOn \
 	test \
-	"runMain tech.rocksavage.chiselware.DynamicFifo.GenVerilog" \
-	"runMain tech.rocksavage.chiselware.DynamicFifo.Main" \
+	"runMain tech.rocksavage.chiselware.$(TOP).GenVerilog" \
+	"runMain tech.rocksavage.chiselware.$(TOP).Main" \
 	coverageReport | tee generated/test.rpt
 	google-chrome --new-window generated/scalaCoverage/scoverage-report/index.html &
 

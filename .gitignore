@@ -44,3 +44,4 @@ bin/
 # build output
 out
 generated
+*.anno.json
