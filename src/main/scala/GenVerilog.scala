@@ -23,7 +23,7 @@ object Main extends App {
     dataWidth = 32,
     coverage = false,
     physicalPorts = 1,
-    virtualPorts = 1
+    virtualPorts = 1,
   )
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
@@ -32,7 +32,14 @@ object Main extends App {
   // ######### Set Up Top Module HERE #########
   val top_name = "GPIO.sv"
   val verilog = ChiselStage.emitSystemVerilog(
-    gen = new GPIO(myParams)
+    new GPIO(myParams),
+    firtoolOpts = Array(
+      "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+      "--disable-all-randomization",
+      "--strip-debug-info",
+      "--split-verilog",
+      s"-o=generated/$top_name",
+    ),
   )
   // ##########################################
 
@@ -40,8 +47,7 @@ object Main extends App {
   println(verilog)
 
   // write verilog to file
-  val writer =
-    new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
+  val writer = new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
   writer.write(verilog)
 
   // close writer
