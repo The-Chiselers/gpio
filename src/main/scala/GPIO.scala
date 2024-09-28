@@ -13,17 +13,17 @@ class GPIO(p: BaseParams) extends Module {
   val io = IO(new Bundle {
     val apb = new ApbInterface(p)
     val pins = new Bundle {
-      val GPIO_I = Input(UInt(p.dataWidth.W))
-      val GPIO_O = Output(UInt(p.dataWidth.W))
-      val GPIO_OE = Output(UInt(p.dataWidth.W))
+      val gpioInput = Input(UInt(p.dataWidth.W))
+      val gpioOutput = Output(UInt(p.dataWidth.W))
+      val gpioOutputEnable = Output(UInt(p.dataWidth.W))
     }
   })
 
   val regs = new GPIORegs(p)
 
   // Intermediary Signals
-  val GPIO_O_VEC = Wire(Vec(p.dataWidth, UInt(1.W)))
-  val GPIO_OE_VEC = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
 
   io.apb.PRDATA := 0.U // Init value
   when(io.apb.PSEL && io.apb.PENABLE) {
@@ -65,30 +65,33 @@ class GPIO(p: BaseParams) extends Module {
     //  Mask 0 p1 p0
     //       1 p3 p2
     val output_inner = Wire(Vec(p.dataWidth, UInt(1.W)))
-    for (i <- 0 until p.dataWidth) output_inner(i) :=
-      atomicOperationTruthTable(regs.ATOMIC_MASK(i))(regs.OUTPUT(i))
+    for (i <- 0 until p.dataWidth)
+      output_inner(i) :=
+        atomicOperationTruthTable(regs.ATOMIC_MASK(i))(regs.OUTPUT(i))
 
     regs.OUTPUT := Reverse(Cat(output_inner))
   }
 
-  for (i <- 0 until p.dataWidth) when(regs.MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in GPIO_O
-    GPIO_O_VEC(p.dataWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
-    GPIO_OE_VEC(p.dataWidth - i - 1) := regs.DIRECTION(i)
-  }.otherwise {
-    GPIO_O_VEC(p.dataWidth - i - 1) := 0.U
-    GPIO_OE_VEC(p.dataWidth - i - 1) := ~regs.OUTPUT(i) & regs.DIRECTION(i)
-  }
+  for (i <- 0 until p.dataWidth)
+    when(regs.MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in gpioOutput
+      gpioOutputVec(p.dataWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
+      gpioOutputEnableVec(p.dataWidth - i - 1) := regs.DIRECTION(i)
+    }.otherwise {
+      gpioOutputVec(p.dataWidth - i - 1) := 0.U
+      gpioOutputEnableVec(p.dataWidth - i - 1) := ~regs.OUTPUT(i) & regs
+        .DIRECTION(i)
+    }
   // Pads Implementation
-  // io.pins.pads(i) := Mux(GPIO_OE(i) === 1.U, GPIO_O(i), 0.U)
-  // GPIO_I(i) := Mux(GPIO_OE(i) === 0.U, io.pins.pads(i), 0.U)
-  regs.INPUT := io.pins.GPIO_I
-  io.pins.GPIO_O := Cat(GPIO_O_VEC)
-  io.pins.GPIO_OE := Cat(GPIO_OE_VEC)
+  // io.pins.pads(i) := Mux(gpioOutputEnable(i) === 1.U, gpioOutput(i), 0.U)
+  // gpioInput(i) := Mux(gpioOutputEnable(i) === 0.U, io.pins.pads(i), 0.U)
+  regs.INPUT := io.pins.gpioInput
+  io.pins.gpioOutput := Cat(gpioOutputVec)
+  io.pins.gpioOutputEnable := Cat(gpioOutputEnableVec)
 
   // Handle invalid address case
   when(
     io.apb.PADDR =/= 0.U && io.apb.PADDR =/= 1.U && io.apb.PADDR =/= 2.U &&
-      io.apb.PADDR =/= 3.U,
+      io.apb.PADDR =/= 3.U
   ) {
     io.apb.PSLVERR := true.B // Set error signal
   }.otherwise {
@@ -102,7 +105,7 @@ class GPIO(p: BaseParams) extends Module {
       printf(
         "Writing DIRECTION Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
-        addr,
+        addr
       )
       regs.DIRECTION := io.apb.PWDATA(regs.DIRECTION_SIZE - 1, 0)
     }
@@ -110,7 +113,7 @@ class GPIO(p: BaseParams) extends Module {
       printf(
         "Writing OUTPUT Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
-        addr,
+        addr
       )
       regs.OUTPUT := io.apb.PWDATA(regs.OUTPUT_SIZE - 1, 0)
     }
@@ -120,20 +123,22 @@ class GPIO(p: BaseParams) extends Module {
     }
     when(
       addr >= regs.ATOMIC_OPERATION_ADDR.U &&
-        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U,
+        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U
     ) {
       printf(
         "Writing ATOMIC_OPERATION Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
-        addr,
+        addr
       )
       regs.ATOMIC_OPERATION := io.apb.PWDATA(regs.ATOMIC_OPERATION_SIZE - 1, 0)
     }
-    when(addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U) {
+    when(
+      addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U
+    ) {
       printf(
         "Writing ATOMIC_MASK Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
-        addr,
+        addr
       )
       regs.ATOMIC_MASK := io.apb.PWDATA(regs.ATOMIC_MASK_SIZE - 1, 0)
     }
@@ -141,7 +146,7 @@ class GPIO(p: BaseParams) extends Module {
       printf(
         "Writing ATOMIC_SET Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
-        addr,
+        addr
       )
       regs.ATOMIC_SET := io.apb.PWDATA(regs.ATOMIC_SET_SIZE - 1, 0)
     }
@@ -157,7 +162,7 @@ class GPIO(p: BaseParams) extends Module {
       printf(
         "Reading DIRECTION Register, data: %x, addr: %x\n",
         regs.DIRECTION,
-        addr,
+        addr
       )
       io.apb.PRDATA := regs.DIRECTION
     }
@@ -175,25 +180,27 @@ class GPIO(p: BaseParams) extends Module {
     }
     when(
       addr >= regs.ATOMIC_OPERATION_ADDR.U &&
-        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U,
+        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U
     ) {
       printf(
         "Reading ATOMIC_OPERATION Register, data: %x, addr: %x\n",
         regs.ATOMIC_OPERATION,
-        addr,
+        addr
       )
       printf(
         "ATOMIC_OPERATION_MIN: %x\nATOMIC_OPERATION_MAX: %x\n",
         regs.ATOMIC_OPERATION_ADDR.U,
-        regs.ATOMIC_OPERATION_ADDR_MAX.U,
+        regs.ATOMIC_OPERATION_ADDR_MAX.U
       )
       io.apb.PRDATA := regs.ATOMIC_OPERATION.asUInt
     }
-    when(addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U) {
+    when(
+      addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U
+    ) {
       printf(
         "Reading ATOMIC_MASK Register, data: %x, addr: %x\n",
         regs.ATOMIC_MASK,
-        addr,
+        addr
       )
       io.apb.PRDATA := regs.ATOMIC_MASK
     }
@@ -201,7 +208,7 @@ class GPIO(p: BaseParams) extends Module {
       printf(
         "Reading ATOMIC_SET Register, data: %x, addr: %x\n",
         regs.ATOMIC_SET,
-        addr,
+        addr
       )
       io.apb.PRDATA := regs.ATOMIC_SET
     }

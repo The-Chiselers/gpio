@@ -27,7 +27,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     dataWidth = 32,
     coverage = false,
     physicalPorts = 1,
-    virtualPorts = 1,
+    virtualPorts = 1
   )
   "GPIO" should "work" in test(new GPIO(myParams)) { dut =>
     def writeAPB(addr: UInt, data: UInt): Unit = {
@@ -81,12 +81,12 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     require(MODE == 30)
 
     // Test PPL and Open-Drain Mode:
-    val PPL = dut.io.pins.GPIO_O.peekInt()
+    val PPL = dut.io.pins.gpioOutput.peekInt()
     println(s"Output Reg: ${outputData.toString(2)}")
     println(s"Direction Reg: ${gpioO.toString(2)}")
     println(s"Mode Reg: ${MODE.toString(2)}")
     println(s"GPIO_O: ${PPL.toString(2)}")
-    println(s"GPIO_OE: ${dut.io.pins.GPIO_OE.peekInt().toString(2)}")
+    println(s"GPIO_OE: ${dut.io.pins.gpioOutputEnable.peekInt().toString(2)}")
 
     /*
       val PPL: Array[BigInt] = new Array[BigInt](myParams.dataWidth)
@@ -100,7 +100,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
     // Test 4: Test reading of INPUT register
     println("Test 4: INPUT Register")
-    dut.io.pins.GPIO_I.poke(16.U)
+    dut.io.pins.gpioInput.poke(16.U)
     val gpioI = readAPB(8.U) // Read DIRECTION Register
     println(s"GPIO_I after Input set: ${gpioI.toString()}")
     require(gpioI == 16)
@@ -113,17 +113,24 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
     // Test 6: Test Atomic Set
     println("Test 6: Atomic Set")
-    writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U) // Write 0b0010 to ATOMIC_OPERATION (AND bits to zero)
+    writeAPB(
+      dut.regs.ATOMIC_OPERATION_ADDR.U,
+      4.U
+    ) // Write 0b0010 to ATOMIC_OPERATION (AND bits to zero)
     writeAPB(dut.regs.ATOMIC_MASK_ADDR.U, 12.U) // Write 0b1100 to ATOMIC_MASK
     // set all regs to output 1
     writeAPB(dut.regs.OUTPUT_ADDR.U, 15.U) // Write 0b1111 to OUTPUT
     // require outputs to be 0b1100
     val outputDataBefore = readAPB(dut.regs.OUTPUT_ADDR.U)
-    println(s"Output Register Read Before: ${outputDataBefore.toString()}") // Should be 12
+    println(
+      s"Output Register Read Before: ${outputDataBefore.toString()}"
+    ) // Should be 12
     require(outputDataBefore == 15)
     writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U)
     val outputDataAfter = readAPB(dut.regs.OUTPUT_ADDR.U)
-    println(s"Output Register Read After: ${outputDataAfter.toString()}") // Should be 12
+    println(
+      s"Output Register Read After: ${outputDataAfter.toString()}"
+    ) // Should be 12
     require(outputDataAfter == 12)
   }
 
