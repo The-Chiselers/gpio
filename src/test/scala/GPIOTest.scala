@@ -169,7 +169,58 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             val andOperation = data.litValue & randomOutputData
             require(outputDataAfterSet == andOperation)
           }
+          /*
+          val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
+          println("Test 6: Push-Pull Mode Operation")
+          apbDataBuffer.foreach { data =>
+            writeAPB(dut.regs.MODE_ADDR.U, fullOnes.U)
+            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            val randomDirectionData = Random.nextInt(1 << myParams.dataWidth)
+            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
+            val expectedValOutput = randomDirectionData & data.litValue
+            val actualValOutput = dut.io.pins.gpioOutput.peekInt()
+            println(
+              s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}"
+            )
+            println(
+              s"Output Register after PPL Set: ${actualValOutput.toString()}"
+            )
+            // require(expectedValOutput == actualValOutput) Failing :(
+            val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
+            println(
+              s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
+            )
+            require(randomDirectionData == actualValOutputEnable)
+          }
+           */
+          /*
+          val fullZeros = (BigInt(0) << myParams.PDATA_WIDTH) - 1
+          println("Test 7: Drain Mode Operation")
+          apbDataBuffer.foreach { data =>
+            writeAPB(dut.regs.MODE_ADDR.U, fullZeros.U)
+            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            val randomDirectionData = Random.nextInt(1 << myParams.dataWidth)
+            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
+            val actualValOutput = dut.io.pins.gpioOutput.peekInt()
+            println(
+              s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}"
+            )
+            println(
+              s"Output Register after PPL Set: ${actualValOutput.toString()}"
+            )
+            require(0 == actualValOutput)
+            for(i <- 0 until myParams.dataWidth) {
+              val expectedValOutputEnable = ~data
+            }
+            val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
+            println(
+              s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
+            )
+            require(randomDirectionData == actualValOutputEnable)
+          }
+           */
 
+      
       }
     }
   }
