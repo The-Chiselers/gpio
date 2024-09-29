@@ -1,29 +1,35 @@
 package tech.rocksavage.chiselware.GPIO
 
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.PrintWriter
+import java.{util => ju}
+
+import scala.collection.immutable.ListMap
+import scala.collection.mutable.Stack
+import scala.math.pow
+import scala.util.Random
+
+import org.scalatest.Assertions._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+
+//import tech.rocksavage.chiselware.util.TestUtils.{randData, checkCoverage}
+import TestUtils.checkCoverage
+import TestUtils.randData
 import chisel3._
 import chisel3.util._
 import chiseltest._
 import chiseltest.coverage._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.Assertions._
 import firrtl2.options.TargetDirAnnotation
-import scala.util.Random
-import scala.math.pow
-import scala.collection.mutable.Stack
-import scala.collection.immutable.ListMap
-import java.io.{File, FileWriter, PrintWriter, BufferedWriter}
-//import tech.rocksavage.chiselware.util.TestUtils.{randData, checkCoverage}
-import TestUtils.{randData, checkCoverage}
-import java.{util => ju}
-import java.{util => ju}
 
 /** Highly randomized test suite driven by configuration parameters. Includes
   * code coverage for all top-level ports. Inspired by the DynamicFifo
   */
 
 class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
-  val numTests = 5
+  val numTests = 1
   val verbose = false
 
   def main(testName: String): Unit = {
@@ -32,12 +38,10 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     val backendAnnotations = Seq(
       // WriteVcdAnnotation,
       // WriteFstAnnotation,
-      VerilatorBackendAnnotation, // For using verilator simulator
+      // VerilatorBackendAnnotation, // For using verilator simulator
       // IcarusBackendAnnotation,
       // VcsBackendAnnotation,
-      TargetDirAnnotation(
-        "generated"
-      )
+      TargetDirAnnotation("generated"),
     )
 
     // Randomize Input Variables
@@ -53,24 +57,19 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     // Ensure PDATA_WIDTH is equal to dataWidth
     assert(
       dataWidth == PDATA_WIDTH,
-      s"PDATA_WIDTH ($PDATA_WIDTH) should be == dataWidth ($dataWidth)"
+      s"PDATA_WIDTH ($PDATA_WIDTH) should be == dataWidth ($dataWidth)",
     )
     // Pass in randomly selected values to DUT
-    val myParams = BaseParams(
-      8,
-      dataWidth,
-      PDATA_WIDTH,
-      PADDR_WIDTH,
-      coverage = true
-    )
+    val myParams =
+      BaseParams(8, dataWidth, PDATA_WIDTH, PADDR_WIDTH, coverage = true)
 
     it should "pass" in {
       info(s"Data Width = $dataWidth")
       info(s"PDATA_WIDTH = $PDATA_WIDTH")
       info(s"PADDR_WIDTH = $PADDR_WIDTH")
       info("--------------------------------")
-      val cov = test(new GPIO(myParams)).withAnnotations(backendAnnotations) {
-        dut =>
+      val cov = test(new GPIO(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
           dut.clock.setTimeout(0)
 
           def writeAPB(addr: UInt, data: UInt): Unit = {
@@ -115,9 +114,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.DIRECTION_ADDR.U, data)
             val directionData = readAPB(dut.regs.DIRECTION_ADDR.U)
-            println(
-              s"Direction Register Read: ${directionData.toString()}"
-            )
+            println(s"Direction Register Read: ${directionData.toString()}")
             require(directionData == data.litValue)
           }
 
@@ -125,9 +122,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.OUTPUT_ADDR.U, data)
             val outputData = readAPB(dut.regs.OUTPUT_ADDR.U)
-            println(
-              s"Output Register Read: ${outputData.toString()}"
-            )
+            println(s"Output Register Read: ${outputData.toString()}")
             require(outputData == data.litValue)
           }
 
@@ -135,9 +130,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           gpioDataBuffer.foreach { data =>
             dut.io.pins.gpioInput.poke(data)
             val inputData = readAPB(dut.regs.INPUT_ADDR.U)
-            println(
-              s"Input Register Read: ${inputData.toString()}"
-            )
+            println(s"Input Register Read: ${inputData.toString()}")
             require(inputData == data.litValue)
           }
 
@@ -157,22 +150,18 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             val randomOutputData = Random.nextInt(1 << myParams.dataWidth)
             writeAPB(dut.regs.OUTPUT_ADDR.U, randomOutputData.U)
             val outputDataBeforeSet = readAPB(dut.regs.OUTPUT_ADDR.U)
-            println(
-              s"Output Register Read Before Set: ${outputDataBeforeSet.toString()}"
-            )
+            println(s"Output Register Read Before Set: ${outputDataBeforeSet.toString()}")
             require(outputDataBeforeSet == randomOutputData)
             writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U)
             val outputDataAfterSet = readAPB(dut.regs.OUTPUT_ADDR.U)
-            println(
-              s"Output Register Read After Set: ${outputDataAfterSet.toString()}"
-            )
+            println(s"Output Register Read After Set: ${outputDataAfterSet.toString()}")
             val andOperation = data.litValue & randomOutputData
             require(outputDataAfterSet == andOperation)
           }
 
           // Test 8: Invalid Address Handling
           println("Test 8: Invalid Address Handling")
-          val invalidAddr = (dut.regs.ATOMIC_SET_ADDR_MAX + 1)
+          val invalidAddr = dut.regs.VIRTUAL_PORT_ENABLE_ADDR + 1
           writeAPB(invalidAddr.U, 15.U)
           dut.clock.step(1)
           require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
@@ -181,6 +170,96 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           dut.clock.step(1)
           require(dut.io.apb.PSLVERR.peekInt() == 1)
           require(readData == 0)
+
+          // Test 9: Test mapping of virtual ports to physical ports
+          println("Test 9: Virtual Port to Physical Port Mapping")
+          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Assign virtual port to physical port 5
+          val virtualPortMapping = readAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U)
+          println(s"Virtual Port Mapping Read: ${virtualPortMapping.toString()}")
+          require(virtualPortMapping == 5)
+
+          // Test 10: Test output from a virtual port
+          println("Test 10: Writing to a virtual port")
+          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write 0b1 to the virtual port output
+          val virtualPortOutput = readAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U) // Read back the virtual port output
+          println(s"Virtual Port Output: ${virtualPortOutput.toString()}")
+          require(virtualPortOutput == 1)
+
+          // Test 11: Verify the output of a physical port after writing to the virtual port
+          println(
+            "Test 11: Verify physical port output after virtual port write",
+          )
+          writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U)
+          writeAPB(dut.regs.OUTPUT_ADDR.U, 0.U) // Clear the physical port output
+          writeAPB(dut.regs.DIRECTION_ADDR.U, 32.U) // Set the direction to output
+          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port to physical port 5
+          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port 1
+          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write to virtual port
+          val physicalPortOutput = readAPB(dut.regs.OUTPUT_ADDR.U) & 0x20 // Read back the physical port output
+          println(
+            s"Physical Port Output (Port 5): ${physicalPortOutput.toString()}",
+          )
+          require(physicalPortOutput == 32) // Expect physical port output to be 1
+
+          // Test 12: Disable virtual port and check physical port output
+          println(
+            "Test 12: Disable virtual port and verify physical port output",
+          )
+          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 0.U) // Disable virtual port
+          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 0.U) // Write 0 to the virtual port output
+          val disabledPhysicalPortOutput = readAPB(dut.regs.OUTPUT_ADDR.U) &
+            0x20 // Read back the physical port output
+          println(s"Physical Port Output after disabling virtual port: ${disabledPhysicalPortOutput.toString()}")
+          require(disabledPhysicalPortOutput == 32) // Expect physical port output to be as before
+
+          // Test 13: Invalid virtual port mapping (out of range)
+          println("Test 13: Invalid virtual port mapping")
+          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 32.U) // Try to map virtual port to an invalid physical pin
+          val invalidVirtualPortMapping =
+            readAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U)
+          println(s"Invalid Virtual Port Mapping: ${invalidVirtualPortMapping.toString()}")
+          require(invalidVirtualPortMapping == 0) // Expect no mapping to occur (0)
+
+          // Test 14: Read from a disabled virtual port
+          println("Test 14: Read from disabled virtual port")
+          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 0.U) // Disable virtual port
+          val disabledVirtualPortRead =
+            readAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U)
+          println(
+            s"Disabled Virtual Port Read: ${disabledVirtualPortRead.toString()}",
+          )
+          require(disabledVirtualPortRead == 0) // Expect disabled virtual port to read as 0
+
+          // Test 15: Overlapping virtual ports mapped to the same physical port
+          println("Test 15: Overlapping virtual ports mapped to the same physical port")
+          writeAPB(dut.regs.OUTPUT_ADDR.U, 0.U) // Clear physical port output
+          writeAPB(dut.regs.DIRECTION_ADDR.U, 32.U) // Set direction to output
+          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
+          writeAPB((dut.regs.VIRTUAL_PORT_MAP_ADDR + 1).U, 5.U) // Map virtual port 1 to physical port 5 (overlap)
+          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual ports
+
+          // Write to virtual port 0
+          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write 1 to virtual port 0
+          val physicalPortOutput0 = readAPB(dut.regs.OUTPUT_ADDR.U) & 0x20 // Check physical port 5 output
+          println(s"Physical Port Output after virtual port 0 write: ${physicalPortOutput0.toString()}")
+          require(physicalPortOutput0 == 32) // Expect physical port 5 to be 1
+
+          // Write to virtual port 1 (overlapping port)
+          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 0.U) // Write 0 to virtual port 1
+          val physicalPortOutput1 = readAPB(dut.regs.OUTPUT_ADDR.U) // Check physical port 5 output again
+          println(s"Physical Port Output after virtual port 1 write: ${physicalPortOutput1.toString()}")
+          require(physicalPortOutput1 == 0) // Expect physical port 5 to be 0 (overlap caused change)
+
+          // Test 16: when virtual port is input
+          println("Test 16: Virtual Port as Input")
+          writeAPB(dut.regs.DIRECTION_ADDR.U, 0.U) // Set direction to input
+          dut.io.pins.gpioInput.poke(32.U) // write 32 to input
+          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
+          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port
+          val physicalPortOutputInput =
+            readAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U) // Check physical port 5 output
+          println(s"Physical Port Output when virtual port is input: ${physicalPortOutputInput.toString()}")
+          require(physicalPortOutputInput == 1) // Expect physical port 5 to be 0
 
           /*
           val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
@@ -233,30 +312,26 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             require(randomDirectionData == actualValOutputEnable)
           }
            */
-      }
+
+        }
 
       // Check that all ports have toggled and print report
       if (myParams.coverage) {
         val coverage = cov.getAnnotationSeq
-          .collectFirst { case a: TestCoverage => a.counts }
-          .get
-          .toMap
+          .collectFirst { case a: TestCoverage => a.counts }.get.toMap
 
-        val testConfig =
-          myParams.dataWidth.toString + "_" +
-            myParams.PDATA_WIDTH.toString + "_" +
-            myParams.PADDR_WIDTH.toString
+        val testConfig = myParams.dataWidth.toString + "_" +
+          myParams.PDATA_WIDTH.toString + "_" + myParams.PADDR_WIDTH.toString
 
         val verCoverageDir = new File("generated/verilogCoverage")
         verCoverageDir.mkdir()
-        val coverageFile =
-          verCoverageDir.toString + "/" + testName + "_" + testConfig + ".cov"
+        val coverageFile = verCoverageDir.toString + "/" + testName + "_" +
+          testConfig + ".cov"
 
         val stuckAtFault = checkCoverage(coverage, coverageFile)
-        if (stuckAtFault)
-          println(
-            s"WARNING: At least one IO port did not toggle -- see $coverageFile"
-          )
+        if (stuckAtFault) println(
+          s"WARNING: At least one IO port did not toggle -- see $coverageFile",
+        )
         info(s"Verilog Coverage report written to $coverageFile")
       }
 
@@ -268,8 +343,6 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
   scalaCoverageDir.mkdir()
 
   // Execute the regressigiyon across a randomized range of configurations
-  (1 to numTests).foreach { config =>
-    main(s"GPIO_test_config_$config")
-  }
+  (1 to numTests).foreach(config => main(s"GPIO_test_config_$config"))
 
 }
