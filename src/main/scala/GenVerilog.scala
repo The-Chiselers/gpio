@@ -20,10 +20,13 @@ object Main extends App {
   // firtool options for generating verilog
   // val firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
   val myParams = BaseParams(
+    wordWidth = 8,
     dataWidth = 32,
+    PDATA_WIDTH = 32,
+    PADDR_WIDTH = 32,
     coverage = false,
     physicalPorts = 1,
-    virtualPorts = 1,
+    virtualPorts = 1
   )
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
@@ -38,8 +41,8 @@ object Main extends App {
       "--disable-all-randomization",
       "--strip-debug-info",
       "--split-verilog",
-      s"-o=generated/$top_name",
-    ),
+      s"-o=generated/$top_name"
+    )
   )
   // ##########################################
 
@@ -47,7 +50,8 @@ object Main extends App {
   println(verilog)
 
   // write verilog to file
-  val writer = new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
+  val writer =
+    new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
   writer.write(verilog)
 
   // close writer
