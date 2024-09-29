@@ -37,7 +37,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
       // VcsBackendAnnotation,
       TargetDirAnnotation(
         "generated"
-      ) // Store files in "generated", not currently working
+      )
     )
 
     // Randomize Input Variables
