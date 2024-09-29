@@ -148,6 +148,28 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             println(s"Mode Register Read: ${modeData.toString()}")
             require(modeData == data.litValue)
           }
+
+          println("Test 5: Test Atomic AND Register")
+          apbDataBuffer.foreach { data =>
+            writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U)
+            writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U)
+            writeAPB(dut.regs.ATOMIC_MASK_ADDR.U, data)
+            val randomOutputData = Random.nextInt(1 << myParams.dataWidth)
+            writeAPB(dut.regs.OUTPUT_ADDR.U, randomOutputData.U)
+            val outputDataBeforeSet = readAPB(dut.regs.OUTPUT_ADDR.U)
+            println(
+              s"Output Register Read Before Set: ${outputDataBeforeSet.toString()}"
+            )
+            require(outputDataBeforeSet == randomOutputData)
+            writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U)
+            val outputDataAfterSet = readAPB(dut.regs.OUTPUT_ADDR.U)
+            println(
+              s"Output Register Read After Set: ${outputDataAfterSet.toString()}"
+            )
+            val andOperation = data.litValue & randomOutputData
+            require(outputDataAfterSet == andOperation)
+          }
+
       }
     }
   }
