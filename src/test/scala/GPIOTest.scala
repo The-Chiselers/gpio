@@ -61,83 +61,84 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
       info(s"PDATA_WIDTH = $PDATA_WIDTH")
       info(s"PADDR_WIDTH = $PADDR_WIDTH")
       info("--------------------------------")
-      val cov = test(new GPIO(myParams)) { dut =>
-        dut.clock.setTimeout(0)
+      val cov = test(new GPIO(myParams)).withAnnotations(backendAnnotations) {
+        dut =>
+          dut.clock.setTimeout(0)
 
-        def writeAPB(addr: UInt, data: UInt): Unit = {
-          dut.io.apb.PSEL.poke(1) // Select GPIO Slave
-          dut.clock.step(1) // Simulate Second Phase
-          dut.io.apb.PENABLE.poke(1) // Enable APB
-          dut.io.apb.PWRITE.poke(1) // Write mode
-          dut.io.apb.PADDR.poke(addr)
-          dut.io.apb.PWDATA.poke(data)
-          dut.clock.step(1)
-          dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
-          dut.io.apb.PENABLE.poke(0) // Disable APB
-          dut.clock.step(2)
-        }
+          def writeAPB(addr: UInt, data: UInt): Unit = {
+            dut.io.apb.PSEL.poke(1) // Select GPIO Slave
+            dut.clock.step(1) // Simulate Second Phase
+            dut.io.apb.PENABLE.poke(1) // Enable APB
+            dut.io.apb.PWRITE.poke(1) // Write mode
+            dut.io.apb.PADDR.poke(addr)
+            dut.io.apb.PWDATA.poke(data)
+            dut.clock.step(1)
+            dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
+            dut.io.apb.PENABLE.poke(0) // Disable APB
+            dut.clock.step(2)
+          }
 
-        def readAPB(addr: UInt): BigInt = {
-          dut.io.apb.PSEL.poke(1) // Select APB
-          dut.clock.step(1)
-          dut.io.apb.PENABLE.poke(1) // Enable APB
-          dut.io.apb.PWRITE.poke(0) // Read mode
-          dut.io.apb.PADDR.poke(addr)
-          dut.clock.step(1)
-          val readValue = dut.io.apb.PRDATA.peekInt() // Return read data
-          dut.clock.step(1) // Step for the read operation
-          dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
-          dut.io.apb.PENABLE.poke(0) // Disable APB
-          dut.clock.step(2)
-          readValue
-        }
+          def readAPB(addr: UInt): BigInt = {
+            dut.io.apb.PSEL.poke(1) // Select APB
+            dut.clock.step(1)
+            dut.io.apb.PENABLE.poke(1) // Enable APB
+            dut.io.apb.PWRITE.poke(0) // Read mode
+            dut.io.apb.PADDR.poke(addr)
+            dut.clock.step(1)
+            val readValue = dut.io.apb.PRDATA.peekInt() // Return read data
+            dut.clock.step(1) // Step for the read operation
+            dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
+            dut.io.apb.PENABLE.poke(0) // Disable APB
+            dut.clock.step(2)
+            readValue
+          }
 
-        // Reset Sequence
-        dut.reset.poke(true.B)
-        dut.clock.step()
-        dut.reset.poke(false.B)
+          // Reset Sequence
+          dut.reset.poke(true.B)
+          dut.clock.step()
+          dut.reset.poke(false.B)
 
-        // Buffer of randomized test data to apply in the test
-        val gpioDataBuffer = Seq.fill(numTests)(randData(myParams.dataWidth))
+          // Buffer of randomized test data to apply in the test
+          val gpioDataBuffer = Seq.fill(numTests)(randData(myParams.dataWidth))
 
-        // Directed Tests
-        println("Test 1: Write to DIRECTION register")
-        gpioDataBuffer.foreach { data =>
-          writeAPB(dut.regs.DIRECTION_ADDR.U, data)
-          val directionData = readAPB(dut.regs.DIRECTION_ADDR.U)
-          println(
-            s"Direction Register Read: ${directionData.toString()}"
-          )
-          require(directionData == data.litValue)
-        }
+          // Directed Tests
+          println("Test 1: Write to DIRECTION register")
+          gpioDataBuffer.foreach { data =>
+            writeAPB(dut.regs.DIRECTION_ADDR.U, data)
+            val directionData = readAPB(dut.regs.DIRECTION_ADDR.U)
+            println(
+              s"Direction Register Read: ${directionData.toString()}"
+            )
+            require(directionData == data.litValue)
+          }
 
-        println("Test 2: Write to OUTPUT register")
-        gpioDataBuffer.foreach { data =>
-          writeAPB(dut.regs.OUTPUT_ADDR.U, data)
-          val outputData = readAPB(dut.regs.OUTPUT_ADDR.U)
-          println(
-            s"Output Register Read: ${outputData.toString()}"
-          )
-          require(outputData == data.litValue)
-        }
+          println("Test 2: Write to OUTPUT register")
+          gpioDataBuffer.foreach { data =>
+            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            val outputData = readAPB(dut.regs.OUTPUT_ADDR.U)
+            println(
+              s"Output Register Read: ${outputData.toString()}"
+            )
+            require(outputData == data.litValue)
+          }
 
-        println("Test 3: Write to INPUT register")
-        gpioDataBuffer.foreach { data =>
-          writeAPB(dut.regs.INPUT_ADDR.U, data)
-          val inputData = readAPB(dut.regs.INPUT_ADDR.U)
-          println(
-            s"Input Register Read: ${inputData.toString()}"
-          )
-          // require(inputData == data.litValue) Input Register is Failing?
-        }
+          println("Test 3: Write to INPUT register")
+          gpioDataBuffer.foreach { data =>
+            writeAPB(dut.regs.INPUT_ADDR.U, data)
+            val inputData = readAPB(dut.regs.INPUT_ADDR.U)
+            println(
+              s"Input Register Read: ${inputData.toString()}"
+            )
+            // require(inputData == data.litValue) Input Register is Failing?
+          }
 
-        println("Test 4: Write to MODE register")
-        gpioDataBuffer.foreach { data =>
-          writeAPB(dut.regs.MODE_ADDR.U, data)
-          val modeData = readAPB(dut.regs.MODE_ADDR.U)
-          println(s"Mode Register Read: ${modeData.toString()}")
-          require(modeData == data.litValue)
-        }
+          println("Test 4: Write to MODE register")
+          gpioDataBuffer.foreach { data =>
+            writeAPB(dut.regs.MODE_ADDR.U, data)
+            val modeData = readAPB(dut.regs.MODE_ADDR.U)
+            println(s"Mode Register Read: ${modeData.toString()}")
+            require(modeData == data.litValue)
+          }
       }
     }
   }

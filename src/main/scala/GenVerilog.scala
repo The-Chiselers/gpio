@@ -41,7 +41,7 @@ object Main extends App {
       "--disable-all-randomization",
       "--strip-debug-info",
       "--split-verilog",
-      s"-o=generated/$top_name"
+      s"-o=generated/"
     )
   )
   // ##########################################
