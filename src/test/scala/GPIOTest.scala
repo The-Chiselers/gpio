@@ -262,12 +262,12 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
     }
   }
-  /*
+
   // Create a directory for storing coverage reportsG
   val scalaCoverageDir = new File("generated/scalaCoverage")
   scalaCoverageDir.mkdir()
-   */
-  // Execute the regression across a randomized range of configurations
+
+  // Execute the regressigiyon across a randomized range of configurations
   (1 to numTests).foreach { config =>
     main(s"GPIO_test_config_$config")
   }
