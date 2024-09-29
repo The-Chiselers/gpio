@@ -132,13 +132,13 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 3: Write to INPUT register")
-          apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.INPUT_ADDR.U, data)
+          gpioDataBuffer.foreach { data =>
+            dut.io.pins.gpioInput.poke(data)
             val inputData = readAPB(dut.regs.INPUT_ADDR.U)
             println(
               s"Input Register Read: ${inputData.toString()}"
             )
-            // require(inputData == data.litValue) Input Register is Failing?
+            require(inputData == data.litValue)
           }
 
           println("Test 4: Write to MODE register")
