@@ -25,7 +25,6 @@ class GPIO(p: BaseParams) extends Module {
   val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
   val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
 
-  io.apb.PRDATA := 0.U // Init value
   when(io.apb.PSEL && io.apb.PENABLE) {
     when(io.apb.PWRITE) { // Write Operation
       // switch(io.apb.PADDR) { // Address for OUTPUT Register
@@ -90,8 +89,7 @@ class GPIO(p: BaseParams) extends Module {
 
   // Handle invalid address case
   when(
-    io.apb.PADDR =/= 0.U && io.apb.PADDR =/= 1.U && io.apb.PADDR =/= 2.U &&
-      io.apb.PADDR =/= 3.U
+    (io.apb.PADDR < regs.DIRECTION_ADDR.U) || (io.apb.PADDR > ATOMIC_SET_ADDR_MAX.U)
   ) {
     io.apb.PSLVERR := true.B // Set error signal
   }.otherwise {

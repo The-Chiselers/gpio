@@ -41,13 +41,24 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     )
 
     // Randomize Input Variables
-    val validDataWidths = Seq(32) // TODO: Test failing with less than 32 bits?
-    val validPDataWidths = Seq(32)
-    val validPAddrWidths = Seq(32)
-    val dataWidth = validDataWidths(Random.nextInt(validDataWidths.length))
+    val validDataWidths =
+      Seq(8, 16, 32) // TODO: Test failing with less than 32 bits?
+    val validPDataWidths = Seq(8, 16, 32)
+    val validPAddrWidths = Seq(8, 16, 32)
     val PDATA_WIDTH = validPDataWidths(Random.nextInt(validPDataWidths.length))
     val PADDR_WIDTH = validPAddrWidths(Random.nextInt(validPAddrWidths.length))
-
+    val PADDR_WIDTH = {
+      validPAddrWidths.filter(_ >= PDATA_WIDTH)
+    }
+    val dataWidth = {
+      val eligibleWidths = validDataWidths.filter(_ == PDATA_WIDTH)
+      eligibleWidths(Random.nextInt(eligibleWidths.length))
+    }
+    // Ensure PDATA_WIDTH is less than or equal to dataWidth
+    assert(
+      dataWidth <= PDATA_WIDTH,
+      s"PDATA_WIDTH ($PDATA_WIDTH) should be >= dataWidth ($dataWidth)"
+    )
     // Pass in randomly selected values to DUT
     val myParams = BaseParams(
       dataWidth,
@@ -100,10 +111,11 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
           // Buffer of randomized test data to apply in the test
           val gpioDataBuffer = Seq.fill(numTests)(randData(myParams.dataWidth))
+          val apbDataBuffer = Seq.fill(numTests)(randData(myParams.PDATA_WIDTH))
 
           // Directed Tests
           println("Test 1: Write to DIRECTION register")
-          gpioDataBuffer.foreach { data =>
+          apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.DIRECTION_ADDR.U, data)
             val directionData = readAPB(dut.regs.DIRECTION_ADDR.U)
             println(
@@ -113,7 +125,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 2: Write to OUTPUT register")
-          gpioDataBuffer.foreach { data =>
+          apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.OUTPUT_ADDR.U, data)
             val outputData = readAPB(dut.regs.OUTPUT_ADDR.U)
             println(
@@ -123,7 +135,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 3: Write to INPUT register")
-          gpioDataBuffer.foreach { data =>
+          apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.INPUT_ADDR.U, data)
             val inputData = readAPB(dut.regs.INPUT_ADDR.U)
             println(
@@ -133,7 +145,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 4: Write to MODE register")
-          gpioDataBuffer.foreach { data =>
+          apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.MODE_ADDR.U, data)
             val modeData = readAPB(dut.regs.MODE_ADDR.U)
             println(s"Mode Register Read: ${modeData.toString()}")
