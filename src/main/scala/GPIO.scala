@@ -97,6 +97,35 @@ class GPIO(p: BaseParams) extends Module {
     io.apb.PSLVERR := false.B // Clear error signal if valid
   }
 
+  // Collect code coverage points
+  if (p.coverage) {
+    // count clock ticks to allow for coverage computation
+    val tick = true.B
+
+    for (bit <- 0 to p.dataWidth - 1) {
+      cover(io.pins.gpioInput(bit)).suggestName(s"io_gpioInput_$bit")
+      cover(io.pins.gpioOutput(bit)).suggestName(s"io_gpioOutput_$bit")
+      cover(io.pins.gpioOutputEnable(bit))
+        .suggestName(s"io_gpioOutputEnable_$bit")
+    }
+
+    for (bit <- 0 to p.PDATA_WIDTH - 1) {
+      cover(io.apb.PRDATA(bit)).suggestName(s"apb_PRDATA_$bit")
+      cover(io.apb.PWDATA(bit)).suggestName(s"apb_PWDATA_$bit")
+    }
+
+    for (bit <- 0 to p.PADDR_WIDTH - 1) {
+      cover(io.apb.PADDR(bit)).suggestName(s"apb_ADDR_$bit")
+    }
+
+    cover(tick).suggestName("tick")
+    cover(io.apb.PSEL).suggestName("io__PSEL")
+    cover(io.apb.PENABLE).suggestName("io__PENABLE")
+    cover(io.apb.PWRITE).suggestName("io__PWRITE")
+    cover(io.apb.PREADY).suggestName("io__PREADY")
+    cover(io.apb.PSLVERR).suggestName("io__PSLVERR")
+  }
+
   // function to take addr and data from APB and write to gpio register space and or child modules if applicable
   def registerDecodeWrite(addr: UInt): Unit = {
 
@@ -211,7 +240,6 @@ class GPIO(p: BaseParams) extends Module {
       )
       io.apb.PRDATA := regs.ATOMIC_SET
     }
-
   }
 }
 

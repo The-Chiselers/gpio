@@ -169,6 +169,19 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             val andOperation = data.litValue & randomOutputData
             require(outputDataAfterSet == andOperation)
           }
+
+          // Test 8: Invalid Address Handling
+          println("Test 8: Invalid Address Handling")
+          val invalidAddr = (dut.regs.ATOMIC_SET_ADDR_MAX + 1)
+          writeAPB(invalidAddr.U, 15.U)
+          dut.clock.step(1)
+          require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
+          dut.clock.step(1)
+          val readData = readAPB(invalidAddr.U)
+          dut.clock.step(1)
+          require(dut.io.apb.PSLVERR.peekInt() == 1)
+          require(readData == 0)
+
           /*
           val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
           println("Test 6: Push-Pull Mode Operation")
@@ -185,7 +198,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             println(
               s"Output Register after PPL Set: ${actualValOutput.toString()}"
             )
-            // require(expectedValOutput == actualValOutput) Failing :(
+            require(expectedValOutput == actualValOutput) // Failing :(
             val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
             println(
               s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
@@ -193,6 +206,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             require(randomDirectionData == actualValOutputEnable)
           }
            */
+
           /*
           val fullZeros = (BigInt(0) << myParams.PDATA_WIDTH) - 1
           println("Test 7: Drain Mode Operation")
@@ -219,12 +233,40 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             require(randomDirectionData == actualValOutputEnable)
           }
            */
-
-      
       }
+
+      // Check that all ports have toggled and print report
+      if (myParams.coverage) {
+        val coverage = cov.getAnnotationSeq
+          .collectFirst { case a: TestCoverage => a.counts }
+          .get
+          .toMap
+
+        val testConfig =
+          myParams.dataWidth.toString + "_" +
+            myParams.PDATA_WIDTH.toString + "_" +
+            myParams.PADDR_WIDTH.toString
+
+        val verCoverageDir = new File("generated/verilogCoverage")
+        verCoverageDir.mkdir()
+        val coverageFile =
+          verCoverageDir.toString + "/" + testName + "_" + testConfig + ".cov"
+
+        val stuckAtFault = checkCoverage(coverage, coverageFile)
+        if (stuckAtFault)
+          println(
+            s"WARNING: At least one IO port did not toggle -- see $coverageFile"
+          )
+        info(s"Verilog Coverage report written to $coverageFile")
+      }
+
     }
   }
-
+  /*
+  // Create a directory for storing coverage reportsG
+  val scalaCoverageDir = new File("generated/scalaCoverage")
+  scalaCoverageDir.mkdir()
+   */
   // Execute the regression across a randomized range of configurations
   (1 to numTests).foreach { config =>
     main(s"GPIO_test_config_$config")
