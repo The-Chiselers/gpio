@@ -41,26 +41,23 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     )
 
     // Randomize Input Variables
-    val validDataWidths =
-      Seq(8, 16, 32) // TODO: Test failing with less than 32 bits?
+    val validDataWidths = Seq(8, 16, 32)
     val validPDataWidths = Seq(8, 16, 32)
     val validPAddrWidths = Seq(8, 16, 32)
     val PDATA_WIDTH = validPDataWidths(Random.nextInt(validPDataWidths.length))
     val PADDR_WIDTH = validPAddrWidths(Random.nextInt(validPAddrWidths.length))
-    val PADDR_WIDTH = {
-      validPAddrWidths.filter(_ >= PDATA_WIDTH)
-    }
     val dataWidth = {
       val eligibleWidths = validDataWidths.filter(_ == PDATA_WIDTH)
       eligibleWidths(Random.nextInt(eligibleWidths.length))
     }
-    // Ensure PDATA_WIDTH is less than or equal to dataWidth
+    // Ensure PDATA_WIDTH is equal to dataWidth
     assert(
-      dataWidth <= PDATA_WIDTH,
-      s"PDATA_WIDTH ($PDATA_WIDTH) should be >= dataWidth ($dataWidth)"
+      dataWidth == PDATA_WIDTH,
+      s"PDATA_WIDTH ($PDATA_WIDTH) should be == dataWidth ($dataWidth)"
     )
     // Pass in randomly selected values to DUT
     val myParams = BaseParams(
+      8,
       dataWidth,
       PDATA_WIDTH,
       PADDR_WIDTH,

@@ -24,9 +24,7 @@ object Main extends App {
     dataWidth = 32,
     PDATA_WIDTH = 32,
     PADDR_WIDTH = 32,
-    coverage = false,
-    physicalPorts = 1,
-    virtualPorts = 1
+    coverage = false
   )
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
