@@ -31,7 +31,5 @@ case class BaseParams(
     dataWidth: Int = 32,
     PDATA_WIDTH: Int = 32,
     PADDR_WIDTH: Int = 32,
-    coverage: Boolean = false,
-    physicalPorts: Int = 1,
-    virtualPorts: Int = 1
+    coverage: Boolean = false
 )

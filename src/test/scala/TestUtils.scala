@@ -39,7 +39,7 @@ object TestUtils {
   def checkCoverage(coverage: Map[String, Long], file: String): Boolean = {
     val cov = new File(file)
     val covFile = new PrintWriter(cov)
-    val numTicks = coverage("dut.tick")
+    val numTicks = coverage("tick")
     val netCoverage = coverage.view.filterKeys(_ != "dut.tick").toMap
     val sortedCoverage = ListMap(netCoverage.toSeq.sortBy(_._1): _*).toMap
     var stuckAtOne = false
