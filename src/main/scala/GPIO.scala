@@ -139,118 +139,74 @@ class GPIO(p: BaseParams) extends Module {
   def registerDecodeWrite(addr: UInt): Unit = {
 
     when(addr >= regs.DIRECTION_ADDR.U && addr <= regs.DIRECTION_ADDR_MAX.U) {
-      printf(
-        "Writing DIRECTION Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+      printf("Writing DIRECTION Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.DIRECTION := io.apb.PWDATA(regs.DIRECTION_SIZE - 1, 0)
     }
     when(addr >= regs.INPUT_ADDR.U && addr <= regs.INPUT_ADDR_MAX.U) {
-      printf(
-        "Writing INPUT Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+      printf("Writing INPUT Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.INPUT := io.apb.PWDATA(regs.INPUT_SIZE - 1, 0)
     }
     when(addr >= regs.OUTPUT_ADDR.U && addr <= regs.OUTPUT_ADDR_MAX.U) {
-      printf(
-        "Writing OUTPUT Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+      printf("Writing OUTPUT Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.OUTPUT := io.apb.PWDATA(regs.OUTPUT_SIZE - 1, 0)
     }
     when(addr >= regs.MODE_ADDR.U && addr <= regs.MODE_ADDR_MAX.U) {
       printf("Writing MODE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.MODE := io.apb.PWDATA(regs.MODE_SIZE - 1, 0)
     }
-
-    when(
-      addr >= regs.ATOMIC_OPERATION_ADDR.U &&
-        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U
-    ) {
-      printf(
-        "Writing ATOMIC_OPERATION Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+    when(addr >= regs.ATOMIC_OPERATION_ADDR.U && addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U) {
+      printf("Writing ATOMIC_OPERATION Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.ATOMIC_OPERATION := io.apb.PWDATA(regs.ATOMIC_OPERATION_SIZE - 1, 0)
     }
-    when(
-      addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U
-    ) {
-      printf(
-        "Writing ATOMIC_MASK Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+    when(addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U) {
+      printf("Writing ATOMIC_MASK Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.ATOMIC_MASK := io.apb.PWDATA(regs.ATOMIC_MASK_SIZE - 1, 0)
     }
     when(addr >= regs.ATOMIC_SET_ADDR.U && addr <= regs.ATOMIC_SET_ADDR_MAX.U) {
-      printf(
-        "Writing ATOMIC_SET Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+      printf("Writing ATOMIC_SET Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       regs.ATOMIC_SET := io.apb.PWDATA(regs.ATOMIC_SET_SIZE - 1, 0)
     }
-
-    // virtual port registers
-    when(
-      addr >= regs.VIRTUAL_PORT_MAP_ADDR.U &&
-        addr <= regs.VIRTUAL_PORT_MAP_ADDR_MAX.U
-    ) {
-      printf(
-        "Writing VIRTUAL_PORT_MAP Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
+    when(addr >= regs.VIRTUAL_PORT_MAP_ADDR.U && addr <= regs.VIRTUAL_PORT_MAP_ADDR_MAX.U) {
+      printf("Writing VIRTUAL_PORT_MAP Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
       // index into virtualToPhysicalMap based on address
-      val index =
-        (addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U
-      regs.virtualToPhysicalMap(index) :=
-        io.apb.PWDATA(regs.VIRTUAL_PORT_MAP_SIZE - 1, 0)
+      val index = (addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U
+      regs.virtualToPhysicalMap(index) := io.apb.PWDATA(regs.VIRTUAL_PORT_MAP_SIZE - 1, 0)
     }
-    when(
-      addr >= regs.VIRTUAL_PORT_OUTPUT_ADDR.U &&
-        addr <= regs.VIRTUAL_PORT_OUTPUT_ADDR_MAX.U
-    ) {
-      printf(
-        "Writing VIRTUAL_PORT_OUTPUT Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
-      regs.virtualPortOutput :=
-        io.apb.PWDATA(regs.VIRTUAL_PORT_OUTPUT_SIZE - 1, 0)
+    when(addr >= regs.VIRTUAL_PORT_OUTPUT_ADDR.U && addr <= regs.VIRTUAL_PORT_OUTPUT_ADDR_MAX.U) {
+      printf("Writing VIRTUAL_PORT_OUTPUT Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.virtualPortOutput := io.apb.PWDATA(regs.VIRTUAL_PORT_OUTPUT_SIZE - 1, 0)
     }
-    when(
-      addr >= regs.VIRTUAL_PORT_ENABLE_ADDR.U &&
-        addr <= regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U
-    ) {
-      printf(
-        "Writing VIRTUAL_PORT_ENABLE Register, data: %x, addr: %x\n",
-        io.apb.PWDATA,
-        addr
-      )
-      regs.virtualPortEnable :=
-        io.apb.PWDATA(regs.VIRTUAL_PORT_ENABLE_SIZE - 1, 0)
+    when(addr >= regs.VIRTUAL_PORT_ENABLE_ADDR.U && addr <= regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U) {
+      printf("Writing VIRTUAL_PORT_ENABLE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.virtualPortEnable := io.apb.PWDATA(regs.VIRTUAL_PORT_ENABLE_SIZE - 1, 0)
+    }
+    when(addr >= regs.TRIGGER_TYPE_ADDR.u && addr <= regs.TRIGGER_TYPE_ADDR.U) {
+      printf("Writing TRIGGER_TYPE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.TRIGGER_TYPE := io.apb.PWDATA(regs.TRIGGER_TYPE_SIZE - 1, 0)
+    }
+    when(addr >= regs.TRIGGER_LVL0_ADDR.u && addr <= regs.TRIGGER_LVL0_ADDR.U) {
+      printf("Writing TRIGGER_LVL0 Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.TRIGGER_LVL0 := io.apb.PWDATA(regs.TRIGGER_LVL0_SIZE - 1, 0)
+    }
+    when(addr >= regs.TRIGGER_LVL1_ADDR.u && addr <= regs.TRIGGER_LVL1_ADDR.U) {
+      printf("Writing TRIGGER_LVL1 Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.TRIGGER_LVL1 := io.apb.PWDATA(regs.TRIGGER_LVL1_SIZE - 1, 0)
+    }
+    when(addr >= regs.TRIGGER_STATUS_ADDR.u && addr <= regs.TRIGGER_STATUS_ADDR.U) {
+      printf("Writing TRIGGER_STATUS Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.TRIGGER_STATUS := io.apb.PWDATA(regs.TRIGGER_STATUS_SIZE - 1, 0)
+    }
+    when(addr >= regs.IRQ_ENABLE_ADDR.u && addr <= regs.IRQ_ENABLE_ADDR.U) {
+      printf("Writing IRQ_ENABLE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
+      regs.IRQ_ENABLE := io.apb.PWDATA(regs.IRQ_ENABLE_SIZE - 1, 0)
     }
   }
 
   // function to take addr and data from APB and write to gpio register space and or child modules if applicable
   def registerDecodeRead(addr: UInt): Unit = {
-
     printf("Reading Register, addr: %x\n", addr)
-
     when(addr >= regs.DIRECTION_ADDR.U && addr <= regs.DIRECTION_ADDR_MAX.U) {
-
-      printf(
-        "Reading DIRECTION Register, data: %x, addr: %x\n",
-        regs.DIRECTION,
-        addr
-      )
+      printf("Reading DIRECTION Register, data: %x, addr: %x\n", regs.DIRECTION, addr)
       io.apb.PRDATA := regs.DIRECTION
     }
     when(addr >= regs.OUTPUT_ADDR.U && addr <= regs.OUTPUT_ADDR_MAX.U) {
@@ -261,84 +217,54 @@ class GPIO(p: BaseParams) extends Module {
       printf("Reading INPUT Register, data: %x, addr: %x\n", regs.INPUT, addr)
       io.apb.PRDATA := regs.INPUT
     }
-
     when(addr >= regs.MODE_ADDR.U && addr <= regs.MODE_ADDR_MAX.U) {
       printf("Reading MODE Register, data: %x, addr: %x\n", regs.MODE, addr)
       io.apb.PRDATA := regs.MODE
     }
-    when(
-      addr >= regs.ATOMIC_OPERATION_ADDR.U &&
-        addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U
-    ) {
-      printf(
-        "Reading ATOMIC_OPERATION Register, data: %x, addr: %x\n",
-        regs.ATOMIC_OPERATION,
-        addr
-      )
-      printf(
-        "ATOMIC_OPERATION_MIN: %x\nATOMIC_OPERATION_MAX: %x\n",
-        regs.ATOMIC_OPERATION_ADDR.U,
-        regs.ATOMIC_OPERATION_ADDR_MAX.U
-      )
+    when(addr >= regs.ATOMIC_OPERATION_ADDR.U && addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U) {
+      printf("Reading ATOMIC_OPERATION Register, data: %x, addr: %x\n", regs.ATOMIC_OPERATION, addr)
+      printf("ATOMIC_OPERATION_MIN: %x\nATOMIC_OPERATION_MAX: %x\n", regs.ATOMIC_OPERATION_ADDR.U, regs.ATOMIC_OPERATION_ADDR_MAX.U)
       io.apb.PRDATA := regs.ATOMIC_OPERATION.asUInt
     }
-    when(
-      addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U
-    ) {
-      printf(
-        "Reading ATOMIC_MASK Register, data: %x, addr: %x\n",
-        regs.ATOMIC_MASK,
-        addr
-      )
+    when(addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U) {
+      printf("Reading ATOMIC_MASK Register, data: %x, addr: %x\n", regs.ATOMIC_MASK, addr)
       io.apb.PRDATA := regs.ATOMIC_MASK
     }
     when(addr >= regs.ATOMIC_SET_ADDR.U && addr <= regs.ATOMIC_SET_ADDR_MAX.U) {
-      printf(
-        "Reading ATOMIC_SET Register, data: %x, addr: %x\n",
-        regs.ATOMIC_SET,
-        addr
-      )
+      printf("Reading ATOMIC_SET Register, data: %x, addr: %x\n", regs.ATOMIC_SET, addr)
       io.apb.PRDATA := regs.ATOMIC_SET
     }
-
-    // virtual port registers
-    when(
-      addr >= regs.VIRTUAL_PORT_MAP_ADDR.U &&
-        addr <= regs.VIRTUAL_PORT_MAP_ADDR_MAX.U
-    ) {
-      printf(
-        "Reading VIRTUAL_PORT_MAP Register, data: %x, addr: %x\n",
-        regs.virtualToPhysicalMap(
-          (addr - regs.VIRTUAL_PORT_MAP_ADDR.U) /
-            regs.VIRTUAL_PORT_MAP_REG_SIZE.U
-        ),
-        addr
-      )
-      io.apb.PRDATA := regs.virtualToPhysicalMap(
-        (addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U
-      )
+    when(addr >= regs.VIRTUAL_PORT_MAP_ADDR.U && addr <= regs.VIRTUAL_PORT_MAP_ADDR_MAX.U) {
+      printf("Reading VIRTUAL_PORT_MAP Register, data: %x, addr: %x\n", regs.virtualToPhysicalMap((addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U), addr)
+      io.apb.PRDATA := regs.virtualToPhysicalMap((addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U)
     }
-    when(
-      addr >= regs.VIRTUAL_PORT_OUTPUT_ADDR.U &&
-        addr <= regs.VIRTUAL_PORT_OUTPUT_ADDR_MAX.U
-    ) {
-      printf(
-        "Reading VIRTUAL_PORT_OUTPUT Register, data: %x, addr: %x\n",
-        regs.virtualPortOutput,
-        addr
-      )
+    when(addr >= regs.VIRTUAL_PORT_OUTPUT_ADDR.U && addr <= regs.VIRTUAL_PORT_OUTPUT_ADDR_MAX.U) {
+      printf("Reading VIRTUAL_PORT_OUTPUT Register, data: %x, addr: %x\n", regs.virtualPortOutput, addr)
       io.apb.PRDATA := regs.virtualPortOutput
     }
-    when(
-      addr >= regs.VIRTUAL_PORT_ENABLE_ADDR.U &&
-        addr <= regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U
-    ) {
-      printf(
-        "Reading VIRTUAL_PORT_ENABLE Register, data: %x, addr: %x\n",
-        regs.virtualPortEnable,
-        addr
-      )
+    when(addr >= regs.VIRTUAL_PORT_ENABLE_ADDR.U && addr <= regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U) {
+      printf("Reading VIRTUAL_PORT_ENABLE Register, data: %x, addr: %x\n", regs.virtualPortEnable, addr)
       io.apb.PRDATA := regs.virtualPortEnable
+    }
+    when(addr >= regs.TRIGGER_TYPE_ADDR.u && addr <= regs.TRIGGER_TYPE_ADDR.U) {
+      printf("READING TRIGGER_TYPE Register, data: %x, addr: %x\n", regs.TRIGGER_TYPE, addr)
+      io.apb.PRDATA := regs.TRIGGER_TYPE
+    }
+    when(addr >= regs.TRIGGER_LVL0_ADDR.u && addr <= regs.TRIGGER_LVL0_ADDR.U) {
+      printf("READING TRIGGER_LVL0 Register, data: %x, addr: %x\n", regs.TRIGGER_LVL0, addr)
+      io.apb.PRDATA := regs.TRIGGER_LVL0
+    }
+    when(addr >= regs.TRIGGER_LVL1_ADDR.u && addr <= regs.TRIGGER_LVL1_ADDR.U) {
+      printf("READING TRIGGER_LVL1 Register, data: %x, addr: %x\n", regs.TRIGGER_LVL1, addr)
+      io.apb.PRDATA := regs.TRIGGER_LVL1
+    }
+    when(addr >= regs.TRIGGER_STATUS_ADDR.u && addr <= regs.TRIGGER_STATUS_ADDR.U) {
+      printf("READING TRIGGER_STATUS Register, data: %x, addr: %x\n", regs.TRIGGER_STATUS, addr)
+      io.apb.PRDATA := regs.TRIGGER_STATUS
+    }
+    when(addr >= regs.IRQ_ENABLE_ADDR.u && addr <= regs.IRQ_ENABLE_ADDR.U) {
+      printf("READING IRQ_ENABLE Register, data: %x, addr: %x\n", regs.IRQ_ENABLE, addr)
+      io.apb.PRDATA := regs.IRQ_ENABLE
     }
   }
 }
@@ -416,10 +342,8 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val MODE_ADDR_MAX: Int = MODE_ADDR + MODE_REG_SIZE - 1
 
   val ATOMIC_OPERATION_ADDR: Int = MODE_ADDR_MAX + 1
-  val ATOMIC_OPERATION_REG_SIZE: Int =
-    (ATOMIC_OPERATION_SIZE + REG_SIZE - 1) / REG_SIZE
-  val ATOMIC_OPERATION_ADDR_MAX: Int = ATOMIC_OPERATION_ADDR +
-    ATOMIC_OPERATION_REG_SIZE - 1
+  val ATOMIC_OPERATION_REG_SIZE: Int = (ATOMIC_OPERATION_SIZE + REG_SIZE - 1) / REG_SIZE
+  val ATOMIC_OPERATION_ADDR_MAX: Int = ATOMIC_OPERATION_ADDR + ATOMIC_OPERATION_REG_SIZE - 1
 
   val ATOMIC_MASK_ADDR: Int = ATOMIC_OPERATION_ADDR_MAX + 1
   val ATOMIC_MASK_REG_SIZE: Int = (ATOMIC_MASK_SIZE + REG_SIZE - 1) / REG_SIZE
@@ -431,22 +355,16 @@ class GPIORegs(p: BaseParams) extends Bundle {
 
   // virtual port registers
   val VIRTUAL_PORT_MAP_ADDR: Int = ATOMIC_SET_ADDR_MAX + 1
-  val VIRTUAL_PORT_MAP_REG_SIZE: Int =
-    (VIRTUAL_PORT_MAP_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_MAP_ADDR_MAX: Int =
-    VIRTUAL_PORT_MAP_ADDR + VIRTUAL_PORT_OUTPUT_SIZE * VIRTUAL_PORT_MAP_REG_SIZE - 1
+  val VIRTUAL_PORT_MAP_REG_SIZE: Int = (VIRTUAL_PORT_MAP_SIZE + REG_SIZE - 1) / REG_SIZE
+  val VIRTUAL_PORT_MAP_ADDR_MAX: Int = VIRTUAL_PORT_MAP_ADDR + VIRTUAL_PORT_OUTPUT_SIZE * VIRTUAL_PORT_MAP_REG_SIZE - 1
 
   val VIRTUAL_PORT_OUTPUT_ADDR: Int = VIRTUAL_PORT_MAP_ADDR_MAX + 1
-  val VIRTUAL_PORT_OUTPUT_REG_SIZE: Int =
-    (VIRTUAL_PORT_OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int =
-    VIRTUAL_PORT_OUTPUT_ADDR + VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
+  val VIRTUAL_PORT_OUTPUT_REG_SIZE: Int = (VIRTUAL_PORT_OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
+  val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int = VIRTUAL_PORT_OUTPUT_ADDR + VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
 
   val VIRTUAL_PORT_ENABLE_ADDR: Int = VIRTUAL_PORT_OUTPUT_ADDR_MAX + 1
-  val VIRTUAL_PORT_ENABLE_REG_SIZE: Int =
-    (VIRTUAL_PORT_ENABLE_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_ENABLE_ADDR_MAX: Int =
-    VIRTUAL_PORT_ENABLE_ADDR + VIRTUAL_PORT_ENABLE_REG_SIZE - 1
+  val VIRTUAL_PORT_ENABLE_REG_SIZE: Int = (VIRTUAL_PORT_ENABLE_SIZE + REG_SIZE - 1) / REG_SIZE
+  val VIRTUAL_PORT_ENABLE_ADDR_MAX: Int = VIRTUAL_PORT_ENABLE_ADDR + VIRTUAL_PORT_ENABLE_REG_SIZE - 1
 
   // Interrupt Registers
   val TRIGGER_TYPE_ADDR: Int = VIRTUAL_PORT_ENABLE_ADDR_MAX + 1
