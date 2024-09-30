@@ -161,7 +161,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
           // Test 8: Invalid Address Handling
           println("Test 8: Invalid Address Handling")
-          val invalidAddr = dut.regs.VIRTUAL_PORT_ENABLE_ADDR + 1
+          val invalidAddr = dut.regs.VIRTUAL_PORT_ENABLE_ADDR_MAX + 1
           writeAPB(invalidAddr.U, 15.U)
           dut.clock.step(1)
           require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
