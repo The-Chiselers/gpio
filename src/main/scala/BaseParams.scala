@@ -31,5 +31,7 @@ case class BaseParams(
     dataWidth: Int = 32,
     PDATA_WIDTH: Int = 32,
     PADDR_WIDTH: Int = 32,
+    numVirtualPorts: Int = 8,
+    sizeOfVirtualPorts: Int = log2Ceil(32),
     coverage: Boolean = false
 )
