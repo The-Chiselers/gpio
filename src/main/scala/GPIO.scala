@@ -16,11 +16,17 @@ class GPIO(p: BaseParams) extends Module {
       val gpioInput = Input(UInt(p.dataWidth.W))
       val gpioOutput = Output(UInt(p.dataWidth.W))
       val gpioOutputEnable = Output(UInt(p.dataWidth.W))
-      val irqOutput = Output(UInt(p.dataWidth.W))
+      val irqOutput = Output(UInt(1.W))
     }
   })
 
   val regs = new GPIORegs(p)
+  // Intermediary Signals/Registers
+  val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val gpioInputSyncPrev = RegInit(0.U(p.dataWidth.W))
+  // Synchronize GPIO Input
+  val gpioInputSync = RegNext(RegNext(io.pins.gpioInput))
 
   // Main loop for assigning virtual ports to physical pins
   for (i <- 0 until p.dataWidth) when(regs.virtualPortEnable === 1.U) {
@@ -40,13 +46,6 @@ class GPIO(p: BaseParams) extends Module {
         }
       }
   }
-
-  // Intermediary Signals
-  val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
-  val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
-  // Synchronize GPIO Input
-  val gpioInputSync = RegNext(RegNext(io.pins.gpioInput))
-
   // APB
   io.apb.PRDATA := 0.U // Needs to be initialized
   when(io.apb.PSEL && io.apb.PENABLE) {
@@ -59,6 +58,39 @@ class GPIO(p: BaseParams) extends Module {
     }
   }.otherwise(io.apb.PREADY := false.B)
 
+  //Interrupt Handling
+  for(i <- 0 until p.dataWidth) 
+    val condition = Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LVL0(i), regs.TRIGGER_LVL1(i))
+    regs.TRIGGER_STATUS(i) := 0.U //Default Condition
+    gpioInputSyncPrev(i) := gpioInputSync(i) //Edge Detection
+    switch(condition) {
+      is("b001".U) {  //Level Trigger when High
+        when(gpioInputSync(i) === 1.U) 
+          regs.TRIGGER_STATUS(i) := 1.U
+      }
+      is("b010".U) { //Level Trigger when Low
+        when(gpioInputSync(i) === 0.U) 
+          regs.TRIGGER_STATUS(i) := 1.U
+      }
+      is("b011".U) {  //Level Trigger when High or Low
+        regs.TRIGGER_STATUS(i) := 1.U
+      }
+      is("b101".U) {  //Edge Trigger on Rising Edge
+        when(gpioInputSync(i) === 1.U && gpioInputSyncPrev(i) === 0.U) 
+          regs.TRIGGER_STATUS(i) := 1.U
+      }
+      is("b110".U) {  //Edge Trigger on Falling Edge 
+        when(gpioInputSync(i) === 0.U && gpioInputSyncPrev(i) === 1.U) 
+          regs.TRIGGER_STATUS(i) := 1.U
+      }
+      is("b111".U) {  //Edge Trigger on Rising or Falling Edge
+        when(gpioInputSync(i) =/= gpioInputSyncPrev(i)) 
+          regs.TRIGGER_STATUS(i) := 1.U
+      }
+    }
+    when((regs.TRIGGER_STATUS(i) & regs.IRQ_ENABLE(i)) === 1.U)
+      irqOutput := 1
+    
   // ATOMIC
   val atomicOperationTruthTable = Wire(Vec(2, Vec(2, UInt(1.W))))
   atomicOperationTruthTable(0)(0) := regs.ATOMIC_OPERATION(1)
@@ -194,7 +226,7 @@ class GPIO(p: BaseParams) extends Module {
     }
     when(addr >= regs.TRIGGER_STATUS_ADDR.u && addr <= regs.TRIGGER_STATUS_ADDR.U) {
       printf("Writing TRIGGER_STATUS Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
-      regs.TRIGGER_STATUS := io.apb.PWDATA(regs.TRIGGER_STATUS_SIZE - 1, 0)
+      regs.TRIGGER_STATUS := regs.TRIGGER_STATUS & ~io.apb.PWDATA(regs.TRIGGER_STATUS_SIZE - 1, 0) //Writing a 1 will clear the status, ignore writes of 0
     }
     when(addr >= regs.IRQ_ENABLE_ADDR.u && addr <= regs.IRQ_ENABLE_ADDR.U) {
       printf("Writing IRQ_ENABLE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
@@ -266,6 +298,10 @@ class GPIO(p: BaseParams) extends Module {
       printf("READING IRQ_ENABLE Register, data: %x, addr: %x\n", regs.IRQ_ENABLE, addr)
       io.apb.PRDATA := regs.IRQ_ENABLE
     }
+  }
+
+  def edgeFSM(): Unit = {
+
   }
 }
 
