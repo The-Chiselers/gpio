@@ -16,6 +16,7 @@ class GPIO(p: BaseParams) extends Module {
       val gpioInput = Input(UInt(p.dataWidth.W))
       val gpioOutput = Output(UInt(p.dataWidth.W))
       val gpioOutputEnable = Output(UInt(p.dataWidth.W))
+      val irqOutput = Output(UInt(p.dataWidth.W))
     }
   })
 
@@ -43,10 +44,10 @@ class GPIO(p: BaseParams) extends Module {
   // Intermediary Signals
   val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
   val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
-  //Synchronize GPIO Input
+  // Synchronize GPIO Input
   val gpioInputSync = RegNext(RegNext(io.pins.gpioInput))
 
-  //APB
+  // APB
   io.apb.PRDATA := 0.U // Needs to be initialized
   when(io.apb.PSEL && io.apb.PENABLE) {
     when(io.apb.PWRITE) { // Write Operation
@@ -58,7 +59,7 @@ class GPIO(p: BaseParams) extends Module {
     }
   }.otherwise(io.apb.PREADY := false.B)
 
-  //ATOMIC
+  // ATOMIC
   val atomicOperationTruthTable = Wire(Vec(2, Vec(2, UInt(1.W))))
   atomicOperationTruthTable(0)(0) := regs.ATOMIC_OPERATION(1)
   atomicOperationTruthTable(0)(1) := regs.ATOMIC_OPERATION(0)
@@ -80,7 +81,7 @@ class GPIO(p: BaseParams) extends Module {
     regs.OUTPUT := Reverse(Cat(output_inner))
   }
 
-  //MODE 
+  // MODE
   for (i <- 0 until p.dataWidth)
     when(regs.MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in gpioOutput
       gpioOutputVec(p.dataWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
@@ -350,13 +351,20 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val OUTPUT_SIZE: Int = p.dataWidth
   val INPUT_SIZE: Int = p.dataWidth
   val MODE_SIZE: Int = p.dataWidth
-  val VIRTUAL_PORT_MAP_SIZE: Int = p.sizeOfVirtualPorts
-  val VIRTUAL_PORT_OUTPUT_SIZE: Int = p.numVirtualPorts
-  val VIRTUAL_PORT_ENABLE_SIZE: Int = 1
 
   val ATOMIC_OPERATION_SIZE: Int = 4
   val ATOMIC_MASK_SIZE: Int = p.dataWidth
   val ATOMIC_SET_SIZE: Int = 1
+
+  val VIRTUAL_PORT_MAP_SIZE: Int = p.sizeOfVirtualPorts
+  val VIRTUAL_PORT_OUTPUT_SIZE: Int = p.numVirtualPorts
+  val VIRTUAL_PORT_ENABLE_SIZE: Int = 1
+
+  val TRIGGER_TYPE_SIZE: Int = p.dataWidth
+  val TRIGGER_LVL0_SIZE: Int = p.dataWidth
+  val TRIGGER_LVL1_SIZE: Int = p.dataWidth
+  val TRIGGER_STATUS_SIZE: Int = p.dataWidth
+  val IRQ_ENABLE: Int = p.dataWidth
 
   // #####################################################################
   // REGS
@@ -371,15 +379,25 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val ATOMIC_OPERATION = RegInit(0.U(ATOMIC_OPERATION_SIZE.W))
   val ATOMIC_MASK = RegInit(0.U(ATOMIC_MASK_SIZE.W))
   val ATOMIC_SET = RegInit(0.U(ATOMIC_SET_SIZE.W))
-  // #####################################################################
 
   // Virtual Port Control Registers
-  val virtualPortOutput = RegInit(0.U(p.numVirtualPorts.W))
+  val virtualPortOutput = RegInit(0.U(VIRTUAL_PORT_OUTPUT_SIZE.W))
   // Virtual to Physical Pin Mapping
   val virtualToPhysicalMap =
-    RegInit(VecInit(Seq.fill(p.numVirtualPorts)(0.U(p.sizeOfVirtualPorts.W))))
+    RegInit(
+      VecInit(Seq.fill(VIRTUAL_PORT_OUTPUT_SIZE)(0.U(VIRTUAL_PORT_MAP_SIZE.W)))
+    )
   // Virtual Port Enable
   val virtualPortEnable = RegInit(0.U(VIRTUAL_PORT_ENABLE_SIZE.W))
+
+  // Interrupt Handling Registers
+  val TRIGGER_TYPE = RegInit(0.U(TRIGGER_TYPE_SIZE.W))
+  val TRIGGER_LVL0 = RegiInit(0.U(TRIGGER_LVL0_SIZE.W))
+  val TRIGGER_LVL1 = RegiInit(0.U(TRIGGER_LVL1_SIZE.W))
+  val TRIGGER_STATUS = RegInit(0.U(TRIGGER_STATUS_SIZE.W))
+  val IRQ_ENABLE = RegInit(0.U(IRQ_ENABLE_SIZE.W))
+
+  // #####################################################################
 
   val DIRECTION_ADDR: Int = 0
   val DIRECTION_REG_SIZE: Int = (DIRECTION_SIZE + REG_SIZE - 1) / REG_SIZE
@@ -415,18 +433,39 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val VIRTUAL_PORT_MAP_ADDR: Int = ATOMIC_SET_ADDR_MAX + 1
   val VIRTUAL_PORT_MAP_REG_SIZE: Int =
     (VIRTUAL_PORT_MAP_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_MAP_ADDR_MAX: Int = VIRTUAL_PORT_MAP_ADDR +
-    p.numVirtualPorts * VIRTUAL_PORT_MAP_REG_SIZE - 1
+  val VIRTUAL_PORT_MAP_ADDR_MAX: Int =
+    VIRTUAL_PORT_MAP_ADDR + VIRTUAL_PORT_OUTPUT_SIZE * VIRTUAL_PORT_MAP_REG_SIZE - 1
 
   val VIRTUAL_PORT_OUTPUT_ADDR: Int = VIRTUAL_PORT_MAP_ADDR_MAX + 1
   val VIRTUAL_PORT_OUTPUT_REG_SIZE: Int =
     (VIRTUAL_PORT_OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int = VIRTUAL_PORT_OUTPUT_ADDR +
-    VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
+  val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int =
+    VIRTUAL_PORT_OUTPUT_ADDR + VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
 
   val VIRTUAL_PORT_ENABLE_ADDR: Int = VIRTUAL_PORT_OUTPUT_ADDR_MAX + 1
   val VIRTUAL_PORT_ENABLE_REG_SIZE: Int =
     (VIRTUAL_PORT_ENABLE_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_ENABLE_ADDR_MAX: Int = VIRTUAL_PORT_ENABLE_ADDR +
-    VIRTUAL_PORT_ENABLE_REG_SIZE - 1
+  val VIRTUAL_PORT_ENABLE_ADDR_MAX: Int =
+    VIRTUAL_PORT_ENABLE_ADDR + VIRTUAL_PORT_ENABLE_REG_SIZE - 1
+
+  // Interrupt Registers
+  val TRIGGER_TYPE_ADDR: Int = VIRTUAL_PORT_ENABLE_ADDR_MAX + 1
+  val TRIGGER_TYPE_REG_SIZE: Int = (TRIGGER_TYPE_SIZE + REG_SIZE - 1) / REG_SIZE
+  val TRIGGER_TYPE_ADDR_MAX: Int = TRIGGER_TYPE_ADDR + TRIGGER_TYPE_REG_SIZE - 1
+
+  val TRIGGER_LVL0_ADDR: Int = TRIGGER_TYPE_ADDR_MAX + 1
+  val TRIGGER_LVL0_REG_SIZE: Int = (TRIGGER_LVL0_SIZE + REG_SIZE - 1) / REG_SIZE
+  val TRIGGER_LVL0_ADDR_MAX: Int = TRIGGER_LVL0_ADDR + TRIGGER_LVL0_REG_SIZE - 1
+  
+  val TRIGGER_LVL1_ADDR: Int = TRIGGER_LVL0_ADDR_MAX + 1
+  val TRIGGER_LVL1_REG_SIZE: Int = (TRIGGER_LVL1_SIZE + REG_SIZE - 1) / REG_SIZE
+  val TRIGGER_LVL1_ADDR_MAX: Int = TRIGGER_LVL1_ADDR + TRIGGER_LVL1_REG_SIZE - 1
+
+  val TRIGGER_STATUS_ADDR: Int = TRIGGER_LVL1_ADDR_MAX + 1
+  val TRIGGER_STATUS_REG_SIZE: Int = (TRIGGER_STATUS_SIZE + REG_SIZE - 1) / REG_SIZE
+  val TRIGGER_STATUS_ADDR_MAX: Int = TRIGGER_STATUS_ADDR + TRIGGER_STATUS_REG_SIZE - 1
+
+  val IRQ_ENABLE_ADDR: Int = TRIGGER_STATUS_ADDR_MAX + 1
+  val IRQ_ENABLE_REG_SIZE: Int = (IRQ_ENABLE_SIZE + REG_SIZE - 1) / REG_SIZE
+  val IRQ_ENABLE_ADDR_MAX: Int = IRQ_ENABLE_ADDR + IRQ_ENABLE_REG_SIZE - 1
 }
