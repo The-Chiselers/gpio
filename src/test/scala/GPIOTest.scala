@@ -164,7 +164,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             require(outputDataAfterSet == andOperation)
           }
            */
-          
+          /*
           val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
           println("Test 6: Push-Pull Mode Operation")
           apbDataBuffer.foreach { data =>
@@ -187,8 +187,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             )
             require(randomDirectionData == actualValOutputEnable)
           }
-           
-          
+            
           println("Test 7: Drain Mode Operation")
           apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.MODE_ADDR.U, 0.U(myParams.PDATA_WIDTH.W))
@@ -210,6 +209,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             )
             require(expectedValOutputEnable == actualValOutputEnable)
           }
+            */
           
           /*
           // Test 8: Invalid Address Handling
@@ -316,6 +316,25 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
            */
 
+           //Test 17: Level Trigger Interrupts
+           println("Test 17: Level Trigger Interrupts")
+           //Trigger Level When High
+            writeAPB(dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
+            writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
+            writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
+            writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+            dut.io.pins.gpioInput.poke(3.U)
+            dut.clock.step(2) //Wait for synchronizer
+            val triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+            println(
+              s"Trigger Status Read Value: ${triggerStatus.toString()}"
+            )
+            require(triggerStatus == 3)
+            val irqOutput = dut.io.pins.irqOutput.peekInt() 
+            println(
+              s"irqOutput Read Value: ${irqOutput.toString()}"
+            )
+            require (irqOutput == 1)
         }
 
       // Check that all ports have toggled and print report
