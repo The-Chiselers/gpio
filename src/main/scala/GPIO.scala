@@ -60,7 +60,8 @@ class GPIO(p: BaseParams) extends Module {
 
   // Interrupt Handling
   for (i <- 0 until p.dataWidth) {
-    val condition = Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LVL0(i), regs.TRIGGER_LVL1(i))
+    val condition =
+      Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LVL0(i), regs.TRIGGER_LVL1(i))
     regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (0.U << i.U) // Default Conditions
     io.pins.irqOutput := 0.U
     gpioInputSyncPrev := gpioInputSync // Edge Detection
@@ -139,7 +140,7 @@ class GPIO(p: BaseParams) extends Module {
   // Handle invalid address case
   when(
     (io.apb.PADDR < regs.DIRECTION_ADDR.U) ||
-      (io.apb.PADDR > regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U)
+      (io.apb.PADDR > regs.IRQ_ENABLE_ADDR_MAX.U)
   ) {
     io.apb.PSLVERR := true.B // Set error signal
   }.otherwise {
