@@ -1,0 +1,76 @@
+% chktex-file 44
+\section{Register Interface}
+ 
+When programming registers, each register starts on a byte address, and the last bits it would take up in its final byte based on its size are unused. To find the size in bytes for any register, divide by the register size, and round up to the nearest whole number. For example, a 32-bit register would take up 4 bytes, and a 1-bit register would take up 1 byte.
+ 
+\begin{longtable}[H]{
+  | p{0.27\textwidth}
+  | p{0.18\textwidth}
+  | p{0.50\textwidth} |
+  }
+  \hline
+  \textbf{Name} &   
+  \textbf{Size (Bits)} &   
+  \textbf{Description} \\ \hline \hline
+
+  DIRECTION  &   
+  dataWidth &   
+  DESC TODO \\ \hline
+
+  OUTPUT &   
+  dataWidth &   
+  DESC TODO \\ \hline
+
+  INPUT &   
+  dataWidth &   
+  DESC TODO \\ \hline
+
+  MODE &   
+  dataWidth &   
+  DESC TODO \\ \hline
+
+  ATOMIC\_OPERATION &   
+  4 &   
+  DESC TODO \\ \hline
+
+  ATOMIC\_MASK &   
+  p.dataWidth &   
+  DESC TODO \\ \hline
+
+  ATOMIC\_SET &   
+  1 &   
+  DESC TODO \\ \hline
+
+  VIRTUAL\_PORT\_MAP &   
+  sizeOfVirtualPorts &   
+  DESC TODO \\ \hline
+
+  VIRTUAL\_PORT\_OUTPUT &   
+  numVirtualPorts &   
+  DESC TODO \\ \hline
+
+  VIRTUAL\_PORT\_ENABLE &   
+  1 &   
+  DESC TODO \\ \hline
+
+  TRIGGER\_TYPE &   
+  dataWidth &   
+  DESC TODO \\ \hline
+  
+  TRIGGER\_LVL0 &   
+  dataWidth &   
+  DESC TODO \\ \hline
+  
+  TRIGGER\_LVL1 &   
+  dataWidth &   
+  DESC TODO \\ \hline
+  
+  TRIGGER\_STATUS &   
+  dataWidth &   
+  DESC TODO \\ \hline
+  
+  IRQ\_ENABLE &   
+  dataWidth &   
+  DESC TODO \\ \hline
+
+\end{longtable}
