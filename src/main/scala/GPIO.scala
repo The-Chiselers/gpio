@@ -24,6 +24,8 @@ class GPIO(p: BaseParams) extends Module {
   // Intermediary Signals/Registers
   val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
   val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val triggerStatusVec = Wire(Vec(p.dataWidth, UInt(1.W)))
+
   val gpioInputSyncPrev = RegInit(0.U(p.dataWidth.W))
   // Synchronize GPIO Input
   val gpioInputSync = RegNext(RegNext(io.pins.gpioInput))
@@ -61,43 +63,45 @@ class GPIO(p: BaseParams) extends Module {
   // Interrupt Handling
   for (i <- 0 until p.dataWidth) {
     val condition = Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LVL0(i), regs.TRIGGER_LVL1(i))
-    regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (0.U << i.U) // Default Conditions
-    io.pins.irqOutput := 0.U
+    triggerStatusVec(i) := 0.U
     gpioInputSyncPrev := gpioInputSync // Edge Detection
     switch(condition) {
       is("b001".U) { // Level Trigger when High
         when(gpioInputSync(i) === 1.U) {
-          regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (1.U << i.U)
+          triggerStatusVec(i) := 1.U
         }
       }
       is("b010".U) { // Level Trigger when Low
         when(gpioInputSync(i) === 0.U) {
-          regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (1.U << i.U)
+          triggerStatusVec(i) := 1.U
         }
       }
       is("b011".U) { // Level Trigger when High or Low
-        regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (1.U << i.U)
+          triggerStatusVec(i) := 1.U
       }
       is("b101".U) { // Edge Trigger on Rising Edge
-        when(gpioInputSync(i) === 1.U && gpioInputSyncPrev(i) === 0.U) {
-          regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (1.U << i.U)
+        when(gpioInputSync(i) & ~gpioInputSyncPrev(i)) {
+          triggerStatusVec(i) := 1.U
         }
       }
       is("b110".U) { // Edge Trigger on Falling Edge
-        when(gpioInputSync(i) === 0.U && gpioInputSyncPrev(i) === 1.U) {
-          regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (1.U << i.U)
+        when(~gpioInputSync(i) && gpioInputSyncPrev(i)) {
+          triggerStatusVec(i) := 1.U
         }
       }
       is("b111".U) { // Edge Trigger on Rising or Falling Edge
         when(gpioInputSync(i) =/= gpioInputSyncPrev(i)) {
-          regs.TRIGGER_STATUS := regs.TRIGGER_STATUS | (1.U << i.U)
+          triggerStatusVec(i) := 1.U
         }
       }
     }
-    when((regs.TRIGGER_STATUS(i) & regs.IRQ_ENABLE(i)) === 1.U) {
-      io.pins.irqOutput := 1.U
-    }
   }
+  when((regs.TRIGGER_STATUS & regs.IRQ_ENABLE) >= 1.U) {
+    io.pins.irqOutput := 1.U
+  }.otherwise{
+    io.pins.irqOutput := 0.U
+  }
+  regs.TRIGGER_STATUS := Reverse(Cat(triggerStatusVec))
 
   // ATOMIC
   val atomicOperationTruthTable = Wire(Vec(2, Vec(2, UInt(1.W))))
@@ -139,7 +143,7 @@ class GPIO(p: BaseParams) extends Module {
   // Handle invalid address case
   when(
     (io.apb.PADDR < regs.DIRECTION_ADDR.U) ||
-      (io.apb.PADDR > regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U)
+      (io.apb.PADDR > regs.IRQ_ENABLE_ADDR_MAX.U)
   ) {
     io.apb.PSLVERR := true.B // Set error signal
   }.otherwise {

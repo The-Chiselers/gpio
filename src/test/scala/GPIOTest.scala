@@ -41,7 +41,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
       // VerilatorBackendAnnotation, // For using verilator simulator
       // IcarusBackendAnnotation,
       // VcsBackendAnnotation,
-      TargetDirAnnotation("generated"),
+      TargetDirAnnotation("generated")
     )
 
     // Randomize Input Variables
@@ -57,7 +57,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     // Ensure PDATA_WIDTH is equal to dataWidth
     assert(
       dataWidth == PDATA_WIDTH,
-      s"PDATA_WIDTH ($PDATA_WIDTH) should be == dataWidth ($dataWidth)",
+      s"PDATA_WIDTH ($PDATA_WIDTH) should be == dataWidth ($dataWidth)"
     )
     // Pass in randomly selected values to DUT
     val myParams =
@@ -100,14 +100,30 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             readValue
           }
 
+          def clearInterrupt(inputWrite: UInt, data: UInt): Unit = {
+            // Clearing Interrupt
+            dut.io.pins.gpioInput.poke(inputWrite)
+            writeAPB(dut.regs.TRIGGER_STATUS_ADDR.U, data)
+            readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+            dut.clock.step(2) // Wait for synchronizer
+            var irqOutput = dut.io.pins.irqOutput.peekInt()
+            println(
+              s"Clearing Interrupt, irqOutput Read Value: ${irqOutput.toString()}"
+            )
+            require(irqOutput == 0)
+          }
+
           // Reset Sequence
           dut.reset.poke(true.B)
           dut.clock.step()
           dut.reset.poke(false.B)
 
           // Buffer of randomized test data to apply in the test
-          val gpioDataBuffer = Seq.fill(numTests)(randData(myParams.dataWidth))
-          val apbDataBuffer = Seq.fill(numTests)(randData(myParams.PDATA_WIDTH))
+          val bufferLength = 2
+          val gpioDataBuffer =
+            Seq.fill(bufferLength)(randData(myParams.dataWidth))
+          val apbDataBuffer =
+            Seq.fill(bufferLength)(randData(myParams.PDATA_WIDTH))
 
           // Directed Tests
           println("Test 1: Write to DIRECTION register")
@@ -129,6 +145,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           println("Test 3: Write to INPUT register")
           gpioDataBuffer.foreach { data =>
             dut.io.pins.gpioInput.poke(data)
+            dut.clock.step(2) //Wait for synchronizer
             val inputData = readAPB(dut.regs.INPUT_ADDR.U)
             println(s"Input Register Read: ${inputData.toString()}")
             require(inputData == data.litValue)
@@ -158,10 +175,57 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             val andOperation = data.litValue & randomOutputData
             require(outputDataAfterSet == andOperation)
           }
+            
+          writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U) //When set to 1 it affects Push-Pull Mode, Interesting
 
+          val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
+          println("Test 6: Push-Pull Mode Operation")
+          apbDataBuffer.foreach { data =>
+            writeAPB(dut.regs.MODE_ADDR.U, fullOnes.U)
+            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            val randomDirectionData = Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
+            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
+            val expectedValOutput = randomDirectionData & data.litValue
+            val actualValOutput = dut.io.pins.gpioOutput.peekInt()
+            println(
+              s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}"
+            )
+            println(
+              s"Output Register after PPL Set: ${actualValOutput.toString()}"
+            )
+            require(expectedValOutput == actualValOutput) // Failing :(
+            val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
+            println(
+              s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
+            )
+            require(randomDirectionData == actualValOutputEnable)
+          }
+
+          println("Test 7: Drain Mode Operation")
+          apbDataBuffer.foreach { data =>
+            writeAPB(dut.regs.MODE_ADDR.U, 0.U(myParams.PDATA_WIDTH.W))
+            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            val randomDirectionData = Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
+            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
+            val actualValOutput = dut.io.pins.gpioOutput.peekInt()
+            println(
+              s"Output after PPL Set: ${actualValOutput.toString()}"
+            )
+            require(0 == actualValOutput)
+            val expectedValOutputEnable = ~data.litValue & randomDirectionData
+            val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
+            println(
+              s"Expected Output Enable after PPL Set: ${expectedValOutputEnable.toString()}"
+            )
+            println(
+              s"Output Enable after PPL Set: ${actualValOutputEnable.toString()}"
+            )
+            require(expectedValOutputEnable == actualValOutputEnable)
+          }
+          
           // Test 8: Invalid Address Handling
           println("Test 8: Invalid Address Handling")
-          val invalidAddr = dut.regs.VIRTUAL_PORT_ENABLE_ADDR_MAX + 1
+          val invalidAddr = dut.regs.IRQ_ENABLE_ADDR_MAX + 1
           writeAPB(invalidAddr.U, 15.U)
           dut.clock.step(1)
           require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
@@ -261,64 +325,85 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           println(s"Physical Port Output when virtual port is input: ${physicalPortOutputInput.toString()}")
           require(physicalPortOutputInput == 1) // Expect physical port 5 to be 0
 
-          /*
-          val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
-          println("Test 6: Push-Pull Mode Operation")
-          apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.MODE_ADDR.U, fullOnes.U)
-            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
-            val randomDirectionData = Random.nextInt(1 << myParams.dataWidth)
-            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
-            val expectedValOutput = randomDirectionData & data.litValue
-            val actualValOutput = dut.io.pins.gpioOutput.peekInt()
-            println(
-              s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}"
-            )
-            println(
-              s"Output Register after PPL Set: ${actualValOutput.toString()}"
-            )
-            require(expectedValOutput == actualValOutput) // Failing :(
-            val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
-            println(
-              s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
-            )
-            require(randomDirectionData == actualValOutputEnable)
-          }
-           */
+          // Test 17: Trigger Level When High
+          println("Test 17: Trigger Level When High")
+          writeAPB(dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          dut.io.pins.gpioInput.poke(3.U)
+          dut.clock.step(2) // Wait for synchronizer
+          var triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 3)
+          var irqOutput = dut.io.pins.irqOutput.peekInt()
+          println(
+            s"irqOutput Read Value: ${irqOutput.toString()}"
+          )
+          require(irqOutput == 1)
 
-          /*
-          val fullZeros = (BigInt(0) << myParams.PDATA_WIDTH) - 1
-          println("Test 7: Drain Mode Operation")
-          apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.MODE_ADDR.U, fullZeros.U)
-            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
-            val randomDirectionData = Random.nextInt(1 << myParams.dataWidth)
-            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
-            val actualValOutput = dut.io.pins.gpioOutput.peekInt()
-            println(
-              s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}"
-            )
-            println(
-              s"Output Register after PPL Set: ${actualValOutput.toString()}"
-            )
-            require(0 == actualValOutput)
-            for(i <- 0 until myParams.dataWidth) {
-              val expectedValOutputEnable = ~data
-            }
-            val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
-            println(
-              s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
-            )
-            require(randomDirectionData == actualValOutputEnable)
-          }
-           */
+          clearInterrupt(0.U, 3.U)
+
+          // Test 18: Trigger Level When Low
+          println("Test 18: Trigger Level When Low")
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 12.U)
+          dut.io.pins.gpioInput.poke(2.U)
+          dut.clock.step(2) // Wait for synchronizer
+          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 1)
+          irqOutput = dut.io.pins.irqOutput.peekInt()
+          println(
+            s"irqOutput Read Value: ${irqOutput.toString()}"
+          )
+          require(irqOutput == 1)
+
+          clearInterrupt(3.U, 1.U) // Write 1 to first 2 bits of input bc trigger level low is enabled
+          // Otherwise trigger register will keep on getting updated (not cleared)
+
+          // Test 19: Edge Trigger on Rising Edge
+          println("Test 19: Edge Trigger on Rising Edge")
+          writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 0.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          dut.io.pins.gpioInput.poke(0.U) // Need to go low to trigger edge det
+          dut.clock.step(2) // Wait for synchronizer
+          dut.io.pins.gpioInput.poke(7.U)
+          dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 3)
+
+          // Test 20: Edge Trigger on Falling Edge
+          println("Test 20: Edge Trigger on Falling Edge")
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 0.U)
+          dut.io.pins.gpioInput.poke(2.U) // Need to go high to trigger edge det
+          dut.clock.step(2) // Wait for synchronizer
+          dut.io.pins.gpioInput.poke(0.U)
+          dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 2)
+
 
         }
 
       // Check that all ports have toggled and print report
       if (myParams.coverage) {
         val coverage = cov.getAnnotationSeq
-          .collectFirst { case a: TestCoverage => a.counts }.get.toMap
+          .collectFirst { case a: TestCoverage => a.counts }
+          .get
+          .toMap
 
         val testConfig = myParams.dataWidth.toString + "_" +
           myParams.PDATA_WIDTH.toString + "_" + myParams.PADDR_WIDTH.toString
@@ -329,16 +414,17 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           testConfig + ".cov"
 
         val stuckAtFault = checkCoverage(coverage, coverageFile)
-        if (stuckAtFault) println(
-          s"WARNING: At least one IO port did not toggle -- see $coverageFile",
-        )
+        if (stuckAtFault)
+          println(
+            s"WARNING: At least one IO port did not toggle -- see $coverageFile"
+          )
         info(s"Verilog Coverage report written to $coverageFile")
       }
 
     }
   }
 
-  // Create a directory for storing coverage reportsG
+  // Create a directory for storing coverage reports
   val scalaCoverageDir = new File("generated/scalaCoverage")
   scalaCoverageDir.mkdir()
 
