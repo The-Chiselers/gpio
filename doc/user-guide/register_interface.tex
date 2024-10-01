@@ -57,11 +57,11 @@ When programming registers, each register starts on a byte address, and the last
   dataWidth &   
   DESC TODO \\ \hline
   
-  TRIGGER\_LVL0 &   
+  TRIGGER\_LO &   
   dataWidth &   
   DESC TODO \\ \hline
   
-  TRIGGER\_LVL1 &   
+  TRIGGER\_HI &   
   dataWidth &   
   DESC TODO \\ \hline
   
@@ -74,3 +74,122 @@ When programming registers, each register starts on a byte address, and the last
   DESC TODO \\ \hline
 
 \end{longtable}
+
+  \newpage
+
+  \subsection{DIRECTION}
+  DIRECTION is a \textit{dataWidth} bits wide active-high read/write register. This register controls the 
+  output enable bus \textit{gpioOutputEnable}. Operation can be seen in Table
+  \begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{DIRECTION[n]} & \textbf{Direction} \\ \hline
+        0 & Input \\ \hline
+        1 & Output \\ \hline
+    \end{tabular}
+    \caption{DIRECTION Register}
+\end{table}
+
+\subsection{OUTPUT}
+OUTPUT is a \textit{dataWidth} bits wide read/write register. This register controls the 
+output bus \textit{gpioOutput}. Writing a '0' drives the pad low in both modes of operation. Writing a '1' 
+drives the pad high in push-pull mode, or Hi-Z in open-drain mode. 
+
+\subsection{INPUT}
+INPUT is a \textit{dataWidth} bits wide read-only register. This register is written to from the 
+input bus \textit{gpioInput}. On the rising edge of the APB3 Bus Clock (PCLK), input data from \textit{gpioInput} 
+is synchronized using two flops and stored in the INPUT register. From there, it may be read via the APB3 Bus Interface
+through PRDATA. 
+
+\subsection{MODE}
+MODE is a \textit{dataWidth} bits wide read/write register. This register sets the operating mode for each bit
+of the \textit{gpioOutput} and \textit{gpioOutputEnable} busses as either push-pull or open drain mode. Operation can be seen in Table
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{MODE[n]} & \textbf{Operating Mode} \\ \hline
+      0 & Push-Pull \\ \hline
+      1 & Open Drain\\ \hline
+  \end{tabular}
+  \caption{MODE Register}
+\end{table}
+
+\subsection{TRIGGER\_TYPE}
+TRIGGER\_TYPE is a \textit{dataWidth} bits wide read/write register. This register configures whether \textit{gpioInput} is a level or edge sensitive
+interrupt trigger as seen below:
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{TRIGGER\_TYPE[n]} & \textbf{Type} \\ \hline
+      0 & Level \\ \hline
+      1 & Edge \\ \hline
+  \end{tabular}
+  \caption{TRIGGER\_TYPE Register}
+\end{table}
+
+\subsection{TRIGGER\_LO}
+TRIGGER\_LO is a \textit{dataWidth} bits wide read/write register. This register configures whether the interrupt is triggered on a level low, or a falling edge, 
+of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be see in Table:
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+      \hline
+      \textbf{TRIGGER\_LO[n]} & \textbf{Level Trigger} & \textbf{Edge Trigger} \\ \hline
+      0 & No Trigger when Low & No Trigger on Falling Edge\\ \hline
+      1 & Trigger when Low & Trigger on Falling Edge\\ \hline
+  \end{tabular}
+  \caption{TRIGGER\_LO Register}
+\end{table}
+
+\subsection{TRIGGER\_HI}
+TRIGGER\_HI is a \textit{dataWidth} bits wide read/write register. This register configures whether the interrupt is triggered on a level high, or a rising edge, 
+of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be see in Table:
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+      \hline
+      \textbf{TRIGGER\_HI[n]} & \textbf{Level Trigger} & \textbf{Edge Trigger} \\ \hline
+      0 & No Trigger when High & No Trigger on Rising Edge\\ \hline
+      1 & Trigger when High & Trigger on Rising Edge\\ \hline
+  \end{tabular}
+  \caption{TRIGGER\_HI Register}
+\end{table}
+
+\subsection{TRIGGER\_STATUS}
+TRIGGER\_STATUS is a \textit{dataWidth} bits wide read/write register. This register sets a corresponding bit to '1' if a trigger condition is met on
+the corresponding \textit{gpioInput[n]} according to the settings of TRIGGER\_TYPE, TRIGGER\_LO, and TRIGGER\_HI.
+\newline
+\newline
+TRIGGER\_STATUS may be read on the PRDATA bus to determine if a trigger condition has occurred. Writing a '1' to TRIGGER\_STATUS[n] will clear the 
+status of the corresponding bit. If a new trigger is detected simulatenously during this write, the TRIGGER\_STATUS[n] will remain set.
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{TRIGGER\_STATUS[n]} & \textbf{Status} \\ \hline
+      0 & No Trigger Detected \\ \hline
+      1 & Trigger Detected\\ \hline
+  \end{tabular}
+  \caption{TRIGGER\_STATUS Register}
+\end{table}
+
+\newpage
+\subsection{IRQ\_ENABLE}
+IRQ\_ENABLE is a \textit{dataWidth} bits wide read/write register. This register determines if the \textit{irqOutput} pin is asserted when a trigger condition
+occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for enabling interrupt generation from the GPIO core.
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{IRQ\_ENABLE[n]} & \textbf{Definition} \\ \hline
+      0 & Disable IRQ Generation\\ \hline
+      1 & Enable IRQ Generation \\ \hline
+  \end{tabular}
+  \caption{IRQ\_ENABLE Register}
+\end{table}
+
+
+

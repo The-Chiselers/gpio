@@ -36,6 +36,12 @@ by the following input parameters:
   \textit{dataWidth} & 
   Output &     
   Enable data to be recieved from the GPIO \\ \hline
+
+  irqOutput &      
+  1 & 
+  Output &     
+  Sent when interrupt is triggered on the GPIO \\ \hline
+ 
  
   \caption{GPIO Ports Descriptions}\label{table:ports}
 \end{longtable}
@@ -46,8 +52,8 @@ Table 2. See the \textit{AMBA APB Protocol Specifications} for a complete descri
 by the following input parameters:
 
 \begin{itemize}[noitemsep]
-  \item \textit{PDATA\_WIDTH} is the width of PWDATA and PRDATA in bits
-  \item \textit{PADDR\_WIDTH} is the width of PADDR in bits
+  \item \textit{dataWidth} is the width of PWDATA and PRDATA in bits
+  \item \textit{addrWidth} is the width of PADDR in bits
 \end{itemize}
  
 \renewcommand*{\arraystretch}{1.4}
@@ -89,17 +95,17 @@ by the following input parameters:
   Indicates write access when HIGH and read access when LOW\\ \hline
 
   PADDR &      
-  \textit{PADDR\_WIDTH} & 
+  \textit{addrWidth} & 
   Input &     
   Address bus \\ \hline
 
   PWDATA &      
-  \textit{PDATA\_WIDTH} & 
+  \textit{dataWidth} & 
   Input &     
   Write data bus driven when PWRITE is HIGH\\ \hline
 
   PRDATA &      
-  \textit{PDATA\_WIDTH} & 
+  \textit{dataWidth} & 
   Output &     
   Read data bus driven when PWRITE is LOW\\ \hline
  

@@ -23,38 +23,25 @@ Table 3.
   dataWidth   &
   Int       &
   1         &
-  $\geq$ 1          &
-  The data width of GPIO ports \\ \hline
+  $\leq$ 32          &
+  The data width of GPIO ports, PWDATA, and PRDATA. Can be 8, 6, or 32 bits wide \\ \hline
 
-  PADDR\_WIDTH     &
+  addrWidth     &
   Int           &
   1             &
   $\leq$ 32       &
   The APB address bus width  \\ \hline
 
-  PDATA\_WIDTH     &
-  Int           &
-  8             &
-  $\leq$ 32       &
-  The APB PWDATA and PRDATA bus width. Can be 8, 16, or 32 bits wide        \\ \hline
-
   \caption{Parameter Descriptions}\label{table:params}
 \end{longtable}
 
-The DynamicFifo is instantiated into a design as follows:
+The GPIO is instantiated into a design as follows:
 
 \begin{lstlisting}[language=Scala]
 
-  // Instantiate small FIFO using internal flip-flops
-  val mySmallFifo = new DynamicFifo(
-    externalRAM = false, 
-    dataWidth = 8, 
-    fifoDepth = 16) 
-
-  // Instantiate large FIFO using external SRAM
-  val myLargeFifo = new DynamicFifo(
-    externalRAM = true, 
+  // Valid GPIO Instantiation Example
+  val myGPIO = new GPIO(
     dataWidth = 32, 
-    fifoDepth = 512) 
+    addrWidth = 32 ) 
 
   \end{lstlisting}

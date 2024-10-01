@@ -6,16 +6,25 @@
 \contentsline {subsection}{\numberline {2.2}APB3 Interface}{4}{subsection.2.2}%
 \contentsline {section}{\numberline {3}Parameter Descriptions}{5}{section.3}%
 \contentsline {section}{\numberline {4}Register Interface}{6}{section.4}%
-\contentsline {section}{\numberline {5}Virtual Ports}{7}{section.5}%
-\contentsline {section}{\numberline {6}Theory of Operations}{9}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Introduction}{9}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Interface Timing}{10}{subsection.6.2}%
-\contentsline {section}{\numberline {7}Simulation}{11}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Tests}{11}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Code coverage}{11}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Running simulation}{11}{subsection.7.3}%
-\contentsline {section}{\numberline {8}Synthesis}{12}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Area}{12}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}SDC File}{12}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Timing}{12}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Multicycle Paths}{12}{subsection.8.4}%
+\contentsline {subsection}{\numberline {4.1}DIRECTION}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}OUTPUT}{7}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}INPUT}{7}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}MODE}{7}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}TRIGGER\_TYPE}{7}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}TRIGGER\_LO}{8}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}TRIGGER\_HI}{8}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}TRIGGER\_STATUS}{8}{subsection.4.8}%
+\contentsline {subsection}{\numberline {4.9}IRQ\_ENABLE}{9}{subsection.4.9}%
+\contentsline {section}{\numberline {5}Virtual Ports}{10}{section.5}%
+\contentsline {section}{\numberline {6}Theory of Operations}{12}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Introduction}{12}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Interface Timing}{13}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Simulation}{14}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Tests}{14}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Code coverage}{14}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Running simulation}{14}{subsection.7.3}%
+\contentsline {section}{\numberline {8}Synthesis}{15}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Area}{15}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}SDC File}{15}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Timing}{15}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Multicycle Paths}{15}{subsection.8.4}%
