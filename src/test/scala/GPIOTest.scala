@@ -33,6 +33,45 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
   val numTests = 1
   val verbose = false
 
+  def writeAPB(dut: GPIO, addr: UInt, data: UInt): Unit = {
+    dut.io.apb.PSEL.poke(1) // Select GPIO Slave
+    dut.clock.step(1) // Simulate Second Phase
+    dut.io.apb.PENABLE.poke(1) // Enable APB
+    dut.io.apb.PWRITE.poke(1) // Write mode
+    dut.io.apb.PADDR.poke(addr)
+    dut.io.apb.PWDATA.poke(data)
+    dut.clock.step(1)
+    dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
+    dut.io.apb.PENABLE.poke(0) // Disable APB
+    dut.clock.step(2)
+  }
+
+  def readAPB(dut: GPIO, addr: UInt): BigInt = {
+    dut.io.apb.PSEL.poke(1) // Select APB
+    dut.clock.step(1)
+    dut.io.apb.PENABLE.poke(1) // Enable APB
+    dut.io.apb.PWRITE.poke(0) // Read mode
+    dut.io.apb.PADDR.poke(addr)
+    dut.clock.step(1)
+    val readValue = dut.io.apb.PRDATA.peekInt() // Return read data
+    dut.clock.step(1) // Step for the read operation
+    dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
+    dut.io.apb.PENABLE.poke(0) // Disable APB
+    dut.clock.step(2)
+    readValue
+  }
+
+  def clearInterrupt(dut: GPIO, inputWrite: UInt, data: UInt): Unit = {
+    // Clearing Interrupt
+    dut.io.pins.gpioInput.poke(inputWrite)
+    writeAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U, data)
+    readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+    dut.clock.step(2) // Wait for synchronizer
+    var irqOutput = dut.io.pins.irqOutput.peekInt()
+    println(s"Clearing Interrupt, irqOutput Read Value: ${irqOutput.toString()}")
+    require(irqOutput == 0)
+  }
+
   def main(testName: String): Unit = {
     behavior of testName
 
@@ -76,45 +115,6 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
         .withAnnotations(backendAnnotations) { dut =>
           dut.clock.setTimeout(0)
 
-          def writeAPB(addr: UInt, data: UInt): Unit = {
-            dut.io.apb.PSEL.poke(1) // Select GPIO Slave
-            dut.clock.step(1) // Simulate Second Phase
-            dut.io.apb.PENABLE.poke(1) // Enable APB
-            dut.io.apb.PWRITE.poke(1) // Write mode
-            dut.io.apb.PADDR.poke(addr)
-            dut.io.apb.PWDATA.poke(data)
-            dut.clock.step(1)
-            dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
-            dut.io.apb.PENABLE.poke(0) // Disable APB
-            dut.clock.step(2)
-          }
-
-          def readAPB(addr: UInt): BigInt = {
-            dut.io.apb.PSEL.poke(1) // Select APB
-            dut.clock.step(1)
-            dut.io.apb.PENABLE.poke(1) // Enable APB
-            dut.io.apb.PWRITE.poke(0) // Read mode
-            dut.io.apb.PADDR.poke(addr)
-            dut.clock.step(1)
-            val readValue = dut.io.apb.PRDATA.peekInt() // Return read data
-            dut.clock.step(1) // Step for the read operation
-            dut.io.apb.PSEL.poke(0) // Deselect GPIO Slave
-            dut.io.apb.PENABLE.poke(0) // Disable APB
-            dut.clock.step(2)
-            readValue
-          }
-
-          def clearInterrupt(inputWrite: UInt, data: UInt): Unit = {
-            // Clearing Interrupt
-            dut.io.pins.gpioInput.poke(inputWrite)
-            writeAPB(dut.regs.TRIGGER_STATUS_ADDR.U, data)
-            readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
-            dut.clock.step(2) // Wait for synchronizer
-            var irqOutput = dut.io.pins.irqOutput.peekInt()
-            println(s"Clearing Interrupt, irqOutput Read Value: ${irqOutput.toString()}")
-            require(irqOutput == 0)
-          }
-
           // Reset Sequence
           dut.reset.poke(true.B)
           dut.clock.step()
@@ -130,16 +130,16 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           // Directed Tests
           println("Test 1: Write to DIRECTION register")
           apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.DIRECTION_ADDR.U, data)
-            val directionData = readAPB(dut.regs.DIRECTION_ADDR.U)
+            writeAPB(dut, dut.regs.DIRECTION_ADDR.U, data)
+            val directionData = readAPB(dut, dut.regs.DIRECTION_ADDR.U)
             println(s"Direction Register Read: ${directionData.toString()}")
             require(directionData == data.litValue)
           }
 
           println("Test 2: Write to OUTPUT register")
           apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
-            val outputData = readAPB(dut.regs.OUTPUT_ADDR.U)
+            writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
+            val outputData = readAPB(dut, dut.regs.OUTPUT_ADDR.U)
             println(s"Output Register Read: ${outputData.toString()}")
             require(outputData == data.litValue)
           }
@@ -148,46 +148,46 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           gpioDataBuffer.foreach { data =>
             dut.io.pins.gpioInput.poke(data)
             dut.clock.step(2) // Wait for synchronizer
-            val inputData = readAPB(dut.regs.INPUT_ADDR.U)
+            val inputData = readAPB(dut, dut.regs.INPUT_ADDR.U)
             println(s"Input Register Read: ${inputData.toString()}")
             require(inputData == data.litValue)
           }
 
           println("Test 4: Write to MODE register")
           apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.MODE_ADDR.U, data)
-            val modeData = readAPB(dut.regs.MODE_ADDR.U)
+            writeAPB(dut, dut.regs.MODE_ADDR.U, data)
+            val modeData = readAPB(dut, dut.regs.MODE_ADDR.U)
             println(s"Mode Register Read: ${modeData.toString()}")
             require(modeData == data.litValue)
           }
 
           println("Test 5: Test Atomic AND Register")
           apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U)
-            writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U)
-            writeAPB(dut.regs.ATOMIC_MASK_ADDR.U, data)
+            writeAPB(dut, dut.regs.ATOMIC_SET_ADDR.U, 0.U)
+            writeAPB(dut, dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U)
+            writeAPB(dut, dut.regs.ATOMIC_MASK_ADDR.U, data)
             val randomOutputData = Random.nextInt(1 << myParams.dataWidth)
-            writeAPB(dut.regs.OUTPUT_ADDR.U, randomOutputData.U)
-            val outputDataBeforeSet = readAPB(dut.regs.OUTPUT_ADDR.U)
+            writeAPB(dut, dut.regs.OUTPUT_ADDR.U, randomOutputData.U)
+            val outputDataBeforeSet = readAPB(dut, dut.regs.OUTPUT_ADDR.U)
             println(s"Output Register Read Before Set: ${outputDataBeforeSet.toString()}")
             require(outputDataBeforeSet == randomOutputData)
-            writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 1.U)
-            val outputDataAfterSet = readAPB(dut.regs.OUTPUT_ADDR.U)
+            writeAPB(dut, dut.regs.ATOMIC_SET_ADDR.U, 1.U)
+            val outputDataAfterSet = readAPB(dut, dut.regs.OUTPUT_ADDR.U)
             println(s"Output Register Read After Set: ${outputDataAfterSet.toString()}")
             val andOperation = data.litValue & randomOutputData
             require(outputDataAfterSet == andOperation)
           }
 
-          writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U) // When set to 1 it affects Push-Pull Mode, Interesting
+          writeAPB(dut, dut.regs.ATOMIC_SET_ADDR.U, 0.U) // When set to 1 it affects Push-Pull Mode, Interesting
 
           val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
           println("Test 6: Push-Pull Mode Operation")
           apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.MODE_ADDR.U, fullOnes.U)
-            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            writeAPB(dut, dut.regs.MODE_ADDR.U, fullOnes.U)
+            writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
             val randomDirectionData = Random
               .nextInt(Math.pow(2, myParams.dataWidth).toInt)
-            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
+            writeAPB(dut, dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
             val expectedValOutput = randomDirectionData & data.litValue
             val actualValOutput = dut.io.pins.gpioOutput.peekInt()
             println(s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}")
@@ -202,11 +202,11 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
           println("Test 7: Drain Mode Operation")
           apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.MODE_ADDR.U, 0.U(myParams.PDATA_WIDTH.W))
-            writeAPB(dut.regs.OUTPUT_ADDR.U, data)
+            writeAPB(dut, dut.regs.MODE_ADDR.U, 0.U(myParams.PDATA_WIDTH.W))
+            writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
             val randomDirectionData = Random
               .nextInt(Math.pow(2, myParams.dataWidth).toInt)
-            writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
+            writeAPB(dut, dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
             val actualValOutput = dut.io.pins.gpioOutput.peekInt()
             println(s"Output after PPL Set: ${actualValOutput.toString()}")
             require(0 == actualValOutput)
@@ -220,26 +220,27 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           // Test 8: Invalid Address Handling
           println("Test 8: Invalid Address Handling")
           val invalidAddr = dut.regs.IRQ_ENABLE_ADDR_MAX + 1
-          writeAPB(invalidAddr.U, 15.U)
+          writeAPB(dut, invalidAddr.U, 15.U)
           dut.clock.step(1)
           require(dut.io.apb.PSLVERR.peekInt() == 1) // Should set error signal
           dut.clock.step(1)
-          val readData = readAPB(invalidAddr.U)
+          val readData = readAPB(dut, invalidAddr.U)
           dut.clock.step(1)
           require(dut.io.apb.PSLVERR.peekInt() == 1)
           require(readData == 0)
 
           // Test 9: Test mapping of virtual ports to physical ports
           println("Test 9: Virtual Port to Physical Port Mapping")
-          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Assign virtual port to physical port 5
-          val virtualPortMapping = readAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U)
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Assign virtual port to physical port 5
+          val virtualPortMapping = readAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U)
           println(s"Virtual Port Mapping Read: ${virtualPortMapping.toString()}")
           require(virtualPortMapping == 5)
 
           // Test 10: Test output from a virtual port
           println("Test 10: Writing to a virtual port")
-          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write 0b1 to the virtual port output
-          val virtualPortOutput = readAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U) // Read back the virtual port output
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write 0b1 to the virtual port output
+          val virtualPortOutput =
+            readAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U) // Read back the virtual port output
           println(s"Virtual Port Output: ${virtualPortOutput.toString()}")
           require(virtualPortOutput == 1)
 
@@ -247,13 +248,13 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           println(
             "Test 11: Verify physical port output after virtual port write",
           )
-          writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U)
-          writeAPB(dut.regs.OUTPUT_ADDR.U, 0.U) // Clear the physical port output
-          writeAPB(dut.regs.DIRECTION_ADDR.U, 32.U) // Set the direction to output
-          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port to physical port 5
-          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port 1
-          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write to virtual port
-          val physicalPortOutput = readAPB(dut.regs.OUTPUT_ADDR.U) & 0x20 // Read back the physical port output
+          writeAPB(dut, dut.regs.ATOMIC_SET_ADDR.U, 0.U)
+          writeAPB(dut, dut.regs.OUTPUT_ADDR.U, 0.U) // Clear the physical port output
+          writeAPB(dut, dut.regs.DIRECTION_ADDR.U, 32.U) // Set the direction to output
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port to physical port 5
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port 1
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write to virtual port
+          val physicalPortOutput = readAPB(dut, dut.regs.OUTPUT_ADDR.U) & 0x20 // Read back the physical port output
           println(
             s"Physical Port Output (Port 5): ${physicalPortOutput.toString()}",
           )
@@ -263,26 +264,26 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           println(
             "Test 12: Disable virtual port and verify physical port output",
           )
-          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 0.U) // Disable virtual port
-          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 0.U) // Write 0 to the virtual port output
-          val disabledPhysicalPortOutput = readAPB(dut.regs.OUTPUT_ADDR.U) &
-            0x20 // Read back the physical port output
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 0.U) // Disable virtual port
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 0.U) // Write 0 to the virtual port output
+          val disabledPhysicalPortOutput =
+            readAPB(dut, dut.regs.OUTPUT_ADDR.U) & 0x20 // Read back the physical port output
           println(s"Physical Port Output after disabling virtual port: ${disabledPhysicalPortOutput.toString()}")
           require(disabledPhysicalPortOutput == 32) // Expect physical port output to be as before
 
           // Test 13: Invalid virtual port mapping (out of range)
           println("Test 13: Invalid virtual port mapping")
-          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 32.U) // Try to map virtual port to an invalid physical pin
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 32.U) // Try to map virtual port to an invalid physical pin
           val invalidVirtualPortMapping =
-            readAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U)
+            readAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U)
           println(s"Invalid Virtual Port Mapping: ${invalidVirtualPortMapping.toString()}")
           require(invalidVirtualPortMapping == 0) // Expect no mapping to occur (0)
 
           // Test 14: Read from a disabled virtual port
           println("Test 14: Read from disabled virtual port")
-          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 0.U) // Disable virtual port
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 0.U) // Disable virtual port
           val disabledVirtualPortRead =
-            readAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U)
+            readAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U)
           println(
             s"Disabled Virtual Port Read: ${disabledVirtualPortRead.toString()}",
           )
@@ -290,90 +291,90 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
           // Test 15: Overlapping virtual ports mapped to the same physical port
           println("Test 15: Overlapping virtual ports mapped to the same physical port")
-          writeAPB(dut.regs.OUTPUT_ADDR.U, 0.U) // Clear physical port output
-          writeAPB(dut.regs.DIRECTION_ADDR.U, 32.U) // Set direction to output
-          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
-          writeAPB((dut.regs.VIRTUAL_PORT_MAP_ADDR + 1).U, 5.U) // Map virtual port 1 to physical port 5 (overlap)
-          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual ports
+          writeAPB(dut, dut.regs.OUTPUT_ADDR.U, 0.U) // Clear physical port output
+          writeAPB(dut, dut.regs.DIRECTION_ADDR.U, 32.U) // Set direction to output
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
+          writeAPB(dut, (dut.regs.VIRTUAL_PORT_MAP_ADDR + 1).U, 5.U) // Map virtual port 1 to physical port 5 (overlap)
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual ports
 
           // Write to virtual port 0
-          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write 1 to virtual port 0
-          val physicalPortOutput0 = readAPB(dut.regs.OUTPUT_ADDR.U) & 0x20 // Check physical port 5 output
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 1.U) // Write 1 to virtual port 0
+          val physicalPortOutput0 = readAPB(dut, dut.regs.OUTPUT_ADDR.U) & 0x20 // Check physical port 5 output
           println(s"Physical Port Output after virtual port 0 write: ${physicalPortOutput0.toString()}")
           require(physicalPortOutput0 == 32) // Expect physical port 5 to be 1
 
           // Write to virtual port 1 (overlapping port)
-          writeAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 0.U) // Write 0 to virtual port 1
-          val physicalPortOutput1 = readAPB(dut.regs.OUTPUT_ADDR.U) // Check physical port 5 output again
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U, 0.U) // Write 0 to virtual port 1
+          val physicalPortOutput1 = readAPB(dut, dut.regs.OUTPUT_ADDR.U) // Check physical port 5 output again
           println(s"Physical Port Output after virtual port 1 write: ${physicalPortOutput1.toString()}")
           require(physicalPortOutput1 == 0) // Expect physical port 5 to be 0 (overlap caused change)
 
           // Test 16: when virtual port is input
           println("Test 16: Virtual Port as Input")
-          writeAPB(dut.regs.DIRECTION_ADDR.U, 0.U) // Set direction to input
+          writeAPB(dut, dut.regs.DIRECTION_ADDR.U, 0.U) // Set direction to input
           dut.io.pins.gpioInput.poke(32.U) // write 32 to input
-          writeAPB(dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
-          writeAPB(dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
+          writeAPB(dut, dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port
           val physicalPortOutputInput =
-            readAPB(dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U) // Check physical port 5 output
+            readAPB(dut, dut.regs.VIRTUAL_PORT_OUTPUT_ADDR.U) // Check physical port 5 output
           println(s"Physical Port Output when virtual port is input: ${physicalPortOutputInput.toString()}")
           require(physicalPortOutputInput == 1) // Expect physical port 5 to be 0
 
           // Test 17: Trigger Level When High
           println("Test 17: Trigger Level When High")
-          writeAPB(dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          writeAPB(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
+          writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
           dut.io.pins.gpioInput.poke(3.U)
           dut.clock.step(2) // Wait for synchronizer
-          var triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
           println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
           require(triggerStatus == 3)
           var irqOutput = dut.io.pins.irqOutput.peekInt()
           println(s"irqOutput Read Value: ${irqOutput.toString()}")
           require(irqOutput == 1)
 
-          clearInterrupt(0.U, 3.U)
+          clearInterrupt(dut, 0.U, 3.U)
 
           // Test 18: Trigger Level When Low
           println("Test 18: Trigger Level When Low")
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 12.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL1_ADDR.U, 12.U)
           dut.io.pins.gpioInput.poke(2.U)
           dut.clock.step(2) // Wait for synchronizer
-          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
           println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
           require(triggerStatus == 1)
           irqOutput = dut.io.pins.irqOutput.peekInt()
           println(s"irqOutput Read Value: ${irqOutput.toString()}")
           require(irqOutput == 1)
 
-          clearInterrupt(3.U, 1.U) // Write 1 to first 2 bits of input bc trigger level low is enabled
+          clearInterrupt(dut, 3.U, 1.U) // Write 1 to first 2 bits of input bc trigger level low is enabled
           // Otherwise trigger register will keep on getting updated (not cleared)
 
           // Test 19: Edge Trigger on Rising Edge
           println("Test 19: Edge Trigger on Rising Edge")
-          writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 0.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL0_ADDR.U, 0.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
           dut.io.pins.gpioInput.poke(0.U) // Need to go low to trigger edge det
           dut.clock.step(2) // Wait for synchronizer
           dut.io.pins.gpioInput.poke(7.U)
           dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
-          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
           println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
           require(triggerStatus == 3)
 
           // Test 20: Edge Trigger on Falling Edge
           println("Test 20: Edge Trigger on Falling Edge")
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 0.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
+          writeAPB(dut, dut.regs.TRIGGER_LVL1_ADDR.U, 0.U)
           dut.io.pins.gpioInput.poke(2.U) // Need to go high to trigger edge det
           dut.clock.step(2) // Wait for synchronizer
           dut.io.pins.gpioInput.poke(0.U)
           dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
-          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
           println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
           require(triggerStatus == 2)
 
