@@ -62,7 +62,7 @@ class GPIO(p: BaseParams) extends Module {
 
   // Interrupt Handling
   for (i <- 0 until p.dataWidth) {
-    val condition = Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LVL0(i), regs.TRIGGER_LVL1(i))
+    val condition = Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LO(i), regs.TRIGGER_HI(i))
     triggerStatusVec(i) := 0.U
     gpioInputSyncPrev := gpioInputSync // Edge Detection
     switch(condition) {
@@ -160,14 +160,11 @@ class GPIO(p: BaseParams) extends Module {
       cover(io.pins.gpioOutput(bit)).suggestName(s"io_gpioOutput_$bit")
       cover(io.pins.gpioOutputEnable(bit))
         .suggestName(s"io_gpioOutputEnable_$bit")
-    }
-
-    for (bit <- 0 to p.PDATA_WIDTH - 1) {
       cover(io.apb.PRDATA(bit)).suggestName(s"apb_PRDATA_$bit")
       cover(io.apb.PWDATA(bit)).suggestName(s"apb_PWDATA_$bit")
     }
 
-    for (bit <- 0 to p.PADDR_WIDTH - 1)
+    for (bit <- 0 to p.addrWidth - 1)
       cover(io.apb.PADDR(bit))
         .suggestName(s"apb_ADDR_$bit")
 
@@ -288,21 +285,21 @@ class GPIO(p: BaseParams) extends Module {
       )
       regs.TRIGGER_TYPE := io.apb.PWDATA(regs.TRIGGER_TYPE_SIZE - 1, 0)
     }
-    when(addr >= regs.TRIGGER_LVL0_ADDR.U && addr <= regs.TRIGGER_LVL0_ADDR_MAX.U) {
+    when(addr >= regs.TRIGGER_LO_ADDR.U && addr <= regs.TRIGGER_LO_ADDR_MAX.U) {
       printf(
-        "Writing TRIGGER_LVL0 Register, data: %x, addr: %x\n",
+        "Writing TRIGGER_LO Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr
       )
-      regs.TRIGGER_LVL0 := io.apb.PWDATA(regs.TRIGGER_LVL0_SIZE - 1, 0)
+      regs.TRIGGER_LO := io.apb.PWDATA(regs.TRIGGER_LO_SIZE - 1, 0)
     }
-    when(addr >= regs.TRIGGER_LVL1_ADDR.U && addr <= regs.TRIGGER_LVL1_ADDR_MAX.U) {
+    when(addr >= regs.TRIGGER_HI_ADDR.U && addr <= regs.TRIGGER_HI_ADDR_MAX.U) {
       printf(
-        "Writing TRIGGER_LVL1 Register, data: %x, addr: %x\n",
+        "Writing TRIGGER_HI Register, data: %x, addr: %x\n",
         io.apb.PWDATA,
         addr
       )
-      regs.TRIGGER_LVL1 := io.apb.PWDATA(regs.TRIGGER_LVL1_SIZE - 1, 0)
+      regs.TRIGGER_HI := io.apb.PWDATA(regs.TRIGGER_HI_SIZE - 1, 0)
     }
     when(
       addr >= regs.TRIGGER_STATUS_ADDR.U && addr <= regs.TRIGGER_STATUS_ADDR_MAX.U
@@ -426,22 +423,22 @@ class GPIO(p: BaseParams) extends Module {
       io.apb.PRDATA := regs.TRIGGER_TYPE
     }
     when(
-      addr >= regs.TRIGGER_LVL0_ADDR.asUInt && addr <= regs.TRIGGER_LVL0_ADDR_MAX.U
+      addr >= regs.TRIGGER_LO_ADDR.asUInt && addr <= regs.TRIGGER_LO_ADDR_MAX.U
     ) {
       printf(
-        "READING TRIGGER_LVL0 Register, data: %x, addr: %x\n",
-        regs.TRIGGER_LVL0,
+        "READING TRIGGER_LO Register, data: %x, addr: %x\n",
+        regs.TRIGGER_LO,
         addr
       )
-      io.apb.PRDATA := regs.TRIGGER_LVL0
+      io.apb.PRDATA := regs.TRIGGER_LO
     }
-    when(addr >= regs.TRIGGER_LVL1_ADDR.U && addr <= regs.TRIGGER_LVL1_ADDR_MAX.U) {
+    when(addr >= regs.TRIGGER_HI_ADDR.U && addr <= regs.TRIGGER_HI_ADDR_MAX.U) {
       printf(
-        "READING TRIGGER_LVL1 Register, data: %x, addr: %x\n",
-        regs.TRIGGER_LVL1,
+        "READING TRIGGER_HI Register, data: %x, addr: %x\n",
+        regs.TRIGGER_HI,
         addr
       )
-      io.apb.PRDATA := regs.TRIGGER_LVL1
+      io.apb.PRDATA := regs.TRIGGER_HI
     }
     when(
       addr >= regs.TRIGGER_STATUS_ADDR.U && addr <= regs.TRIGGER_STATUS_ADDR_MAX.U

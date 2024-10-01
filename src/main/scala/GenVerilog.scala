@@ -22,8 +22,7 @@ object Main extends App {
   val myParams = BaseParams(
     wordWidth = 8,
     dataWidth = 32,
-    PDATA_WIDTH = 32,
-    PADDR_WIDTH = 32,
+    addrWidth = 32,
     coverage = false
   )
   // if output dir does not exist, make path

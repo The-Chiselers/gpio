@@ -46,27 +46,17 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
     // Randomize Input Variables
     val validDataWidths = Seq(8, 16, 32)
-    val validPDataWidths = Seq(8, 16, 32)
     val validPAddrWidths = Seq(8, 16, 32)
-    val PDATA_WIDTH = validPDataWidths(Random.nextInt(validPDataWidths.length))
-    val PADDR_WIDTH = validPAddrWidths(Random.nextInt(validPAddrWidths.length))
-    val dataWidth = {
-      val eligibleWidths = validDataWidths.filter(_ == PDATA_WIDTH)
-      eligibleWidths(Random.nextInt(eligibleWidths.length))
-    }
-    // Ensure PDATA_WIDTH is equal to dataWidth
-    assert(
-      dataWidth == PDATA_WIDTH,
-      s"PDATA_WIDTH ($PDATA_WIDTH) should be == dataWidth ($dataWidth)"
-    )
+    val dataWidth = validDataWidths(Random.nextInt(validDataWidths.length))
+    val addrWidth = validPAddrWidths(Random.nextInt(validPAddrWidths.length))
+
     // Pass in randomly selected values to DUT
     val myParams =
-      BaseParams(8, dataWidth, PDATA_WIDTH, PADDR_WIDTH, coverage = true)
+      BaseParams(8, dataWidth, addrWidth, coverage = true)
 
     it should "pass" in {
       info(s"Data Width = $dataWidth")
-      info(s"PDATA_WIDTH = $PDATA_WIDTH")
-      info(s"PADDR_WIDTH = $PADDR_WIDTH")
+      info(s"Address Width = $addrWidth")
       info("--------------------------------")
       val cov = test(new GPIO(myParams))
         .withAnnotations(backendAnnotations) { dut =>
@@ -122,12 +112,10 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           val bufferLength = 2
           val gpioDataBuffer =
             Seq.fill(bufferLength)(randData(myParams.dataWidth))
-          val apbDataBuffer =
-            Seq.fill(bufferLength)(randData(myParams.PDATA_WIDTH))
 
           // Directed Tests
           println("Test 1: Write to DIRECTION register")
-          apbDataBuffer.foreach { data =>
+          gpioDataBuffer.foreach { data =>
             writeAPB(dut.regs.DIRECTION_ADDR.U, data)
             val directionData = readAPB(dut.regs.DIRECTION_ADDR.U)
             println(s"Direction Register Read: ${directionData.toString()}")
@@ -135,7 +123,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 2: Write to OUTPUT register")
-          apbDataBuffer.foreach { data =>
+          gpioDataBuffer.foreach { data =>
             writeAPB(dut.regs.OUTPUT_ADDR.U, data)
             val outputData = readAPB(dut.regs.OUTPUT_ADDR.U)
             println(s"Output Register Read: ${outputData.toString()}")
@@ -152,7 +140,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 4: Write to MODE register")
-          apbDataBuffer.foreach { data =>
+          gpioDataBuffer.foreach { data =>
             writeAPB(dut.regs.MODE_ADDR.U, data)
             val modeData = readAPB(dut.regs.MODE_ADDR.U)
             println(s"Mode Register Read: ${modeData.toString()}")
@@ -160,11 +148,11 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 5: Test Atomic AND Register")
-          apbDataBuffer.foreach { data =>
+          gpioDataBuffer.foreach { data =>
             writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U)
             writeAPB(dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U)
             writeAPB(dut.regs.ATOMIC_MASK_ADDR.U, data)
-            val randomOutputData = Random.nextInt(1 << myParams.dataWidth)
+            val randomOutputData = Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
             writeAPB(dut.regs.OUTPUT_ADDR.U, randomOutputData.U)
             val outputDataBeforeSet = readAPB(dut.regs.OUTPUT_ADDR.U)
             println(s"Output Register Read Before Set: ${outputDataBeforeSet.toString()}")
@@ -178,9 +166,9 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             
           writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U) //When set to 1 it affects Push-Pull Mode, Interesting
 
-          val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
+          val fullOnes = (BigInt(1) << myParams.dataWidth) - 1
           println("Test 6: Push-Pull Mode Operation")
-          apbDataBuffer.foreach { data =>
+          gpioDataBuffer.foreach { data =>
             writeAPB(dut.regs.MODE_ADDR.U, fullOnes.U)
             writeAPB(dut.regs.OUTPUT_ADDR.U, data)
             val randomDirectionData = Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
@@ -202,8 +190,8 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           }
 
           println("Test 7: Drain Mode Operation")
-          apbDataBuffer.foreach { data =>
-            writeAPB(dut.regs.MODE_ADDR.U, 0.U(myParams.PDATA_WIDTH.W))
+          gpioDataBuffer.foreach { data =>
+            writeAPB(dut.regs.MODE_ADDR.U, 0.U(myParams.dataWidth.W))
             writeAPB(dut.regs.OUTPUT_ADDR.U, data)
             val randomDirectionData = Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
             writeAPB(dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
@@ -329,8 +317,8 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           println("Test 17: Trigger Level When High")
           writeAPB(dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
           writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LO_ADDR.U, 12.U)
+          writeAPB(dut.regs.TRIGGER_HI_ADDR.U, 3.U)
           dut.io.pins.gpioInput.poke(3.U)
           dut.clock.step(2) // Wait for synchronizer
           var triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
@@ -348,8 +336,8 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
           // Test 18: Trigger Level When Low
           println("Test 18: Trigger Level When Low")
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 12.U)
+          writeAPB(dut.regs.TRIGGER_LO_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_HI_ADDR.U, 12.U)
           dut.io.pins.gpioInput.poke(2.U)
           dut.clock.step(2) // Wait for synchronizer
           triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
@@ -369,8 +357,8 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           // Test 19: Edge Trigger on Rising Edge
           println("Test 19: Edge Trigger on Rising Edge")
           writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 0.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LO_ADDR.U, 0.U)
+          writeAPB(dut.regs.TRIGGER_HI_ADDR.U, 3.U)
           dut.io.pins.gpioInput.poke(0.U) // Need to go low to trigger edge det
           dut.clock.step(2) // Wait for synchronizer
           dut.io.pins.gpioInput.poke(7.U)
@@ -383,8 +371,8 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
           // Test 20: Edge Trigger on Falling Edge
           println("Test 20: Edge Trigger on Falling Edge")
-          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
-          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 0.U)
+          writeAPB(dut.regs.TRIGGER_LO_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_HI_ADDR.U, 0.U)
           dut.io.pins.gpioInput.poke(2.U) // Need to go high to trigger edge det
           dut.clock.step(2) // Wait for synchronizer
           dut.io.pins.gpioInput.poke(0.U)
@@ -405,8 +393,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           .get
           .toMap
 
-        val testConfig = myParams.dataWidth.toString + "_" +
-          myParams.PDATA_WIDTH.toString + "_" + myParams.PADDR_WIDTH.toString
+        val testConfig = myParams.dataWidth.toString + "_" + myParams.addrWidth.toString
 
         val verCoverageDir = new File("generated/verilogCoverage")
         verCoverageDir.mkdir()

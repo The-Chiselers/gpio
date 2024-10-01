@@ -29,8 +29,7 @@ import chisel3.util._
 case class BaseParams(
     wordWidth: Int = 8,
     dataWidth: Int = 32,
-    PDATA_WIDTH: Int = 32,
-    PADDR_WIDTH: Int = 32,
+    addrWidth: Int = 32,
     numVirtualPorts: Int = 8,
     sizeOfVirtualPorts: Int = log2Ceil(32),
     coverage: Boolean = false
