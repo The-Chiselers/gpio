@@ -80,12 +80,12 @@ class GPIO(p: BaseParams) extends Module {
           triggerStatusVec(i) := 1.U
       }
       is("b101".U) { // Edge Trigger on Rising Edge
-        when(gpioInputSync(i) === 1.U && gpioInputSyncPrev(i) === 0.U) {
+        when(gpioInputSync(i) & ~gpioInputSyncPrev(i)) {
           triggerStatusVec(i) := 1.U
         }
       }
       is("b110".U) { // Edge Trigger on Falling Edge
-        when(gpioInputSync(i) === 0.U && gpioInputSyncPrev(i) === 1.U) {
+        when(~gpioInputSync(i) && gpioInputSyncPrev(i)) {
           triggerStatusVec(i) := 1.U
         }
       }
@@ -96,7 +96,7 @@ class GPIO(p: BaseParams) extends Module {
       }
     }
   }
-  when((regs.TRIGGER_STATUS & regs.IRQ_ENABLE) > 1.U) {
+  when((regs.TRIGGER_STATUS & regs.IRQ_ENABLE) >= 1.U) {
     io.pins.irqOutput := 1.U
   }.otherwise{
     io.pins.irqOutput := 0.U

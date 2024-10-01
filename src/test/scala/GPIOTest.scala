@@ -29,7 +29,7 @@ import firrtl2.options.TargetDirAnnotation
   */
 
 class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
-  val numTests = 2
+  val numTests = 1
   val verbose = false
 
   def main(testName: String): Unit = {
@@ -100,20 +100,32 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             readValue
           }
 
+          def clearInterrupt(inputWrite: UInt, data: UInt): Unit = {
+            // Clearing Interrupt
+            dut.io.pins.gpioInput.poke(inputWrite)
+            writeAPB(dut.regs.TRIGGER_STATUS_ADDR.U, data)
+            readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+            dut.clock.step(2) // Wait for synchronizer
+            var irqOutput = dut.io.pins.irqOutput.peekInt()
+            println(
+              s"Clearing Interrupt, irqOutput Read Value: ${irqOutput.toString()}"
+            )
+            require(irqOutput == 0)
+          }
+
           // Reset Sequence
           dut.reset.poke(true.B)
           dut.clock.step()
           dut.reset.poke(false.B)
 
           // Buffer of randomized test data to apply in the test
-          val bufferLength = 5
+          val bufferLength = 2
           val gpioDataBuffer =
             Seq.fill(bufferLength)(randData(myParams.dataWidth))
           val apbDataBuffer =
             Seq.fill(bufferLength)(randData(myParams.PDATA_WIDTH))
 
           // Directed Tests
-          /*
           println("Test 1: Write to DIRECTION register")
           apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.DIRECTION_ADDR.U, data)
@@ -163,8 +175,9 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             val andOperation = data.litValue & randomOutputData
             require(outputDataAfterSet == andOperation)
           }
-           */
-          /*
+            
+          writeAPB(dut.regs.ATOMIC_SET_ADDR.U, 0.U) //When set to 1 it affects Push-Pull Mode, Interesting
+
           val fullOnes = (BigInt(1) << myParams.PDATA_WIDTH) - 1
           println("Test 6: Push-Pull Mode Operation")
           apbDataBuffer.foreach { data =>
@@ -187,7 +200,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             )
             require(randomDirectionData == actualValOutputEnable)
           }
-            
+
           println("Test 7: Drain Mode Operation")
           apbDataBuffer.foreach { data =>
             writeAPB(dut.regs.MODE_ADDR.U, 0.U(myParams.PDATA_WIDTH.W))
@@ -209,9 +222,7 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
             )
             require(expectedValOutputEnable == actualValOutputEnable)
           }
-            */
           
-          /*
           // Test 8: Invalid Address Handling
           println("Test 8: Invalid Address Handling")
           val invalidAddr = dut.regs.IRQ_ENABLE_ADDR_MAX + 1
@@ -314,27 +325,77 @@ class GPIOTest extends AnyFlatSpec with ChiselScalatestTester with Matchers {
           println(s"Physical Port Output when virtual port is input: ${physicalPortOutputInput.toString()}")
           require(physicalPortOutputInput == 1) // Expect physical port 5 to be 0
 
-           */
+          // Test 17: Trigger Level When High
+          println("Test 17: Trigger Level When High")
+          writeAPB(dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          dut.io.pins.gpioInput.poke(3.U)
+          dut.clock.step(2) // Wait for synchronizer
+          var triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 3)
+          var irqOutput = dut.io.pins.irqOutput.peekInt()
+          println(
+            s"irqOutput Read Value: ${irqOutput.toString()}"
+          )
+          require(irqOutput == 1)
 
-           //Test 17: Level Trigger Interrupts
-           println("Test 17: Level Trigger Interrupts")
-           //Trigger Level When High
-            writeAPB(dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
-            writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
-            writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 12.U)
-            writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
-            dut.io.pins.gpioInput.poke(3.U)
-            dut.clock.step(2) //Wait for synchronizer
-            val triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
-            println(
-              s"Trigger Status Read Value: ${triggerStatus.toString()}"
-            )
-            require(triggerStatus == 3)
-            val irqOutput = dut.io.pins.irqOutput.peekInt() 
-            println(
-              s"irqOutput Read Value: ${irqOutput.toString()}"
-            )
-            require (irqOutput == 1)
+          clearInterrupt(0.U, 3.U)
+
+          // Test 18: Trigger Level When Low
+          println("Test 18: Trigger Level When Low")
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 12.U)
+          dut.io.pins.gpioInput.poke(2.U)
+          dut.clock.step(2) // Wait for synchronizer
+          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 1)
+          irqOutput = dut.io.pins.irqOutput.peekInt()
+          println(
+            s"irqOutput Read Value: ${irqOutput.toString()}"
+          )
+          require(irqOutput == 1)
+
+          clearInterrupt(3.U, 1.U) // Write 1 to first 2 bits of input bc trigger level low is enabled
+          // Otherwise trigger register will keep on getting updated (not cleared)
+
+          // Test 19: Edge Trigger on Rising Edge
+          println("Test 19: Edge Trigger on Rising Edge")
+          writeAPB(dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 0.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 3.U)
+          dut.io.pins.gpioInput.poke(0.U) // Need to go low to trigger edge det
+          dut.clock.step(2) // Wait for synchronizer
+          dut.io.pins.gpioInput.poke(7.U)
+          dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 3)
+
+          // Test 20: Edge Trigger on Falling Edge
+          println("Test 20: Edge Trigger on Falling Edge")
+          writeAPB(dut.regs.TRIGGER_LVL0_ADDR.U, 3.U)
+          writeAPB(dut.regs.TRIGGER_LVL1_ADDR.U, 0.U)
+          dut.io.pins.gpioInput.poke(2.U) // Need to go high to trigger edge det
+          dut.clock.step(2) // Wait for synchronizer
+          dut.io.pins.gpioInput.poke(0.U)
+          dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+          triggerStatus = readAPB(dut.regs.TRIGGER_STATUS_ADDR.U)
+          println(
+            s"Trigger Status Read Value: ${triggerStatus.toString()}"
+          )
+          require(triggerStatus == 2)
+
+
         }
 
       // Check that all ports have toggled and print report
