@@ -1,4 +1,3 @@
-
 package tech.rocksavage.chiselware.GPIO
 
 import chisel3._
@@ -27,6 +26,8 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val TRIGGER_STATUS_SIZE: Int = p.dataWidth
   val IRQ_ENABLE_SIZE: Int = p.dataWidth
 
+  val SYNCRONIZER_SIZE: Int = log2Ceil(p.maxSyncSize)
+
   // #####################################################################
   // REGS
   // #####################################################################
@@ -44,10 +45,9 @@ class GPIORegs(p: BaseParams) extends Bundle {
   // Virtual Port Control Registers
   val virtualPortOutput = RegInit(0.U(VIRTUAL_PORT_OUTPUT_SIZE.W))
   // Virtual to Physical Pin Mapping
-  val virtualToPhysicalMap =
-    RegInit(
-      VecInit(Seq.fill(VIRTUAL_PORT_OUTPUT_SIZE)(0.U(VIRTUAL_PORT_MAP_SIZE.W)))
-    )
+  val virtualToPhysicalMap = RegInit(
+    VecInit(Seq.fill(VIRTUAL_PORT_OUTPUT_SIZE)(0.U(VIRTUAL_PORT_MAP_SIZE.W))),
+  )
   // Virtual Port Enable
   val virtualPortEnable = RegInit(0.U(VIRTUAL_PORT_ENABLE_SIZE.W))
 
@@ -57,6 +57,9 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val TRIGGER_LVL1 = RegInit(0.U(TRIGGER_LVL1_SIZE.W))
   val TRIGGER_STATUS = RegInit(0.U(TRIGGER_STATUS_SIZE.W))
   val IRQ_ENABLE = RegInit(0.U(IRQ_ENABLE_SIZE.W))
+
+  // Syncronization Registers
+  val SYNCRONIZER = RegInit(0.U(SYNCRONIZER_SIZE.W))
 
   // #####################################################################
 
@@ -79,8 +82,8 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val ATOMIC_OPERATION_ADDR: Int = MODE_ADDR_MAX + 1
   val ATOMIC_OPERATION_REG_SIZE: Int =
     (ATOMIC_OPERATION_SIZE + REG_SIZE - 1) / REG_SIZE
-  val ATOMIC_OPERATION_ADDR_MAX: Int =
-    ATOMIC_OPERATION_ADDR + ATOMIC_OPERATION_REG_SIZE - 1
+  val ATOMIC_OPERATION_ADDR_MAX: Int = ATOMIC_OPERATION_ADDR +
+    ATOMIC_OPERATION_REG_SIZE - 1
 
   val ATOMIC_MASK_ADDR: Int = ATOMIC_OPERATION_ADDR_MAX + 1
   val ATOMIC_MASK_REG_SIZE: Int = (ATOMIC_MASK_SIZE + REG_SIZE - 1) / REG_SIZE
@@ -94,20 +97,20 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val VIRTUAL_PORT_MAP_ADDR: Int = ATOMIC_SET_ADDR_MAX + 1
   val VIRTUAL_PORT_MAP_REG_SIZE: Int =
     (VIRTUAL_PORT_MAP_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_MAP_ADDR_MAX: Int =
-    VIRTUAL_PORT_MAP_ADDR + VIRTUAL_PORT_OUTPUT_SIZE * VIRTUAL_PORT_MAP_REG_SIZE - 1
+  val VIRTUAL_PORT_MAP_ADDR_MAX: Int = VIRTUAL_PORT_MAP_ADDR +
+    VIRTUAL_PORT_OUTPUT_SIZE * VIRTUAL_PORT_MAP_REG_SIZE - 1
 
   val VIRTUAL_PORT_OUTPUT_ADDR: Int = VIRTUAL_PORT_MAP_ADDR_MAX + 1
   val VIRTUAL_PORT_OUTPUT_REG_SIZE: Int =
     (VIRTUAL_PORT_OUTPUT_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int =
-    VIRTUAL_PORT_OUTPUT_ADDR + VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
+  val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int = VIRTUAL_PORT_OUTPUT_ADDR +
+    VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
 
   val VIRTUAL_PORT_ENABLE_ADDR: Int = VIRTUAL_PORT_OUTPUT_ADDR_MAX + 1
   val VIRTUAL_PORT_ENABLE_REG_SIZE: Int =
     (VIRTUAL_PORT_ENABLE_SIZE + REG_SIZE - 1) / REG_SIZE
-  val VIRTUAL_PORT_ENABLE_ADDR_MAX: Int =
-    VIRTUAL_PORT_ENABLE_ADDR + VIRTUAL_PORT_ENABLE_REG_SIZE - 1
+  val VIRTUAL_PORT_ENABLE_ADDR_MAX: Int = VIRTUAL_PORT_ENABLE_ADDR +
+    VIRTUAL_PORT_ENABLE_REG_SIZE - 1
 
   // Interrupt Registers
   val TRIGGER_TYPE_ADDR: Int = VIRTUAL_PORT_ENABLE_ADDR_MAX + 1
@@ -125,10 +128,15 @@ class GPIORegs(p: BaseParams) extends Bundle {
   val TRIGGER_STATUS_ADDR: Int = TRIGGER_LVL1_ADDR_MAX + 1
   val TRIGGER_STATUS_REG_SIZE: Int =
     (TRIGGER_STATUS_SIZE + REG_SIZE - 1) / REG_SIZE
-  val TRIGGER_STATUS_ADDR_MAX: Int =
-    TRIGGER_STATUS_ADDR + TRIGGER_STATUS_REG_SIZE - 1
+  val TRIGGER_STATUS_ADDR_MAX: Int = TRIGGER_STATUS_ADDR +
+    TRIGGER_STATUS_REG_SIZE - 1
 
   val IRQ_ENABLE_ADDR: Int = TRIGGER_STATUS_ADDR_MAX + 1
   val IRQ_ENABLE_REG_SIZE: Int = (IRQ_ENABLE_SIZE + REG_SIZE - 1) / REG_SIZE
   val IRQ_ENABLE_ADDR_MAX: Int = IRQ_ENABLE_ADDR + IRQ_ENABLE_REG_SIZE - 1
+
+  // Syncronization Registers
+  val SYNCRONIZER_ADDR: Int = IRQ_ENABLE_ADDR_MAX + 1
+  val SYNCRONIZER_REG_SIZE: Int = (SYNCRONIZER_SIZE + REG_SIZE - 1) / REG_SIZE
+  val SYNCRONIZER_ADDR_MAX: Int = SYNCRONIZER_ADDR + SYNCRONIZER_REG_SIZE - 1
 }

@@ -33,5 +33,6 @@ case class BaseParams(
     PADDR_WIDTH: Int = 32,
     numVirtualPorts: Int = 8,
     sizeOfVirtualPorts: Int = log2Ceil(32),
-    coverage: Boolean = false
+    maxSyncSize: Int = 5,
+    coverage: Boolean = false,
 )
