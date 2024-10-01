@@ -14,6 +14,7 @@
 \contentsline {subsection}{\numberline {7.1}Tests}{11}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Code coverage}{11}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Running simulation}{11}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Viewing the waveforms}{11}{subsection.7.4}%
 \contentsline {section}{\numberline {8}Synthesis}{12}{section.8}%
 \contentsline {subsection}{\numberline {8.1}Area}{12}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}SDC File}{12}{subsection.8.2}%
