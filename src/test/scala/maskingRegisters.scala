@@ -10,7 +10,7 @@ import TestUtils._
 object maskingRegisters extends APBUtils{
 
   def maskingAnd(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    println("Test 5: Test Atomic AND Register")
+    println("Test: Test Atomic AND Register")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.ATOMIC_SET_ADDR.U, 0.U)
       writeAPB(dut, dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U)

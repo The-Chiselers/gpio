@@ -9,8 +9,8 @@ import TestUtils._
 object interruptTriggers extends APBUtils{
 
   def triggerHigh(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    // Test 17: Trigger Level When High
-    println("Test 17: Trigger Level When High")
+    // Test: Trigger Level When High
+    println("Test: Trigger Level When High")
     writeAPB(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 12.U)
@@ -28,8 +28,8 @@ object interruptTriggers extends APBUtils{
   }
 
   def triggerLow(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    // Test 18: Trigger Level When Low
-    println("Test 18: Trigger Level When Low")
+    // Test: Trigger Level When Low
+    println("Test: Trigger Level When Low")
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 12.U)
     dut.io.pins.gpioInput.poke(2.U)
@@ -51,8 +51,8 @@ object interruptTriggers extends APBUtils{
 
   def triggerRising(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
 
-    // Test 19: Edge Trigger on Rising Edge
-    println("Test 19: Edge Trigger on Rising Edge")
+    // Test: Edge Trigger on Rising Edge
+    println("Test: Edge Trigger on Rising Edge")
     writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 0.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
@@ -68,8 +68,8 @@ object interruptTriggers extends APBUtils{
   }
 
   def triggerFalling(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    // Test 20: Edge Trigger on Falling Edge
-    println("Test 20: Edge Trigger on Falling Edge")
+    // Test: Edge Trigger on Falling Edge
+    println("Test: Edge Trigger on Falling Edge")
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 0.U)
     dut.io.pins.gpioInput.poke(2.U) // Need to go high to trigger edge det

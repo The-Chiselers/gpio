@@ -11,7 +11,7 @@ object modeOperation extends APBUtils{
 
   def pushPullMode(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     val fullOnes = (BigInt(1) << myParams.dataWidth) - 1
-    println("Test 6: Push-Pull Mode Operation")
+    println("Test: Push-Pull Mode Operation")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.MODE_ADDR.U, fullOnes.U)
       writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
@@ -36,7 +36,7 @@ object modeOperation extends APBUtils{
   }
 
   def drainMode(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    println("Test 7: Drain Mode Operation")
+    println("Test: Drain Mode Operation")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.MODE_ADDR.U, 0.U(myParams.dataWidth.W))
       writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)

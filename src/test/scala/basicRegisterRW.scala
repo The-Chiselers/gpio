@@ -1,15 +1,20 @@
 package tech.rocksavage.chiselware.GPIO
 
+import scala.math.pow
+import scala.util.Random
+
+import TestUtils._
 import chisel3._
 import chisel3.util._
 import chiseltest._
-import scala.util.Random
-import scala.math.pow
-import TestUtils._
 
-object basicRegisterRW extends APBUtils{
-  def directionRegister(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    println("Test 1: Write to DIRECTION register")
+object basicRegisterRW extends APBUtils {
+  def directionRegister(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams,
+  ): Unit = {
+    println("Test: Write to DIRECTION register")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.DIRECTION_ADDR.U, data)
       val directionData = readAPB(dut, dut.regs.DIRECTION_ADDR.U)
@@ -18,8 +23,12 @@ object basicRegisterRW extends APBUtils{
     }
   }
 
-  def outputRegister(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    println("Test 2: Write to OUTPUT register")
+  def outputRegister(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams,
+  ): Unit = {
+    println("Test: Write to OUTPUT register")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
       val outputData = readAPB(dut, dut.regs.OUTPUT_ADDR.U)
@@ -28,8 +37,12 @@ object basicRegisterRW extends APBUtils{
     }
   }
 
-  def inputRegister(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    println("Test 3: Write to INPUT register")
+  def inputRegister(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams,
+  ): Unit = {
+    println("Test: Write to INPUT register")
     gpioDataBuffer.foreach { data =>
       dut.io.pins.gpioInput.poke(data)
       dut.clock.step(2) // Wait for synchronizer
@@ -39,8 +52,12 @@ object basicRegisterRW extends APBUtils{
     }
   }
 
-  def modeRegister(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    println("Test 4: Write to MODE register")
+  def modeRegister(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams,
+  ): Unit = {
+    println("Test: Write to MODE register")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.MODE_ADDR.U, data)
       val modeData = readAPB(dut, dut.regs.MODE_ADDR.U)
@@ -49,9 +66,13 @@ object basicRegisterRW extends APBUtils{
     }
   }
 
-  def invalidAddress(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    // Test 8: Invalid Address Handling
-    println("Test 8: Invalid Address Handling")
+  def invalidAddress(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams,
+  ): Unit = {
+    // Test: Invalid Address Handling
+    println("Test: Invalid Address Handling")
     val invalidAddr = dut.regs.IRQ_ENABLE_ADDR_MAX + 1
     writeAPB(dut, invalidAddr.U, 15.U)
     dut.clock.step(1)
@@ -63,7 +84,11 @@ object basicRegisterRW extends APBUtils{
     require(readData == 0)
   }
 
-  def basicRegisterRW(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def basicRegisterRW(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams,
+  ): Unit = {
     directionRegister(dut, gpioDataBuffer, myParams)
     outputRegister(dut, gpioDataBuffer, myParams)
     inputRegister(dut, gpioDataBuffer, myParams)
