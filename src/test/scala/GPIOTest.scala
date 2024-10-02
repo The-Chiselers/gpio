@@ -176,8 +176,8 @@ class GPIOTest
     basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, myParams)
     modeOperation.modeOperation(dut, gpioDataBuffer, myParams)
     interruptTriggers.interruptTriggers(dut, gpioDataBuffer, myParams)
-    virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
     maskingRegisters.maskingRegisters(dut, gpioDataBuffer, myParams)
+    virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
     virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
   }
 
