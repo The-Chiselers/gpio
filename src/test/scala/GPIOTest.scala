@@ -113,6 +113,23 @@ class GPIOTest
               interruptTriggers.triggerFalling(dut, gpioDataBuffer, myParams)
             case "interruptTriggers" =>
               interruptTriggers.interruptTriggers(dut, gpioDataBuffer, myParams)
+
+            case "virtualMapping" =>
+              virtualPorts.virtualMapping(dut, gpioDataBuffer, myParams)
+            case "virtualInput" => 
+              virtualPorts.virtualInput(dut, gpioDataBuffer, myParams)
+            case "virtualToPhysical" =>
+              virtualPorts.virtualToPhysical(dut, gpioDataBuffer, myParams)
+            case "virtualWritting" =>
+              virtualPorts.virtualWritting(dut, gpioDataBuffer, myParams)
+            case "disableVirtual" =>
+              virtualPorts.disableVirtual(dut, gpioDataBuffer, myParams)
+            case "invalidVirtual" =>
+              virtualPorts.invalidVirtual(dut, gpioDataBuffer, myParams)
+            case "disabledVirtualRead" =>
+              virtualPorts.disabledVirtualRead(dut, gpioDataBuffer, myParams)
+            case "overlappingVirtualPorts" =>
+              virtualPorts.overlappingVirtualPorts(dut, gpioDataBuffer, myParams)
             
             case "pushPullMode" =>
               modeOperation.pushPullMode(dut, gpioDataBuffer, myParams)
@@ -159,6 +176,7 @@ class GPIOTest
     basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, myParams)
     modeOperation.modeOperation(dut, gpioDataBuffer, myParams)
     interruptTriggers.interruptTriggers(dut, gpioDataBuffer, myParams)
+    virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
     maskingRegisters.maskingRegisters(dut, gpioDataBuffer, myParams)
     virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
   }

@@ -22,7 +22,7 @@ object virtualPorts extends APBUtils{
     require(virtualPortMapping == 5)
   }
 
-  def virtualWriting(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def virtualWritting(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test 10: Test output from a virtual port
     println("Test 10: Writing to a virtual port")
     writeAPB(
@@ -226,7 +226,7 @@ object virtualPorts extends APBUtils{
     virtualMapping(dut, gpioDataBuffer, myParams)
     virtualInput(dut, gpioDataBuffer, myParams)
     virtualToPhysical(dut, gpioDataBuffer, myParams)
-    virtualWriting(dut, gpioDataBuffer, myParams)
+    virtualWritting(dut, gpioDataBuffer, myParams)
     disableVirtual(dut, gpioDataBuffer, myParams)
     invalidVirtual(dut, gpioDataBuffer, myParams)
     disabledVirtualRead(dut, gpioDataBuffer, myParams)
