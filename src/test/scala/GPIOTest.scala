@@ -35,14 +35,13 @@ class GPIOTest
 
   val verbose = false
   val numTests = 1
-  val testName = System.getProperty("myTestArg")
-    println(s"Argument passed: $testName")
+  val testName = System.getProperty("testName")
+  println(s"Argument passed: $testName")
 
   // Execute the regressigiyon across a randomized range of configurations
-  if(testName == "regression") {
+  if (testName == "regression") {
     (1 to numTests).foreach(config => main(testName))
-  }
-  else {
+  } else {
     main(testName)
   }
 
@@ -90,7 +89,7 @@ class GPIOTest
             Seq.fill(bufferLength)(randData(myParams.dataWidth))
 
           testName match {
-            case "directionRegister" => 
+            case "directionRegister" =>
               basicRegisterRW.directionRegister(dut, gpioDataBuffer, myParams)
             case "modeRegister" =>
               basicRegisterRW.modeRegister(dut, gpioDataBuffer, myParams)
@@ -100,10 +99,15 @@ class GPIOTest
               basicRegisterRW.inputRegister(dut, gpioDataBuffer, myParams)
             case "invalidAddress" =>
               basicRegisterRW.invalidAddress(dut, gpioDataBuffer, myParams)
-            case "basicRegisterRW" => 
+            case "basicRegisterRW" =>
               basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, myParams)
 
-            case "triggerHigh" => 
+            case "maskingAnd" =>
+              maskingRegisters.maskingAnd(dut, gpioDataBuffer, myParams)
+            case "maskingRegisters" =>
+              maskingRegisters.maskingRegisters(dut, gpioDataBuffer, myParams)
+
+            case "triggerHigh" =>
               interruptTriggers.triggerHigh(dut, gpioDataBuffer, myParams)
             case "triggerLow" =>
               interruptTriggers.triggerLow(dut, gpioDataBuffer, myParams)
@@ -116,7 +120,7 @@ class GPIOTest
 
             case "virtualMapping" =>
               virtualPorts.virtualMapping(dut, gpioDataBuffer, myParams)
-            case "virtualInput" => 
+            case "virtualInput" =>
               virtualPorts.virtualInput(dut, gpioDataBuffer, myParams)
             case "virtualToPhysical" =>
               virtualPorts.virtualToPhysical(dut, gpioDataBuffer, myParams)
@@ -129,8 +133,14 @@ class GPIOTest
             case "disabledVirtualRead" =>
               virtualPorts.disabledVirtualRead(dut, gpioDataBuffer, myParams)
             case "overlappingVirtualPorts" =>
-              virtualPorts.overlappingVirtualPorts(dut, gpioDataBuffer, myParams)
-            
+              virtualPorts.overlappingVirtualPorts(
+                dut,
+                gpioDataBuffer,
+                myParams
+              )
+            case "virtualPorts" =>
+              virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
+
             case "pushPullMode" =>
               modeOperation.pushPullMode(dut, gpioDataBuffer, myParams)
             case "openDrainMode" =>
@@ -142,7 +152,7 @@ class GPIOTest
               allTests(dut, gpioDataBuffer, myParams)
             case "regression" =>
               allTests(dut, gpioDataBuffer, myParams)
-            case _          => println("Invalid group specified.")
+            case _ => println("Invalid group specified.")
           }
         }
 
@@ -172,7 +182,11 @@ class GPIOTest
     }
   }
 
-  def allTests(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def allTests(
+      dut: GPIO,
+      gpioDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
     basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, myParams)
     modeOperation.modeOperation(dut, gpioDataBuffer, myParams)
     interruptTriggers.interruptTriggers(dut, gpioDataBuffer, myParams)
