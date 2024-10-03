@@ -54,10 +54,10 @@ class GPIOTest
       // VerilatorBackendAnnotation, // For using verilator simulator
       // IcarusBackendAnnotation,
       // VcsBackendAnnotation,
-      TargetDirAnnotation("generated")
-      // VerilatorBackendAnnotation,
-      // VerilatorCFlags(Seq("--std=c++17")),
-      // WriteFstAnnotation,
+      TargetDirAnnotation("generated"),
+      VerilatorBackendAnnotation,
+      VerilatorCFlags(Seq("--std=c++17")),
+      WriteFstAnnotation,
     )
 
     // Randomize Input Variables
