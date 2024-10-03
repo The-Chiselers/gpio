@@ -57,7 +57,7 @@ class GPIOTest
       TargetDirAnnotation("generated"),
       VerilatorBackendAnnotation,
       VerilatorCFlags(Seq("--std=c++17")),
-      WriteFstAnnotation,
+      WriteFstAnnotation
     )
 
     // Randomize Input Variables
@@ -84,7 +84,7 @@ class GPIOTest
           dut.reset.poke(false.B)
 
           // Buffer of randomized test data to apply in the test
-          val bufferLength = 2
+          val bufferLength = 5
           val gpioDataBuffer =
             Seq.fill(bufferLength)(randData(myParams.dataWidth))
 

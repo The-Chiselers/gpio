@@ -185,7 +185,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.DIRECTION := io.apb.PWDATA(regs.DIRECTION_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.DIRECTION_ADDR.U) 
+      regs.DIRECTION := (io.apb.PWDATA(regs.DIRECTION_SIZE - 1, 0) << (shiftAddr(regs.DIRECTION_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.INPUT_ADDR.U && addr <= regs.INPUT_ADDR_MAX.U) {
       printf(
@@ -193,7 +194,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.INPUT := io.apb.PWDATA(regs.INPUT_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.INPUT_ADDR.U) 
+      regs.INPUT := (io.apb.PWDATA(regs.INPUT_SIZE - 1, 0) << (shiftAddr(regs.INPUT_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.OUTPUT_ADDR.U && addr <= regs.OUTPUT_ADDR_MAX.U) {
       printf(
@@ -201,11 +203,13 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.OUTPUT := io.apb.PWDATA(regs.OUTPUT_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.OUTPUT_ADDR.U)
+      regs.OUTPUT := (io.apb.PWDATA(regs.OUTPUT_SIZE - 1, 0) << (shiftAddr(regs.OUTPUT_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.MODE_ADDR.U && addr <= regs.MODE_ADDR_MAX.U) {
       printf("Writing MODE Register, data: %x, addr: %x\n", io.apb.PWDATA, addr)
-      regs.MODE := io.apb.PWDATA(regs.MODE_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.MODE_ADDR.U)
+      regs.MODE := (io.apb.PWDATA(regs.MODE_SIZE - 1, 0) << (shiftAddr(regs.MODE_REG_SIZE - 1, 0) * 8.U))
     }
     when(
       addr >= regs.ATOMIC_OPERATION_ADDR.U && addr <= regs.ATOMIC_OPERATION_ADDR_MAX.U
@@ -215,7 +219,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.ATOMIC_OPERATION := io.apb.PWDATA(regs.ATOMIC_OPERATION_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.ATOMIC_OPERATION_ADDR.U)
+      regs.ATOMIC_OPERATION := (io.apb.PWDATA(regs.ATOMIC_OPERATION_SIZE - 1, 0) << (shiftAddr(regs.ATOMIC_OPERATION_REG_SIZE - 1, 0) * 8.U))
     }
     when(
       addr >= regs.ATOMIC_MASK_ADDR.U && addr <= regs.ATOMIC_MASK_ADDR_MAX.U
@@ -225,7 +230,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.ATOMIC_MASK := io.apb.PWDATA(regs.ATOMIC_MASK_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.ATOMIC_MASK_ADDR.U)
+      regs.ATOMIC_MASK := (io.apb.PWDATA(regs.ATOMIC_MASK_SIZE - 1, 0) << (shiftAddr(regs.ATOMIC_MASK_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.ATOMIC_SET_ADDR.U && addr <= regs.ATOMIC_SET_ADDR_MAX.U) {
       printf(
@@ -233,7 +239,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.ATOMIC_SET := io.apb.PWDATA(regs.ATOMIC_SET_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.ATOMIC_SET_ADDR.U)
+      regs.ATOMIC_SET := (io.apb.PWDATA(regs.ATOMIC_SET_SIZE - 1, 0) << (shiftAddr(regs.ATOMIC_SET_REG_SIZE - 1, 0) * 8.U))    
     }
     when(
       addr >= regs.VIRTUAL_PORT_MAP_ADDR.U && addr <= regs.VIRTUAL_PORT_MAP_ADDR_MAX.U
@@ -244,12 +251,8 @@ class GPIO(p: BaseParams) extends Module {
         addr
       )
       // index into virtualToPhysicalMap based on address
-      val index =
-        (addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U
-      regs.virtualToPhysicalMap(index) := io.apb.PWDATA(
-        regs.VIRTUAL_PORT_MAP_SIZE - 1,
-        0
-      )
+      val index = (addr - regs.VIRTUAL_PORT_MAP_ADDR.U) / regs.VIRTUAL_PORT_MAP_REG_SIZE.U
+      regs.virtualToPhysicalMap(index) := io.apb.PWDATA(regs.VIRTUAL_PORT_MAP_SIZE - 1, 0)
     }
     when(
       addr >= regs.VIRTUAL_PORT_OUTPUT_ADDR.U && addr <= regs.VIRTUAL_PORT_OUTPUT_ADDR_MAX.U
@@ -259,10 +262,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.virtualPortOutput := io.apb.PWDATA(
-        regs.VIRTUAL_PORT_OUTPUT_SIZE - 1,
-        0
-      )
+      val shiftAddr = (addr - regs.VIRTUAL_PORT_OUTPUT_ADDR.U)
+      regs.virtualPortOutput := (io.apb.PWDATA(regs.VIRTUAL_PORT_OUTPUT_SIZE - 1, 0) << (shiftAddr(regs.VIRTUAL_PORT_OUTPUT_REG_SIZE - 1, 0) * 8.U))
     }
     when(
       addr >= regs.VIRTUAL_PORT_ENABLE_ADDR.U && addr <= regs.VIRTUAL_PORT_ENABLE_ADDR_MAX.U
@@ -272,10 +273,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.virtualPortEnable := io.apb.PWDATA(
-        regs.VIRTUAL_PORT_ENABLE_SIZE - 1,
-        0
-      )
+      val shiftAddr = (addr - regs.VIRTUAL_PORT_ENABLE_ADDR.U)
+      regs.virtualPortEnable := (io.apb.PWDATA(regs.VIRTUAL_PORT_ENABLE_SIZE - 1, 0) << (shiftAddr(regs.VIRTUAL_PORT_ENABLE_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.TRIGGER_TYPE_ADDR.U && addr <= regs.TRIGGER_TYPE_ADDR_MAX.U) {
       printf(
@@ -283,7 +282,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.TRIGGER_TYPE := io.apb.PWDATA(regs.TRIGGER_TYPE_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.TRIGGER_TYPE_ADDR.U)
+      regs.TRIGGER_TYPE := (io.apb.PWDATA(regs.TRIGGER_TYPE_SIZE - 1, 0) << (shiftAddr(regs.TRIGGER_TYPE_REG_SIZE - 1, 0) * 8.U))  
     }
     when(addr >= regs.TRIGGER_LO_ADDR.U && addr <= regs.TRIGGER_LO_ADDR_MAX.U) {
       printf(
@@ -291,7 +291,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.TRIGGER_LO := io.apb.PWDATA(regs.TRIGGER_LO_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.TRIGGER_LO_ADDR.U)
+      regs.TRIGGER_LO := (io.apb.PWDATA(regs.TRIGGER_LO_SIZE - 1, 0) << (shiftAddr(regs.TRIGGER_LO_REG_SIZE - 1, 0) * 8.U))  
     }
     when(addr >= regs.TRIGGER_HI_ADDR.U && addr <= regs.TRIGGER_HI_ADDR_MAX.U) {
       printf(
@@ -299,7 +300,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.TRIGGER_HI := io.apb.PWDATA(regs.TRIGGER_HI_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.TRIGGER_HI_ADDR.U)
+      regs.TRIGGER_HI := (io.apb.PWDATA(regs.TRIGGER_HI_SIZE - 1, 0) << (shiftAddr(regs.TRIGGER_HI_REG_SIZE - 1, 0) * 8.U))      
     }
     when(
       addr >= regs.TRIGGER_STATUS_ADDR.U && addr <= regs.TRIGGER_STATUS_ADDR_MAX.U
@@ -309,10 +311,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.TRIGGER_STATUS := regs.TRIGGER_STATUS & ~io.apb.PWDATA(
-        regs.TRIGGER_STATUS_SIZE - 1,
-        0
-      ) // Writing a 1 will clear the status, ignore writes of 0
+      val shiftAddr = (addr - regs.TRIGGER_STATUS_ADDR.U)
+      regs.TRIGGER_STATUS := regs.TRIGGER_STATUS & ~(io.apb.PWDATA(regs.TRIGGER_STATUS_SIZE - 1, 0) << (shiftAddr(regs.TRIGGER_STATUS_REG_SIZE - 1, 0) * 8.U)) // Writing a 1 will clear the status, ignore writes of 0
     }
     when(addr >= regs.IRQ_ENABLE_ADDR.U && addr <= regs.IRQ_ENABLE_ADDR_MAX.U) {
       printf(
@@ -320,7 +320,8 @@ class GPIO(p: BaseParams) extends Module {
         io.apb.PWDATA,
         addr
       )
-      regs.IRQ_ENABLE := io.apb.PWDATA(regs.IRQ_ENABLE_SIZE - 1, 0)
+      val shiftAddr = (addr - regs.IRQ_ENABLE_ADDR.U)
+      regs.IRQ_ENABLE := (io.apb.PWDATA(regs.IRQ_ENABLE_SIZE - 1, 0) << (shiftAddr(regs.IRQ_ENABLE_REG_SIZE - 1, 0) * 8.U))      
     }
   }
 
