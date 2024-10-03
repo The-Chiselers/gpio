@@ -73,15 +73,10 @@ cov:
 	coverageReport | tee generated/test.rpt
 	google-chrome --new-window generated/scalaCoverage/scoverage-report/index.html &
 
-# Run synthesis on generated Verilog; generate timing and area reports
-synth_all: synth sta
-	@echo Synthesizing
-	cd syn && ./run.sh
 
 synth: verilog
 	@echo Synthesizing
-	@echo "Not implemented @ Makefile, synth target"
-	exit 1
+	./synthesis/synth.sh
 
 sta: verilog
 	@echo "Running static timing analysis"
