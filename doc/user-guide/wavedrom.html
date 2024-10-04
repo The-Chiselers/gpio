@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waveform Diagram</title>
+    <script src="https://wavedrom.com/WaveDrom.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Timing Waveform Diagram</h1>
+    <div id="waveform"></div>
+
+    <script>
+        var waveData = {
+            "signal": [
+                { "name": "clock", "wave": "pP............." },
+                { "name": "reset", "wave": "10............." },
+                { "name": "almostEmptyLevel", "wave": "x=.............", "data": ["1"] },
+                { "name": "almostFullLevel", "wave": "x=.............", "data": ["3"] },
+                {},
+                { "name": "push", "wave": "x01....0......." },
+                { "name": "DataIn", "wave": "xx45678x.......", "data": ["0xA", "0xB", "0xC", "0xD", "0xE"] },
+                {},
+                { "name": "pop", "wave": "x0......1....0." },
+                { "name": "DataOut", "wave": "x........45678.", "data": ["0xA", "0xB", "0xC", "0xD", "0xE"] },
+                {},
+                { "name": "ramWriteEnable", "wave": "x01....0......." },
+                { "name": "ramReadEnable", "wave": "x0......1....0." },
+                { "name": "ramWriteAddress:", "wave": "x0.56789.......", "data": ["0x1", "0x2", "0x3", "0x4", "0x5"] },
+                { "name": "ramReadAddress:", "wave": "x0.......5678..", "data": ["0x1", "0x2", "0x3", "0x4"] },
+                { "name": "ramDataIn", "wave": "xx45678x.......", "data": ["0xA", "0xB", "0xC", "0xD", "0xE"] },
+                { "name": "ramDataOut", "wave": "x........45678.", "data": ["0xA", "0xB", "0xC", "0xD", "0xE"] },
+                {},
+                { "name": "almostEmpty", "wave": "x1..0.......1.." },
+                { "name": "empty", "wave": "x1.0.........1." },
+                { "name": "almostFull", "wave": "x0....1...0...." },
+                { "name": "full", "wave": "x0.....1.0....." }
+            ]
+        };
+
+        WaveDrom.DrawSVG(waveData, document.getElementById("waveform"));
+    </script>
+</body>
+
+</html>

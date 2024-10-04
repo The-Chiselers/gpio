@@ -77,7 +77,8 @@ When programming registers, each register starts on a byte address, and the last
 
   \newpage
 
-  \subsection{DIRECTION}
+  \subsection{Register Operation}
+  \subsubsection{DIRECTION}
   DIRECTION is a \textit{dataWidth} bits wide active-high read/write register. This register controls the 
   output enable bus \textit{gpioOutputEnable}. Operation can be seen in Table
   \begin{table}[h]
@@ -91,18 +92,18 @@ When programming registers, each register starts on a byte address, and the last
     \caption{DIRECTION Register}
 \end{table}
 
-\subsection{OUTPUT}
+\subsubsection{OUTPUT}
 OUTPUT is a \textit{dataWidth} bits wide read/write register. This register controls the 
 output bus \textit{gpioOutput}. Writing a '0' drives the pad low in both modes of operation. Writing a '1' 
 drives the pad high in push-pull mode, or Hi-Z in open-drain mode. 
 
-\subsection{INPUT}
+\subsubsection{INPUT}
 INPUT is a \textit{dataWidth} bits wide read-only register. This register is written to from the 
 input bus \textit{gpioInput}. On the rising edge of the APB3 Bus Clock (PCLK), input data from \textit{gpioInput} 
 is synchronized using two flops and stored in the INPUT register. From there, it may be read via the APB3 Bus Interface
 through PRDATA. 
 
-\subsection{MODE}
+\subsubsection{MODE}
 MODE is a \textit{dataWidth} bits wide read/write register. This register sets the operating mode for each bit
 of the \textit{gpioOutput} and \textit{gpioOutputEnable} busses as either push-pull or open drain mode. Operation can be seen in Table
 \begin{table}[h]
@@ -116,7 +117,7 @@ of the \textit{gpioOutput} and \textit{gpioOutputEnable} busses as either push-p
   \caption{MODE Register}
 \end{table}
 
-\subsection{TRIGGER\_TYPE}
+\subsubsection{TRIGGER\_TYPE}
 TRIGGER\_TYPE is a \textit{dataWidth} bits wide read/write register. This register configures whether \textit{gpioInput} is a level or edge sensitive
 interrupt trigger as seen below:
 \begin{table}[h]
@@ -130,7 +131,7 @@ interrupt trigger as seen below:
   \caption{TRIGGER\_TYPE Register}
 \end{table}
 
-\subsection{TRIGGER\_LO}
+\subsubsection{TRIGGER\_LO}
 TRIGGER\_LO is a \textit{dataWidth} bits wide read/write register. This register configures whether the interrupt is triggered on a level low, or a falling edge, 
 of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be see in Table:
 \begin{table}[h]
@@ -144,7 +145,7 @@ of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be se
   \caption{TRIGGER\_LO Register}
 \end{table}
 
-\subsection{TRIGGER\_HI}
+\subsubsection{TRIGGER\_HI}
 TRIGGER\_HI is a \textit{dataWidth} bits wide read/write register. This register configures whether the interrupt is triggered on a level high, or a rising edge, 
 of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be see in Table:
 \begin{table}[h]
@@ -158,7 +159,7 @@ of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be se
   \caption{TRIGGER\_HI Register}
 \end{table}
 
-\subsection{TRIGGER\_STATUS}
+\subsubsection{TRIGGER\_STATUS}
 TRIGGER\_STATUS is a \textit{dataWidth} bits wide read/write register. This register sets a corresponding bit to '1' if a trigger condition is met on
 the corresponding \textit{gpioInput[n]} according to the settings of TRIGGER\_TYPE, TRIGGER\_LO, and TRIGGER\_HI.
 \newline
@@ -177,7 +178,7 @@ status of the corresponding bit. If a new trigger is detected simulatenously dur
 \end{table}
 
 \newpage
-\subsection{IRQ\_ENABLE}
+\subsubsection{IRQ\_ENABLE}
 IRQ\_ENABLE is a \textit{dataWidth} bits wide read/write register. This register determines if the \textit{irqOutput} pin is asserted when a trigger condition
 occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for enabling interrupt generation from the GPIO core.
 \begin{table}[h]
@@ -191,5 +192,86 @@ occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for e
   \caption{IRQ\_ENABLE Register}
 \end{table}
 
+\newpage
 
+\subsection{Register Addresses}
+\subsubsection{dataWidth: 8}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+      \hline
+      \textbf{Register Name} & \textbf{Address Start} & \textbf{Address End} \\ \hline
+      DIRECTION & 0x0 & 0x0 \\ \hline
+      OUTPUT & 0x1 & 0x1\\ \hline
+      INPUT & 0x2 & 0x2 \\ \hline
+      MODE & 0x3 & 0x3\\ \hline
+      ATOMIC\_OPERATION & 0x4 & 0x4 \\ \hline
+      ATOMIC\_MASK & 0x5 & 0x5\\ \hline
+      ATOMIC\_SET & 0x6 & 0x6 \\ \hline
+      VIRTUAL\_PORT\_MAP & 0x7 & 0x7 \\ \hline
+      VIRTUAL\_PORT\_OUTPUT & 0x8 & 0x8 \\ \hline
+      VIRTUAL\_PORT\_ENABLE & 0x9 & 0x9\\ \hline
+      TRIGGER\_TYPE & 0xA & 0xA\\ \hline
+      TRIGGER\_LO & 0xB & 0xB \\ \hline
+      TRIGGER\_HI & 0xC & 0xC \\ \hline
+      TRIGGER\_STATUS & 0xD & 0xD \\ \hline
+      IRQ\_ENABLE & 0xE & 0xE\\ \hline
+  \end{tabular}
+  \caption{8-bit Register Addressing}
+\end{table}
+
+\newpage
+
+\subsubsection{dataWidth: 16}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+      \hline
+      \textbf{Register Name} & \textbf{Address Start} & \textbf{Address End} \\ \hline
+      DIRECTION & 0x00 & 0x01 \\ \hline
+      OUTPUT & 0x02 & 0x03\\ \hline
+      INPUT & 0x04 & 0x05 \\ \hline
+      MODE & 0x06 & 0x07 \\ \hline
+      ATOMIC\_OPERATION & 0x08 & 0x09 \\ \hline
+      ATOMIC\_MASK & 0x0A & 0x0B\\ \hline
+      ATOMIC\_SET & 0x0C & 0x0D \\ \hline
+      VIRTUAL\_PORT\_MAP & 0x0E & 0x0F \\ \hline
+      VIRTUAL\_PORT\_OUTPUT & 0x10 & 0x20 \\ \hline
+      VIRTUAL\_PORT\_ENABLE & 0x30 & 0x40 \\ \hline
+      TRIGGER\_TYPE & 0x50 & 0x60 \\ \hline
+      TRIGGER\_LO & 0x70 & 0x80 \\ \hline
+      TRIGGER\_HI & 0x90 & 0xA0 \\ \hline
+      TRIGGER\_STATUS & 0xB0 & 0xC0 \\ \hline
+      IRQ\_ENABLE & 0xD0 & 0xE0 \\ \hline
+  \end{tabular}
+  \caption{16-bit Register Addressing}
+\end{table}
+
+
+\newpage
+
+\subsubsection{dataWidth: 32}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+      \hline
+      \textbf{Register Name} & \textbf{Address Start} & \textbf{Address End} \\ \hline
+      DIRECTION & 0x0000 & 0x0003 \\ \hline
+      OUTPUT & 0x0004 & 0x0007 \\ \hline
+      INPUT & 0x0008 & 0x00B0 \\ \hline
+      MODE & 0x00C0 & 0x00F0 \\ \hline
+      ATOMIC\_OPERATION & 0x0010 & 0x0040 \\ \hline
+      ATOMIC\_MASK & 0x0050 & 0x0080 \\ \hline
+      ATOMIC\_SET & 0x0090 & 0x00C0 \\ \hline
+      VIRTUAL\_PORT\_MAP & 0x00D0 & 0x0100 \\ \hline
+      VIRTUAL\_PORT\_OUTPUT & 0x0200 & 0x0500 \\ \hline
+      VIRTUAL\_PORT\_ENABLE & 0x0600 & 0x0900\\ \hline
+      TRIGGER\_TYPE & 0x0A00 & 0x0D00 \\ \hline
+      TRIGGER\_LO & 0x0E00 & 0x2000 \\ \hline
+      TRIGGER\_HI & 0x3000 & 0x6000 \\ \hline
+      TRIGGER\_STATUS & 0x7000 & 0xA000 \\ \hline
+      IRQ\_ENABLE & 0xB000 & 0xE000\\ \hline
+  \end{tabular}
+  \caption{32-bit Register Addressing}
+\end{table}
 
