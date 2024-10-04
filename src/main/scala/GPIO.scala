@@ -127,7 +127,7 @@ class GPIO(p: BaseParams) extends Module {
 
   // MODE
   for (i <- 0 until p.dataWidth)
-    when(regs.MODE(i) === 1.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in gpioOutput
+    when(regs.MODE(i) === 0.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in gpioOutput
       gpioOutputVec(p.dataWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
       gpioOutputEnableVec(p.dataWidth - i - 1) := regs.DIRECTION(i)
     }.otherwise {

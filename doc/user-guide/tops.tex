@@ -43,27 +43,30 @@ levels of these flags can be programmed dynamically through the
 \newpage
 \subsection{Interface Timing}
 
-DynamicFifo has a simple, synchronous interface. The timing diagram shown below
+GPIO has a synchronous APB3 interface, and a GPIO interface. The timing diagram shown below
 in Figure~\ref{fig:timing} represents an instantiation with the following
 parameters.
 
 \begin{lstlisting}[language=Scala]
-val myFifo = new DynamicFifo(
-  externalRAM = true, 
+val myGPIO = new GPIO(
   dataWidth = 16, 
-  fifoDepth = 5) 
+  addrWidth = 16 ) 
 \end{lstlisting}
 
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{images/timing.png}
+  \includegraphics[width=\textwidth]{images/GPIO-timing.png}
   \caption{Timing Diagram}\label{fig:timing}
 \end{figure}
 
-The \textit{almostEmptyLevel} port is driven by external logic to a static value
-of 1 after reset and the \textit{almostFull} port is driven to 3.
+This shows the operation of the basic read/write register operations following the APB protocol. Registers DIRECTION, MODE, and OUTPUT are
+written to, while register INPUT is read from.
 
-Beginning in the third clock cycle, 5 words of data are pushed into the
-FIFO.\ The status flags show the FIFO going from empty to full.
+The \textit{gpioOutputEnable} port is driven to a value of 0x000F after 0x000F is written to the DIRECTION register 
+at address 0x00. Next, the MODE register at address 0x06 is written a value of 0x0009. The \textit{gpioOutput} port 
+then has a value of 0x0009 because of the open-drain mode operation. 
 
-The FIFO is then fully emptied when the \textit{pop} port is help high for
-5 clock cycles. The status flags show the FIFO going from full to empty again.
+The OUTPUT register is then written a value of 0x0006 at address 0x02. \textit{gpioOutput} takes on a value of 0x000F
+since the MSB and LSB are operating on open-drain mode, and the middle two bits are operating on push-pull mode. 
+
+The INPUT register is read from at address 0x04, which has a value of 0x0070 since \textit{gpioInput} has a value fo 0x0070.
+On the final transaction, PSLVERR goes high because an invalid address is written to.

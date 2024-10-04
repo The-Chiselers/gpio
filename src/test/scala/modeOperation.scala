@@ -10,10 +10,9 @@ import TestUtils._
 object modeOperation extends APBUtils{
 
   def pushPullMode(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    val fullOnes = (BigInt(1) << myParams.dataWidth) - 1
     println("Test: Push-Pull Mode Operation")
     gpioDataBuffer.foreach { data =>
-      writeAPB(dut, dut.regs.MODE_ADDR.U, fullOnes.U)
+      writeAPB(dut, dut.regs.MODE_ADDR.U, 0.U(myParams.dataWidth.W))
       writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
       val randomDirectionData =
         Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
@@ -37,8 +36,9 @@ object modeOperation extends APBUtils{
 
   def drainMode(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     println("Test: Drain Mode Operation")
+    val fullOnes = (BigInt(1) << myParams.dataWidth) - 1
     gpioDataBuffer.foreach { data =>
-      writeAPB(dut, dut.regs.MODE_ADDR.U, 0.U(myParams.dataWidth.W))
+      writeAPB(dut, dut.regs.MODE_ADDR.U, fullOnes.U)
       writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
       val randomDirectionData = Random
         .nextInt(Math.pow(2, myParams.dataWidth).toInt)
