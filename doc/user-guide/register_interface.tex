@@ -117,6 +117,35 @@ of the \textit{gpioOutput} and \textit{gpioOutputEnable} busses as either push-p
   \caption{MODE Register}
 \end{table}
 
+% truth table for atomic set from atomic operation
+% p3_p2_p1_p0 ->
+% 
+%         Out
+%         0  1
+%  Mask 0 p1 p0
+%       1 p3 p2
+\subsubsection{ATOMIC\_OPERATION}
+ATOMIC\_OPERATION is a 4 bits wide read/write register. This register sets the atomic operation to be performed on the
+of gpio registers. The operation is performed on the \textit{OUTPUT} register and is performed atomically.\newline\newline
+For some bit string $\text{p}_3\text{p}_2\text{p}_1\text{p}_0$, the operation is as follows:
+\begin{equation*}
+  \begin{split}
+    \text{OUTPUT[i] }\leftarrow\text{ }&\text{OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_2\\
+                        &\text{OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_1\\
+                        &\text{!OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_3\\
+                        &\text{!OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_0
+  \end{split}
+\end{equation*}
+
+
+\subsubsection{ATOMIC\_MASK}
+ATOMIC\_MASK is a \textit{dataWidth} bits wide read/write register. This register is used to mask the atomic operation on the \textit{OUTPUT} register. 
+The specific operation used is determined by the ATOMIC\_OPERATION register seen in the above table.
+
+\subsubsection{ATOMIC\_SET}
+ATOMIC\_SET is a 1 bit wide read/write register. This register is used to trigger the atomic operation on the \textit{OUTPUT} register. 
+When ATOMIC\_SET is written to, the operation specified in ATOMIC\_OPERATION is performed on the \textit{OUTPUT} register.
+
 \subsubsection{TRIGGER\_TYPE}
 TRIGGER\_TYPE is a \textit{dataWidth} bits wide read/write register. This register configures whether \textit{gpioInput} is a level or edge sensitive
 interrupt trigger as seen below:
