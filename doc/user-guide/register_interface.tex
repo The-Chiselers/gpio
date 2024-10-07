@@ -146,6 +146,35 @@ The specific operation used is determined by the ATOMIC\_OPERATION register seen
 ATOMIC\_SET is a 1 bit wide read/write register. This register is used to trigger the atomic operation on the \textit{OUTPUT} register. 
 When ATOMIC\_SET is written to, the operation specified in ATOMIC\_OPERATION is performed on the \textit{OUTPUT} register.
 
+\subsubsection{VIRTUAL\_PORT\_MAP}
+VIRTUAL\_PORT\_MAP is a \textit{sizeOfVirtualPorts} bits wide read/write register. This register maps the virtual ports to the physical pins.
+Each bit in the register corresponds to a virtual port, and the value of the bit determines which physical pin the virtual port is mapped to 
+according to the following table by default:
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{VIRTUAL\_PORT\_MAP[n]} & \textbf{Physical Pin} \\ \hline
+      0 & Pin 0 \\ \hline
+      1 & Pin 0 \\ \hline
+      2 & Pin 0 \\ \hline
+      3 & Pin 0 \\ \hline
+      4 & Pin 0 \\ \hline
+      5 & Pin 0 \\ \hline
+      6 & Pin 0 \\ \hline
+      7 & Pin 0 \\ \hline
+  \end{tabular}
+  \caption{VIRTUAL\_PORT\_MAP Register}
+\end{table}
+
+\subsubsection{VIRTUAL\_PORT\_OUTPUT}
+VIRTUAL\_PORT\_OUTPUT is a \textit{numVirtualPorts} bits wide read/write register. This register sets the output value of the virtual ports.
+Each bit in the register corresponds to a virtual port, and the value of the bit determines the output value of the virtual port.
+
+\subsubsection{VIRTUAL\_PORT\_ENABLE}
+VIRTUAL\_PORT\_ENABLE is a 1 bit wide read/write register. This register enables the virtual ports. When VIRTUAL\_PORT\_ENABLE is set to '1', the virtual ports are enabled.
+When VIRTUAL\_PORT\_ENABLE is set to '0', the virtual ports are disabled.
+
 \subsubsection{TRIGGER\_TYPE}
 TRIGGER\_TYPE is a \textit{dataWidth} bits wide read/write register. This register configures whether \textit{gpioInput} is a level or edge sensitive
 interrupt trigger as seen below:
