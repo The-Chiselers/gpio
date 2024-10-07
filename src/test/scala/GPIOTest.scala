@@ -20,8 +20,9 @@ import chisel3._
 import chisel3.util._
 import chiseltest._
 import chiseltest.coverage._
-import chiseltest.simulator.VerilatorCFlags
-import firrtl2.options.TargetDirAnnotation
+import chiseltest.simulator._
+import firrtl2.AnnotationSeq
+import firrtl2.annotations.Annotation // Correct Annotation type for firrtl2
 
 /** Highly randomized test suite driven by configuration parameters. Includes
   * code coverage for all top-level ports. Inspired by the DynamicFifo
@@ -44,12 +45,12 @@ class GPIOTest
 
   // Constructing the backend annotations based on the flags
   val backendAnnotations = {
-    var annos = Seq(TargetDirAnnotation("generated"))
+    var annos: Seq[Annotation] = Seq() // Initialize with correct type
 
-    if (enableVcd) annos = annos :+ WriteVcdAnnotation
-    if (enableFst) annos = annos :+ WriteFstAnnotation
+    if (enableVcd) annos = annos :+ chiseltest.simulator.WriteVcdAnnotation 
+    if (enableFst) annos = annos :+ chiseltest.simulator.WriteFstAnnotation
     if (useVerilator) {
-      annos = annos :+ VerilatorBackendAnnotation
+      annos = annos :+ chiseltest.simulator.VerilatorBackendAnnotation 
       annos = annos :+ VerilatorCFlags(Seq("--std=c++17"))
     }
 
@@ -62,18 +63,6 @@ class GPIOTest
 
   def main(testName: String): Unit = {
     behavior of testName
-
-    // val backendAnnotations = Seq(
-    // WriteVcdAnnotation,
-    // WriteFstAnnotation,
-    // VerilatorBackendAnnotation, // For using verilator simulator
-    // IcarusBackendAnnotation,
-    // VcsBackendAnnotation,
-    // TargetDirAnnotation("generated")
-    // VerilatorBackendAnnotation,
-    // VerilatorCFlags(Seq("--std=c++17")),
-    // WriteFstAnnotation,
-    // )
 
     // Randomize Input Variables
     val validDataWidths = Seq(8, 16, 32)
@@ -98,7 +87,8 @@ class GPIOTest
           dut.reset.poke(false.B)
 
           // Buffer of randomized test data to apply in the test
-          val bufferLength = 2
+
+          val bufferLength = 5
           val gpioDataBuffer = Seq
             .fill(bufferLength)(randData(myParams.dataWidth))
 

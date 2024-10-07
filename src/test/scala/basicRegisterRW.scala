@@ -16,10 +16,13 @@ object basicRegisterRW extends APBUtils {
   ): Unit = {
     println("Test: Write to DIRECTION register")
     gpioDataBuffer.foreach { data =>
-      writeAPB(dut, dut.regs.DIRECTION_ADDR.U, data)
-      val directionData = readAPB(dut, dut.regs.DIRECTION_ADDR.U)
+      val randomAddr = dut.regs.DIRECTION_ADDR + Random.nextInt((dut.regs.DIRECTION_ADDR_MAX - dut.regs.DIRECTION_ADDR) + 1)
+      writeAPB(dut, randomAddr.U, data)
+      val directionData = readAPB(dut, randomAddr.U)
       println(s"Direction Register Read: ${directionData.toString()}")
-      require(directionData == data.litValue)
+      val shiftAddr = (randomAddr - (dut.regs.DIRECTION_ADDR)) * 8
+      val expectedData = ((data.litValue << shiftAddr) & ((1L << myParams.dataWidth) - 1)).U   //Mask to keep answer dataWidth long
+      require(directionData == expectedData.litValue)
     }
   }
 
@@ -30,10 +33,13 @@ object basicRegisterRW extends APBUtils {
   ): Unit = {
     println("Test: Write to OUTPUT register")
     gpioDataBuffer.foreach { data =>
-      writeAPB(dut, dut.regs.OUTPUT_ADDR.U, data)
-      val outputData = readAPB(dut, dut.regs.OUTPUT_ADDR.U)
+      val randomAddr = dut.regs.OUTPUT_ADDR + Random.nextInt((dut.regs.OUTPUT_ADDR_MAX - dut.regs.OUTPUT_ADDR) + 1)
+      writeAPB(dut, randomAddr.U, data)
+      val outputData = readAPB(dut, randomAddr.U)
       println(s"Output Register Read: ${outputData.toString()}")
-      require(outputData == data.litValue)
+      val shiftAddr = (randomAddr - (dut.regs.OUTPUT_ADDR)) * 8
+      val expectedData = ((data.litValue << shiftAddr) & ((1L << myParams.dataWidth) - 1)).U   //Mask to keep answer dataWidth long
+      require(outputData == expectedData.litValue)
     }
   }
 
@@ -59,10 +65,13 @@ object basicRegisterRW extends APBUtils {
   ): Unit = {
     println("Test: Write to MODE register")
     gpioDataBuffer.foreach { data =>
-      writeAPB(dut, dut.regs.MODE_ADDR.U, data)
-      val modeData = readAPB(dut, dut.regs.MODE_ADDR.U)
+      val randomAddr = dut.regs.MODE_ADDR + Random.nextInt((dut.regs.MODE_ADDR_MAX - dut.regs.MODE_ADDR) + 1)
+      writeAPB(dut, randomAddr.U, data)
+      val modeData = readAPB(dut, randomAddr.U)
       println(s"Mode Register Read: ${modeData.toString()}")
-      require(modeData == data.litValue)
+      val shiftAddr = (randomAddr - (dut.regs.MODE_ADDR)) * 8
+      val expectedData = ((data.litValue << shiftAddr) & ((1L << myParams.dataWidth) - 1)).U   //Mask to keep answer dataWidth long
+      require(modeData == expectedData.litValue)
     }
   }
 

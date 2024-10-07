@@ -58,12 +58,7 @@ verilog:
 test:
 	@echo Running tests
 	mkdir -p generated
-	$(SBT) "test" | tee generated/test.rpt
-
-test_vcd:
-	@echo Running tests with VCD
-	mkdir -p generated
-	$(SBT) "testOnly -- -DwriteVcd=1" | tee generated/test.rpt
+	$(SBT) -DtestName="allTests" test | tee generated/test.rpt
 
 # Run the tests with Scala code coverage enables
 cov:
