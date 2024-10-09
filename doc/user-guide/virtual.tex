@@ -1,79 +1,83 @@
-
 \section{Virtual Ports}
 
-When a virtual port is mapped to a physical pin in your GPIO module, the behavior of the virtual port should directly correspond to the mode (input or output) of the physical pin it is mapped to. Here's a breakdown of how the virtual port should behave in each scenario:
+\subsection{Introduction}
+Virtual ports in the GPIO module allow for the abstraction of physical pins, enabling flexible control without altering the underlying hardware behavior. A virtual port can be mapped to a physical pin, and its behavior will correspond to the mode (input or output) of the pin it is mapped to.
 
-\section*{1. Physical Pin Configured as Output}
-\begin{itemize}
-    \item \textbf{Data Flow}: When the physical pin is configured as an output, the virtual port should mirror the behavior of the physical pin in the output direction.
-    \begin{itemize}
-        \item The virtual port \textbf{writes} data to the same physical pin.
-        \item Any \textbf{write} to the virtual port should directly translate into setting the output value of the physical pin.
-        \item The direction of the virtual port is \textbf{implicitly output}, since it is attached to a physical output pin.
-    \end{itemize}
-    \item \textbf{Enable Behavior}: If virtual ports are supported and enabled, writing to the virtual port should behave as if you are writing directly to the physical pin.
-    \begin{itemize}
-        \item The virtual port output should be enabled when the corresponding physical pin’s output is enabled.
-    \end{itemize}
-\end{itemize}
+This section details how virtual ports should behave when mapped to physical pins, how data flows between them, and how enable signals are managed.
 
-\textbf{Example}:
-\begin{itemize}
-    \item Physical pin $p$ is configured as an output.
-    \item Virtual port $v$ is mapped to pin $p$.
-    \item Writing $1$ to virtual port $v$ should output $1$ on physical pin $p$.
-\end{itemize}
+\subsection{Physical Pin Configured as Output}
+When the physical pin is configured as an output, the virtual port should mirror this configuration.
 
-\section*{2. Physical Pin Configured as Input}
-\begin{itemize}
-    \item \textbf{Data Flow}: When the physical pin is configured as an input, the virtual port should reflect the data coming \textbf{from} the physical pin.
-    \begin{itemize}
-        \item The virtual port can \textbf{read} the value of the physical pin but cannot write to it.
-        \item Any \textbf{read} from the virtual port should return the current value of the physical pin.
-        \item The virtual port direction is implicitly \textbf{input}, since it is attached to a physical input pin.
+\begin{itemize}[noitemsep]
+    \item \textbf{Data Flow}: The virtual port writes data to the corresponding physical pin.
+    \begin{itemize}[noitemsep]
+        \item Writing to the virtual port sets the output value of the physical pin.
+        \item The virtual port is implicitly in output mode.
     \end{itemize}
-    \item \textbf{Enable Behavior}: If virtual ports are supported and enabled, reading from the virtual port should behave as if you are reading directly from the physical pin.
-    \begin{itemize}
-        \item The virtual port input should be enabled when the physical pin’s input is enabled.
+    \item \textbf{Enable Behavior}: Writing to the virtual port acts as if writing directly to the physical pin.
+    \begin{itemize}[noitemsep]
+        \item Virtual port output is enabled when the physical pin output is enabled.
     \end{itemize}
 \end{itemize}
 
 \textbf{Example}:
-\begin{itemize}
-    \item Physical pin $p$ is configured as an input.
+\begin{itemize}[noitemsep]
+    \item Physical pin $p$ is set as output.
     \item Virtual port $v$ is mapped to pin $p$.
-    \item Reading from virtual port $v$ should return the current state of physical pin $p$ (either $0$ or $1$).
+    \item Writing a $1$ to virtual port $v$ sets the output of pin $p$ to $1$.
 \end{itemize}
 
-\section*{3. Physical Pin Reconfiguration (Dynamic Behavior)}
-\begin{itemize}
-    \item If the direction of the physical pin changes dynamically during runtime, the virtual port’s behavior should immediately reflect this change.
-    \begin{itemize}
-        \item If a physical pin switches from \textbf{input to output}, the virtual port should switch from \textbf{read-only} to \textbf{write-enabled}.
-        \item If a physical pin switches from \textbf{output to input}, the virtual port should switch from \textbf{write-enabled} to \textbf{read-only}.
+\subsection{Physical Pin Configured as Input}
+When the physical pin is configured as an input, the virtual port should reflect the data from the physical pin.
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Data Flow}: The virtual port reads the value of the physical pin.
+    \begin{itemize}[noitemsep]
+        \item Any read from the virtual port reflects the current value of the physical pin.
+        \item The virtual port is implicitly in input mode.
     \end{itemize}
-    \item The virtual port should also respect any changes to the physical pin's enable signal (e.g., when a pin is disabled or tri-stated).
+    \item \textbf{Enable Behavior}: Reading from the virtual port behaves as if reading directly from the physical pin.
+    \begin{itemize}[noitemsep]
+        \item Virtual port input is enabled when the physical pin input is enabled.
+    \end{itemize}
 \end{itemize}
 
-\section*{Summary of Correspondence}
+\textbf{Example}:
+\begin{itemize}[noitemsep]
+    \item Physical pin $p$ is set as input.
+    \item Virtual port $v$ is mapped to pin $p$.
+    \item Reading from virtual port $v$ returns the current value of physical pin $p$ (either $0$ or $1$).
+\end{itemize}
 
+\subsection{Physical Pin Reconfiguration (Dynamic Behavior)}
+If the direction of the physical pin changes dynamically during runtime, the virtual port should reflect this change.
+
+\begin{itemize}[noitemsep]
+    \item When a physical pin changes from \textbf{input to output}, the virtual port should switch from \textbf{read-only} to \textbf{write-enabled}.
+    \item When a physical pin changes from \textbf{output to input}, the virtual port should switch from \textbf{write-enabled} to \textbf{read-only}.
+    \item The virtual port should respect any changes to the physical pin's enable signal (e.g., when a pin is disabled or tri-stated).
+\end{itemize}
+
+\subsection{Summary of Correspondence}
+The following table summarizes the behavior of virtual ports when mapped to physical pins.
 \begin{table}[ht]
     \centering
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{|c|c|c|c|}
         \hline
-        \textbf{Physical Pin Mode} & \textbf{Virtual Port Behavior} & \textbf{Direction} & \textbf{Enable Behavior} \\
-        \hline
-        \textbf{Output} & Writes to virtual port propagate to physical pin & Implicit Output & Enabled if physical pin output is enabled \\
-        \hline
-        \textbf{Input} & Reads from virtual port reflect the physical pin value & Implicit Input & Enabled if physical pin input is enabled \\
-        \hline
-    \end{tabular}
+        \textbf{Physical Pin Mode} & \textbf{Virtual Port Behavior} & \textbf{Direction} & \textbf{Enable Behavior} \\ \hline
+        \textbf{Output}            & Writes to virtual port propagate to physical pin & Implicit Output & Enabled if physical pin output is enabled \\ \hline
+        \textbf{Input}             & Reads from virtual port reflect the physical pin value & Implicit Input  & Enabled if physical pin input is enabled  \\ \hline
+    \end{tabular}%
+    }
+    \caption{Virtual Port Behavior Correspondence with Physical Pins}
 \end{table}
 
-\section*{Additional Considerations}
-\begin{itemize}
-    \item \textbf{Virtual-to-Physical Map}: Ensure that your \texttt{virtualToPhysicalMap} correctly identifies which physical pin a virtual port is mapped to, and that this mapping remains consistent throughout the operation.
-    \item \textbf{Enable Flag}: The virtual port enable flag should be checked to ensure that virtual ports are supported in the current configuration. If not enabled, virtual ports should not interact with physical pins at all.
+\subsection{Additional Considerations}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Virtual-to-Physical Map}: Ensure that the \texttt{virtualToPhysicalMap} correctly identifies which physical pin a virtual port is mapped to and maintains this mapping throughout the operation.
+    \item \textbf{Enable Flag}: The virtual port enable flag should be checked to ensure that virtual ports are supported. If not enabled, virtual ports should not interact with physical pins.
 \end{itemize}
 
-By maintaining this mapping behavior, you can ensure that virtual ports act as an abstraction over physical pins, seamlessly extending the functionality of the GPIO without altering the underlying physical behavior.
+By maintaining consistent mapping and handling between virtual and physical ports, you ensure that virtual ports act as an abstraction layer, extending GPIO functionality without altering the behavior of the physical pins.
