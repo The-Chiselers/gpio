@@ -13,47 +13,52 @@ object Main extends App {
 
   // ######### Getting Setup #########
   // setting file output directory
-  var output = System.getProperty("output")
-  if (output == null) output = "out"
-  val outputDir = s"$output/generated"
+  // var output = System.getProperty("output")
+  // if (output == null) output = "out"
+  val outputDir = s"generated"
 
   // firtool options for generating verilog
   // val firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
-  val myParams = BaseParams(
-    wordWidth = 8,
-    dataWidth = 32,
-    addrWidth = 32,
-    coverage = false
-  )
+  val myParams =
+    BaseParams(wordWidth = 8, dataWidth = 32, addrWidth = 32, coverage = false)
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
   if (!javaOutputDir.exists) javaOutputDir.mkdirs
 
   // ######### Set Up Top Module HERE #########
   val top_name = "GPIO.sv"
-  val verilog = ChiselStage.emitSystemVerilog(
+  // val verilog = ChiselStage.emitSystemVerilog(
+  //   new GPIO(myParams),
+  //   firtoolOpts = Array(
+  //     "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+  //     "--disable-all-randomization",
+  //     "--strip-debug-info",
+  //     "--split-verilog",
+  //     s"-o=generated/",
+  //   ),
+  // )
+  ChiselStage.emitSystemVerilog(
     new GPIO(myParams),
     firtoolOpts = Array(
       "--lowering-options=disallowLocalVariables,disallowPackedArrays",
       "--disable-all-randomization",
       "--strip-debug-info",
       "--split-verilog",
-      s"-o=generated/"
-    )
+      s"-o=generated/",
+    ),
   )
   // ##########################################
 
   // print verilog to console
-  println(verilog)
+  // println(verilog)
 
-  // write verilog to file
-  val writer =
-    new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
-  writer.write(verilog)
+  // // write verilog to file
+  // val writer = new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
+  // writer.write(verilog)
 
-  // close writer
-  writer.close()
+  // // close writer
+  // writer.close()
 
-  // exit
-  System.exit(0)
+  // // exit
+  // System.exit(0)
 }
