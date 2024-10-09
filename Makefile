@@ -76,12 +76,11 @@ cov:
 
 synth: verilog
 	@echo Synthesizing
-	./synthesis/synth.sh
+	sh ./synth/synth.sh
 
-sta: verilog
-	@echo "Running static timing analysis"
-	@echo "Not implemented @ Makefile, sta target"
-	exit 1
+sta: synth
+	python3 synth/sdc.py GPIO generated/GPIO.sdc
+	sh synth/sta.sh
 
 
 rename_circt_version:
