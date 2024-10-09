@@ -1,44 +1,41 @@
 \section{Theory of Operations}
 
 \subsection{Introduction}
-The \textbf{DynamicFifo} is a highly parameterized FIFO and FIFO controller. It
-is configurable as a full self-contained FIFO with internal memory being
-constructed from flip-flops, or a FIFO controller that uses an external SRAM
-for memory.
+The \textbf{GPIO} module is configurable with parameters for setting data and address widths. It interfaces with the CPU via the APB3 bus. The signals gpioInput, gpioOutput, and gpioOutputEnable are designed to interface with external hardware, such as a tri-state buffer, to facilitate bi-directional communication on physical pins.
 
 \begin{figure}[h]
-  \includegraphics[width=0.80\textwidth]{images/block-diagram.png}
-  \caption{Block Diagram}\label{fig:block-diagram}
+  \includegraphics[width=0.90\textwidth]{images/block-diagram-gpio.png}
+  \caption{GPIO Block Diagram}\label{fig:block-diagram}
 \end{figure}
 
-It features the following status flags which are described in
-Table~\ref{table:ports}.
+% It features the following status flags which are described in
+% Table~\ref{table:ports}.
 
-\begin{itemize}[noitemsep]
-  \item{empty}
-  \item{full}
-  \item{almostEmpty}
-  \item{almostFull}
-\end{itemize}
+% \begin{itemize}[noitemsep]
+%   \item{empty}
+%   \item{full}
+%   \item{almostEmpty}
+%   \item{almostFull}
+% \end{itemize}
 
-When \textit{push} is asserted, the data on the \textit{dataIn} port is enqued
-on the next rising edge of \textit{clock}. When \textit{pop} is asserted, the
-top of the FIFO is dequed and immediately available on the \textit{dataOut}
-port. Pop and Push operations can be simulataneous.
+% When \textit{push} is asserted, the data on the \textit{dataIn} port is enqued
+% on the next rising edge of \textit{clock}. When \textit{pop} is asserted, the
+% top of the FIFO is dequed and immediately available on the \textit{dataOut}
+% port. Pop and Push operations can be simulataneous.
 
-There are two error conditions which produce the following effects:
-\begin{itemize}
-  \item{When \textit{pop} is asserted and the FIFO is empty (\textit{empty} is
-        active), \textit{dataOut} will contain the last valid data held in
-        the FIFO.}
-  \item{When \textit{push} is asserted and the FIFO is full (\textit{full} is
-        active), \textit{dataIn} will be ignored and not enqued.}
-\end{itemize}
+% There are two error conditions which produce the following effects:
+% \begin{itemize}
+%   \item{When \textit{pop} is asserted and the FIFO is empty (\textit{empty} is
+%         active), \textit{dataOut} will contain the last valid data held in
+%         the FIFO.}
+%   \item{When \textit{push} is asserted and the FIFO is full (\textit{full} is
+%         active), \textit{dataIn} will be ignored and not enqued.}
+% \end{itemize}
 
-The \textit{almostEmpty} and \textit{almostFull} flags allow for additional
-feedback to the system that is useful for optimizing data flow control. The
-levels of these flags can be programmed dynamically through the
-\textit{almostEmptyLevel} and \textit{almostFullLevel} ports.
+% The \textit{almostEmpty} and \textit{almostFull} flags allow for additional
+% feedback to the system that is useful for optimizing data flow control. The
+% levels of these flags can be programmed dynamically through the
+% \textit{almostEmptyLevel} and \textit{almostFullLevel} ports.
 
 \newpage
 \subsection{Interface Timing}
