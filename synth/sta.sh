@@ -30,6 +30,8 @@ cd ${BUILD_ROOT}/synth
 
 # Running STA
 sta -no_init -no_splash -exit ${PROJECT_ROOT}/synth/${TOP}.sta.tcl | tee ${BUILD_ROOT}/synth/timing.rpt
+
+# Extracting slack
 timing=`grep slack ${BUILD_ROOT}/synth/timing.rpt`
 if [ -e ${BUILD_ROOT}/synth/timing_slack.rpt ]; then 
     rm -f ${BUILD_ROOT}/synth/timing_slack.rpt

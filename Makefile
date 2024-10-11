@@ -15,10 +15,12 @@ list:
 
 all: clean publish docs cov yosys check
 
+# Validates the environment to see if it is possible to run
 validate: 
 	@if [ -z $(BUILD_ROOT) ]; then echo "BUILD_ROOT is not set"; exit 1; fi
 	@if [ -z $(PROJECT_ROOT) ]; then echo "PROJECT_ROOT is not set"; exit 1; fi
 	@if [ -z $(TOP) ]; then echo "TOP is not set"; exit 1; fi
+	@if [ -z $(FIRTOOL_REV) ]; then echo "FIRTOOL_REV is not set"; exit 1; fi
 
 check: 
 	@echo 
@@ -60,7 +62,6 @@ docs: validate
 	@echo Generating docs
 	mkdir -p $(BUILD_ROOT)/doc
 	cd doc/user-guide && pdflatex -output-directory=$(BUILD_ROOT)/doc $(TOP).tex | tee -a $(BUILD_ROOT)/doc/doc.rpt
-	# $(BROWSER) --new-window $(BUILD_ROOT)/doc/$(TOP).pdf & 
 
 # Generate Verilog and synthesize
 verilog: validate
@@ -89,12 +90,14 @@ cov: validate
 	coverageReport | tee $(BUILD_ROOT)/cov/scala/test.rpt
 	google-chrome --new-window $(BUILD_ROOT)/cov/scala/scoverage-report/index.html &
 
-
+# Synthesize the design
 synth: verilog
 	@echo Synthesizing
 	sh $(PROJECT_ROOT)/synth/synth.sh
 
+# Generate timing analysis
 sta: synth
+	# Uses a python script to generate the SDC file
 	python3 $(PROJECT_ROOT)/synth/sdc.py --top GPIO --clock clock=5.0
 	sh $(PROJECT_ROOT)/synth/sta.sh
 
