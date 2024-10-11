@@ -3,7 +3,7 @@
 
 When a virtual port is mapped to a physical pin in your GPIO module, the behavior of the virtual port should directly correspond to the mode (input or output) of the physical pin it is mapped to. Here's a breakdown of how the virtual port should behave in each scenario:
 
-\section*{1. Physical Pin Configured as Output}
+\subsection{Physical Pin Configured as Output}
 \begin{itemize}
     \item \textbf{Data Flow}: When the physical pin is configured as an output, the virtual port should mirror the behavior of the physical pin in the output direction.
     \begin{itemize}
@@ -24,7 +24,7 @@ When a virtual port is mapped to a physical pin in your GPIO module, the behavio
     \item Writing $1$ to virtual port $v$ should output $1$ on physical pin $p$.
 \end{itemize}
 
-\section*{2. Physical Pin Configured as Input}
+\subsection{Physical Pin Configured as Input}
 \begin{itemize}
     \item \textbf{Data Flow}: When the physical pin is configured as an input, the virtual port should reflect the data coming \textbf{from} the physical pin.
     \begin{itemize}
@@ -45,7 +45,7 @@ When a virtual port is mapped to a physical pin in your GPIO module, the behavio
     \item Reading from virtual port $v$ should return the current state of physical pin $p$ (either $0$ or $1$).
 \end{itemize}
 
-\section*{3. Physical Pin Reconfiguration (Dynamic Behavior)}
+\subsection{Physical Pin Reconfiguration (Dynamic Behavior)}
 \begin{itemize}
     \item If the direction of the physical pin changes dynamically during runtime, the virtual port’s behavior should immediately reflect this change.
     \begin{itemize}
@@ -55,7 +55,7 @@ When a virtual port is mapped to a physical pin in your GPIO module, the behavio
     \item The virtual port should also respect any changes to the physical pin's enable signal (e.g., when a pin is disabled or tri-stated).
 \end{itemize}
 
-\section*{Summary of Correspondence}
+\subsection{Summary of Correspondence}
 
 \begin{table}[ht]
     \centering
@@ -70,7 +70,7 @@ When a virtual port is mapped to a physical pin in your GPIO module, the behavio
     \end{tabular}
 \end{table}
 
-\section*{Additional Considerations}
+\subsection{Additional Considerations}
 \begin{itemize}
     \item \textbf{Virtual-to-Physical Map}: Ensure that your \texttt{virtualToPhysicalMap} correctly identifies which physical pin a virtual port is mapped to, and that this mapping remains consistent throughout the operation.
     \item \textbf{Enable Flag}: The virtual port enable flag should be checked to ensure that virtual ports are supported in the current configuration. If not enabled, virtual ports should not interact with physical pins at all.
