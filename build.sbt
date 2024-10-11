@@ -9,7 +9,6 @@ Test / parallelExecution := false
 
 val chiselVersion   = "5.3.0"
 val scalafmtVersion = "2.5.0"
-
 lazy val root = (project in file("."))
   .settings(
     name                   := "gpio",
@@ -17,6 +16,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.chipsalliance" %% "chisel"     % chiselVersion,
       "edu.berkeley.cs"   %% "chiseltest" % "5.0.0" % "test"
+      
     ),
     scalacOptions ++= Seq(
       "-language:reflectiveCalls",
@@ -32,7 +32,7 @@ lazy val root = (project in file("."))
 
 // Scala coverage settings
 val build_root = sys.env("BUILD_ROOT")
-coverageDataDir            := target.value / s"../${build_root}/scalaCoverage"
+coverageDataDir            := target.value / s"../${build_root}/cov/scala"
 coverageFailOnMinimum      := true
 coverageMinimumStmtTotal   := 90
 coverageMinimumBranchTotal := 95
