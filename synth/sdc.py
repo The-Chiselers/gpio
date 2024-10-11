@@ -2,16 +2,48 @@ import os
 import sys
 import re
 
-def main():
-    TOP=sys.argv[1]
-    OUTPUT=sys.argv[2]
+import argparse
 
-    netlist_path = os.path.join("generated", f"{TOP}_net.v")
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--top", required=True, help="Top module name")
+
+    # Optional and use as many as needed
+    example_clock = """
+    --clock clock=5.0 --clock clock2=10.0
+"""
+    parser.add_argument("--clock", required=True, help=f"Clocks to add to the SDC file, example: {example_clock}", action='append' )
+    return parser.parse_args()
+
+
+# This script will generate an SDC file for the given top module
+# It will look at the netlist file and extract the ports
+# It will then create an SDC file with the following:
+# - create_clock for each clock
+# - set_input_delay for each input
+# - set_output_delay for each output
+def main():
+    if not "BUILD_ROOT" in os.environ:
+        print("BUILD_ROOT not set, please set and rerun")
+        sys.exit(1)
+    
+    args = parse_args()
+    top = args.top
+
+    build_root = os.environ["BUILD_ROOT"]
+    synth_build_root = os.path.join(build_root, "synth")
+
+    output_path = os.path.join(synth_build_root, f"{top}.sdc")
+
+    clocks = args.clock
+
+    netlist_path = os.path.join(synth_build_root, f"{top}_net.v")
     netlist = open(netlist_path, "r").read()
+    sdc_output = os.path.join(synth_build_root, f"{top}.sdc")
     
     # ports look like this:
     # module ${TOP}(.*?);
-    ports = re.search(r"module\s+{}\s*\((.*?)\);".format(TOP), netlist, re.DOTALL).group(1).split(",")
+    ports = re.search(r"module\s+{}\s*\((.*?)\);".format(top), netlist, re.DOTALL).group(1).split(",")
     ports = [port.strip() for port in ports]
     
     ports_map = {}
@@ -19,9 +51,6 @@ def main():
         ports_map[port] = "NONE"
 
     # for each line if matches input or output, add to ports_map if port is in map
-    # input clock;
-    # output reset;
-    # input [31:0] io_apb_PADDR;
     for line in netlist.split("\n"):
         if "input" in line or "output" in line:
             port = re.search(r"(input|output)\s+(?:\[\d+:\d+\])?\s*(.*?);", line).group(2)
@@ -29,8 +58,11 @@ def main():
                 ports_map[port] = re.search(r"(input|output)", line).group(1)
     
     # create sdc file
-    sdc = open(OUTPUT, "w")
-    sdc.write("create_clock -period 5.0 -waveform {0 2.5} clock\n")
+    sdc = open(output_path, "w")
+
+    for clock in clocks:
+        clock_name, period = clock.split("=")
+        sdc.write("create_clock -period {} -waveform {{0 {}}} {}\n".format(period, float(period)/2, clock_name))
 
     inputs = []
     outputs = []

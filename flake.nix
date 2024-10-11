@@ -3,7 +3,26 @@
     inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
 
     outputs = { self, nixpkgs }: {
-        devShell = {
+        
+        
+        devShell = 
+            let 
+                circt_rev = "50a7139fbd1acd4a3d4cfa695e694c529dd26f3a";
+                opensta_rev = "20925bb00965c1199c45aca0318c2baeb4042c5a";
+                opensta_sha256 = "sha256-gWAN+d6ioxQtxtgeq3vR+Zgq3nYRyn/u104L/xqumuY=";
+                env_exports = ''
+                    export BROWSER=firefox
+
+                    export FIRTOOL_REV=${circt_rev}
+
+                    export PROJECT_ROOT="$(realpath .)"
+                    export BUILD_ROOT="$(realpath .)/out"
+                    
+                    # Can modify this in other projects
+                    export TOP=GPIO
+                '';
+            in 
+        {
             aarch64-darwin = with nixpkgs.legacyPackages.aarch64-darwin; mkShellNoCC {
                 packages = with pkgs; [
                     # Chisel
@@ -12,7 +31,7 @@
                         type = "github"; 
                         owner = "nixos"; 
                         repo = "nixpkgs"; 
-                        rev = "50a7139fbd1acd4a3d4cfa695e694c529dd26f3a"; }) 
+                        rev = circt_rev; }) 
                         { inherit (pkgs) system; };
                     in circtpkgs.circt)
 
@@ -34,8 +53,8 @@
                         src =  pkgs.fetchFromGitHub {
                             owner = "The-OpenROAD-Project";
                             repo = "OpenSTA";
-                            rev = "20925bb00965c1199c45aca0318c2baeb4042c5a";
-                            sha256 = "sha256-gWAN+d6ioxQtxtgeq3vR+Zgq3nYRyn/u104L/xqumuY=";
+                            rev = opensta_rev;
+                            sha256 = opensta_sha256;
                         };
                         buildInputs = [ 
                             pkgs.cmake 
@@ -74,7 +93,7 @@
                     # Other
                     python3
                 ];
-                shellHook = ''
+                shellHook = env_exports + ''
                     export CXX=/usr/bin/c++
                     export CC=/usr/bin/cc
                 '';
@@ -88,7 +107,7 @@
                         type = "github"; 
                         owner = "nixos"; 
                         repo = "nixpkgs"; 
-                        rev = "50a7139fbd1acd4a3d4cfa695e694c529dd26f3a"; }) 
+                        rev = circt_rev; }) 
                         { inherit (pkgs) system; };
                     in circtpkgs.circt)
                                     
@@ -108,8 +127,8 @@
                         src =  pkgs.fetchFromGitHub {
                             owner = "The-OpenROAD-Project";
                             repo = "OpenSTA";
-                            rev = "20925bb00965c1199c45aca0318c2baeb4042c5a";
-                            sha256 = "sha256-gWAN+d6ioxQtxtgeq3vR+Zgq3nYRyn/u104L/xqumuY=";
+                            rev = opensta_rev;
+                            sha256 = opensta_sha256;
                         };
                         buildInputs = [ 
                             pkgs.cmake 
@@ -150,7 +169,7 @@
                     gcc
                     python3
                 ];
-                shellHook = ''
+                shellHook = env_exports + ''
                     export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"
                 '';
             };

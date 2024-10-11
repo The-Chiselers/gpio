@@ -12,7 +12,7 @@ val scalafmtVersion = "2.5.0"
 
 lazy val root = (project in file("."))
   .settings(
-    name                   := "dynamicfifo",
+    name                   := "gpio",
     Test / publishArtifact := true,
     libraryDependencies ++= Seq(
       "org.chipsalliance" %% "chisel"     % chiselVersion,
@@ -31,7 +31,8 @@ lazy val root = (project in file("."))
   )
 
 // Scala coverage settings
-coverageDataDir            := target.value / "../generated/scalaCoverage"
+val build_root = sys.env("BUILD_ROOT")
+coverageDataDir            := target.value / s"../${build_root}/scalaCoverage"
 coverageFailOnMinimum      := true
 coverageMinimumStmtTotal   := 90
 coverageMinimumBranchTotal := 95

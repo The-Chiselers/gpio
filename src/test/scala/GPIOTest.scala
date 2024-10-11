@@ -41,6 +41,16 @@ class GPIOTest
   val enableFst = System.getProperty("enableFst", "false").toBoolean
   val useVerilator = System.getProperty("useVerilator", "false").toBoolean
 
+  // NICKS
+  val buildRoot = sys.env.get("BUILD_ROOT")
+  if (buildRoot.isEmpty) {
+    println("BUILD_ROOT not set, please set and run again")
+    System.exit(1)
+  }
+  val testDir = buildRoot.get + "/test"
+
+  // END NICKS
+
   println(s"Test: $testName, VCD: $enableVcd, FST: $enableFst, Verilator: $useVerilator")
 
   // Constructing the backend annotations based on the flags
@@ -53,6 +63,7 @@ class GPIOTest
       annos = annos :+ chiseltest.simulator.VerilatorBackendAnnotation 
       annos = annos :+ VerilatorCFlags(Seq("--std=c++17"))
     }
+    annos = annos :+ chiseltest.simulator.TargetDirAnnotation(testDir)
 
     annos
   }
@@ -162,7 +173,14 @@ class GPIOTest
         val testConfig = myParams.dataWidth.toString + "_" +
           myParams.addrWidth.toString
 
-        val verCoverageDir = new File("generated/verilogCoverage")
+        val buildRoot = sys.env.get("BUILD_ROOT")
+        if (buildRoot.isEmpty) {
+          println("BUILD_ROOT not set, please set and run again")
+          System.exit(1)
+        }
+        // path join
+        val scalaCoverageDir = new File(buildRoot.get + "/cov/scala")
+        val verCoverageDir = new File(buildRoot.get + "/cov/verilog")
         verCoverageDir.mkdir()
         val coverageFile = verCoverageDir.toString + "/" + testName + "_" +
           testConfig + ".cov"
@@ -187,7 +205,13 @@ class GPIOTest
   }
 
   // Create a directory for storing coverage reports
-  val scalaCoverageDir = new File("generated/scalaCoverage")
+  val buildRoot = sys.env.get("BUILD_ROOT")
+  if (buildRoot.isEmpty) {
+    println("BUILD_ROOT not set, please set and run again")
+    System.exit(1)
+  }
+  // path join
+  val scalaCoverageDir = new File(buildRoot.get + "/cov/scala")
   scalaCoverageDir.mkdir()
 
 }
