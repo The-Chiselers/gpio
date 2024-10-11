@@ -1,8 +1,11 @@
-set top "GPIO"
 
-read_liberty ../synth/stdcells.lib
-read_verilog $top\_net.v
+set top $::env(TOP)
+set projectRoot $::env(PROJECT_ROOT)
+set buildRoot $::env(BUILD_ROOT)
+
+read_liberty $projectRoot/synth/stdcells.lib
+read_verilog $buildRoot/synth/$top\_net.v
 link_design $top
-source ../generated/$top.sdc
+source $buildRoot/synth/${top}.sdc
 check_setup
 report_checks

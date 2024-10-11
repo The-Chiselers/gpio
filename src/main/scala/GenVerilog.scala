@@ -12,19 +12,20 @@ import chisel3._
 object Main extends App {
 
   // ######### Getting Setup #########
-  // setting file output directory
-  var output = System.getProperty("output")
-  if (output == null) output = "out"
-  val outputDir = s"$output/generated"
+  // get build root, if not set use null
+  var output = sys.env.get("BUILD_ROOT")
+  if (output == null) {
+    println("BUILD_ROOT not set, please set and run again")
+    System.exit(1)
+  }
+  // set output directory
+  val outputUnwrapped = output.get
+  val outputDir = s"$outputUnwrapped/verilog"
 
   // firtool options for generating verilog
   // val firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
-  val myParams = BaseParams(
-    wordWidth = 8,
-    dataWidth = 32,
-    addrWidth = 32,
-    coverage = false
-  )
+  val myParams =
+    BaseParams(wordWidth = 8, dataWidth = 32, addrWidth = 32, coverage = false)
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
   if (!javaOutputDir.exists) javaOutputDir.mkdirs
@@ -38,22 +39,9 @@ object Main extends App {
       "--disable-all-randomization",
       "--strip-debug-info",
       "--split-verilog",
-      s"-o=generated/"
-    )
+      s"-o=$outputDir/",
+    ),
   )
   // ##########################################
-
-  // print verilog to console
-  println(verilog)
-
-  // write verilog to file
-  val writer =
-    new java.io.PrintWriter(new java.io.File(s"$outputDir/$top_name"))
-  writer.write(verilog)
-
-  // close writer
-  writer.close()
-
-  // exit
   System.exit(0)
 }
