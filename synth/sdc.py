@@ -7,6 +7,7 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--top", required=True, help="Top module name")
+    parser.add_argument("--out", required=True, help="Output SDC file")
 
     # Optional and use as many as needed
     example_clock = """
@@ -29,17 +30,16 @@ def main():
     
     args = parse_args()
     top = args.top
+    out = args.out
 
     build_root = os.environ["BUILD_ROOT"]
     synth_build_root = os.path.join(build_root, "synth")
-
-    output_path = os.path.join(synth_build_root, f"{top}.sdc")
 
     clocks = args.clock
 
     netlist_path = os.path.join(synth_build_root, f"{top}_net.v")
     netlist = open(netlist_path, "r").read()
-    sdc_output = os.path.join(synth_build_root, f"{top}.sdc")
+
     
     # ports look like this:
     # module ${TOP}(.*?);
@@ -58,25 +58,27 @@ def main():
                 ports_map[port] = re.search(r"(input|output)", line).group(1)
     
     # create sdc file
-    sdc = open(output_path, "w")
+    sdc = open(out, "w")
 
     for clock in clocks:
         clock_name, period = clock.split("=")
         sdc.write("create_clock -period {} -waveform {{0 {}}} {}\n".format(period, float(period)/2, clock_name))
 
+    clock_names = [clock.split("=")[0] for clock in clocks]
+
     inputs = []
     outputs = []
     for port, direction in ports_map.items():
-        if direction == "input":
+        if direction == "input" and not port in clock_names:
             inputs.append(port)
-        elif direction == "output":
+        elif direction == "output" and not port in clock_names:
             outputs.append(port)
 
     for input_port in inputs:
-        sdc.write("set_input_delay -clock clock 1.0 {" + input_port + "}\n")
+        sdc.write("set_input_delay -clock " + clock_names[0] + " 1.0 {" + input_port + "}\n")
 
     for output_port in outputs:
-        sdc.write("set_output_delay -clock clock 1.0 {" + output_port + "}\n")
+        sdc.write("set_output_delay -clock " + clock_names[0] + " 1.0 {" + output_port + "}\n")
 
 
 

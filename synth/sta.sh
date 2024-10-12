@@ -23,17 +23,17 @@ if [ "${TOP}" = "" ]; then
 fi
 
 # Set up build directories
-if [ ! -e ${BUILD_ROOT}/synth ]; then 
-    mkdir -p ${BUILD_ROOT}/synth
+if [ ! -e ${BUILD_ROOT}/sta ]; then 
+    mkdir -p ${BUILD_ROOT}/sta
 fi
-cd ${BUILD_ROOT}/synth
+cd ${BUILD_ROOT}/sta
 
 # Running STA
-sta -no_init -no_splash -exit ${PROJECT_ROOT}/synth/${TOP}.sta.tcl | tee ${BUILD_ROOT}/synth/timing.rpt
+sta -no_init -no_splash -exit ${PROJECT_ROOT}/synth/${TOP}.sta.tcl | tee ${BUILD_ROOT}/sta/timing.rpt
 
 # Extracting slack
-timing=`grep slack ${BUILD_ROOT}/synth/timing.rpt`
-if [ -e ${BUILD_ROOT}/synth/timing_slack.rpt ]; then 
-    rm -f ${BUILD_ROOT}/synth/timing_slack.rpt
+timing=`grep slack ${BUILD_ROOT}/sta/timing.rpt`
+if [ -e ${BUILD_ROOT}/sta/timing_slack.rpt ]; then 
+    rm -f ${BUILD_ROOT}/sta/timing_slack.rpt
 fi
-echo -e "$timing" >> ${BUILD_ROOT}/synth/timing_slack.rpt 
+echo -e "$timing" >> ${BUILD_ROOT}/sta/timing_slack.rpt 

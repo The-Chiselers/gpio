@@ -45,6 +45,7 @@ bin/
 out
 generated
 *.anno.json
+build.properties
 test_run_dir
 
 # LaTeX

@@ -42,12 +42,13 @@ class GPIOTest
   def main(testName: String): Unit = {
     behavior of testName
 
-    val buildRoot = sys.env.get("BUILD_ROOT")
+    val buildRoot = sys.env.get("BUILD_ROOT_RELATIVE")
     if (buildRoot.isEmpty) {
-      println("BUILD_ROOT not set, please set and run again")
+      println("BUILD_ROOT_RELATIVE not set, please set and run again")
       System.exit(1)
     }
     val testDir = buildRoot.get + "/test"
+
     val backendAnnotations = Seq(
       // WriteVcdAnnotation,
       // WriteFstAnnotation,
