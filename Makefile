@@ -10,10 +10,10 @@ SBT = sbt
 
 	
 # Run everything and scan for errors
-list:
-	@grep '^[^#[:space:]].*:' Makefile
+# list:
+# 	@grep '^[^#[:space:]].*:' Makefile
 
-all: clean publish docs cov yosys check
+# all: clean publish docs cov yosys check
 
 # Validates the environment to see if it is possible to run
 validate: 
@@ -22,18 +22,18 @@ validate:
 	@if [ -z $(TOP) ]; then echo "TOP is not set"; exit 1; fi
 	@if [ -z $(FIRTOOL_REV) ]; then echo "FIRTOOL_REV is not set"; exit 1; fi
 
-check: 
-	@echo 
-	@echo Checking for errors
-	grep error */*.rpt */*/*/*.rpt */*/*/*.log | tee error.rpt
-	grep Error */*.rpt */*/*/*.rpt */*/*/*.log | tee -a error.rpt
-	grep fail */*.rpt */*/*/*.rpt */*/*/*.log | grep -v "failed 0" | tee -a error.rpt
-	@echo; 
-	if [ ! -s error.rpt ]; \
-	then echo "\e[1;32mALL TESTS PASSED WITH NO ERRORS \e[0m"; \
-	else echo "\e[1;31mTESTS COMPLETED WITH ERRORS \e[0m"; \
-	fi; 
-	@echo
+# check: 
+# 	@echo 
+# 	@echo Checking for errors
+# 	grep error */*.rpt */*/*/*.rpt */*/*/*.log | tee error.rpt
+# 	grep Error */*.rpt */*/*/*.rpt */*/*/*.log | tee -a error.rpt
+# 	grep fail */*.rpt */*/*/*.rpt */*/*/*.log | grep -v "failed 0" | tee -a error.rpt
+# 	@echo; 
+# 	if [ ! -s error.rpt ]; \
+# 	then echo "\e[1;32mALL TESTS PASSED WITH NO ERRORS \e[0m"; \
+# 	else echo "\e[1;31mTESTS COMPLETED WITH ERRORS \e[0m"; \
+# 	fi; 
+# 	@echo
 
 # Start with a fresh directory
 clean: 
@@ -52,10 +52,10 @@ clean:
 	find . -type f -name "*.pdf" -delete
 
 # Publish the documentation (locally)
-publish: 
-	@echo Publishing local
-	rm -rf /home/tws/.ivy2/local/tech.rocksavage/$(TOP)_2.13
-	$(SBT) "publishLocal" | tee doc/publish.rpt
+# publish: 
+# 	@echo Publishing local
+# 	rm -rf /home/tws/.ivy2/local/tech.rocksavage/$(TOP)_2.13
+# 	$(SBT) "publishLocal" | tee doc/publish.rpt
 
 # Generate the documentation
 docs: validate
