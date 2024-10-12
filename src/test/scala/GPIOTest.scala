@@ -23,6 +23,7 @@ import chiseltest.coverage._
 import chiseltest.simulator._
 import firrtl2.AnnotationSeq
 import firrtl2.annotations.Annotation // Correct Annotation type for firrtl2
+import firrtl2.options.TargetDirAnnotation
 
 /** Highly randomized test suite driven by configuration parameters. Includes
   * code coverage for all top-level ports. Inspired by the DynamicFifo
@@ -41,15 +42,12 @@ class GPIOTest
   val enableFst = System.getProperty("enableFst", "false").toBoolean
   val useVerilator = System.getProperty("useVerilator", "false").toBoolean
 
-  // NICKS
-  val buildRoot = sys.env.get("BUILD_ROOT")
+  val buildRoot = sys.env.get("BUILD_ROOT_RELATIVE")
   if (buildRoot.isEmpty) {
-    println("BUILD_ROOT not set, please set and run again")
+    println("BUILD_ROOT_RELATIVE not set, please set and run again")
     System.exit(1)
   }
   val testDir = buildRoot.get + "/test"
-
-  // END NICKS
 
   println(s"Test: $testName, VCD: $enableVcd, FST: $enableFst, Verilator: $useVerilator")
 
@@ -63,7 +61,7 @@ class GPIOTest
       annos = annos :+ chiseltest.simulator.VerilatorBackendAnnotation 
       annos = annos :+ VerilatorCFlags(Seq("--std=c++17"))
     }
-    annos = annos :+ chiseltest.simulator.TargetDirAnnotation(testDir)
+    annos = annos :+ TargetDirAnnotation(testDir)
 
     annos
   }
@@ -203,15 +201,4 @@ class GPIOTest
     virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
     virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
   }
-
-  // Create a directory for storing coverage reports
-  val buildRoot = sys.env.get("BUILD_ROOT")
-  if (buildRoot.isEmpty) {
-    println("BUILD_ROOT not set, please set and run again")
-    System.exit(1)
-  }
-  // path join
-  val scalaCoverageDir = new File(buildRoot.get + "/cov/scala")
-  scalaCoverageDir.mkdir()
-
 }
