@@ -32,16 +32,6 @@ object Main extends App {
 
   // ######### Set Up Top Module HERE #########
   val top_name = "GPIO.sv"
-  // val verilog = ChiselStage.emitSystemVerilog(
-  //   new GPIO(myParams),
-  //   firtoolOpts = Array(
-  //     "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-  //     "--disable-all-randomization",
-  //     "--strip-debug-info",
-  //     "--split-verilog",
-  //     s"-o=generated/",
-  //   ),
-  // )
   ChiselStage.emitSystemVerilog(
     new GPIO(myParams),
     firtoolOpts = Array(
