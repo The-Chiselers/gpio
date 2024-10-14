@@ -6,7 +6,6 @@ SBT = sbt
 # - BUILD_ROOT_RELATIVE
 # - BUILD_ROOT
 # - PROJECT_ROOT
-# - TOP
 # - FIRTOOL_REV
 
 	
@@ -78,7 +77,7 @@ test: validate
 	mkdir -p $(BUILD_ROOT)/test
 	mkdir -p $(BUILD_ROOT)/cov/verilog
 	mkdir -p $(BUILD_ROOT)/cov/scala
-	$(SBT) -DtestName="allTests" test | tee $(BUILD_ROOT)/test/test.rpt
+	$(SBT) -DtestName="allTests" -DuseVerilator="true" test | tee $(BUILD_ROOT)/test/test.rpt
 
 # Run the tests with Scala code coverage enables
 cov: validate
@@ -103,6 +102,6 @@ synth: verilog
 sta: synth
 	# Uses a python script to generate the SDC file
 	mkdir -p $(BUILD_ROOT)/sta
-	python3 $(PROJECT_ROOT)/synth/sdc.py --top GPIO --out $(BUILD_ROOT)/sta/$(TOP).sdc --clock clock=5.0
+	python3 $(PROJECT_ROOT)/synth/sdc.py --top $(TOP) --out $(BUILD_ROOT)/sta/$(TOP).sdc --clock clock=5.0
 	sh $(PROJECT_ROOT)/synth/sta.sh
 

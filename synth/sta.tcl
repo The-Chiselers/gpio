@@ -6,6 +6,6 @@ set buildRoot $::env(BUILD_ROOT)
 read_liberty $projectRoot/synth/stdcells.lib
 read_verilog $buildRoot/synth/$top\_net.v
 link_design $top
-source $buildRoot/synth/${top}.sdc
+source $buildRoot/sta/${top}.sdc
 check_setup
 report_checks
