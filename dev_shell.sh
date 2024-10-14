@@ -1,3 +1,4 @@
 #!/bin/sh
 
-nix develop --extra-experimental-features 'nix-command flakes' -c $SHELL
+git submodule init
+nix develop --extra-experimental-features 'nix-command flakes' nix -c $SHELL
