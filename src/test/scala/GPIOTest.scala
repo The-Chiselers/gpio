@@ -23,6 +23,7 @@ import chiseltest.coverage._
 import chiseltest.simulator._
 import firrtl2.AnnotationSeq
 import firrtl2.annotations.Annotation // Correct Annotation type for firrtl2
+import firrtl2.options.TargetDirAnnotation
 
 /** Highly randomized test suite driven by configuration parameters. Includes
   * code coverage for all top-level ports. Inspired by the DynamicFifo
@@ -41,6 +42,13 @@ class GPIOTest
   val enableFst = System.getProperty("enableFst", "false").toBoolean
   val useVerilator = System.getProperty("useVerilator", "false").toBoolean
 
+  val buildRoot = sys.env.get("BUILD_ROOT_RELATIVE")
+  if (buildRoot.isEmpty) {
+    println("BUILD_ROOT_RELATIVE not set, please set and run again")
+    System.exit(1)
+  }
+  val testDir = buildRoot.get + "/test"
+
   println(s"Test: $testName, VCD: $enableVcd, FST: $enableFst, Verilator: $useVerilator")
 
   // Constructing the backend annotations based on the flags
@@ -53,6 +61,7 @@ class GPIOTest
       annos = annos :+ chiseltest.simulator.VerilatorBackendAnnotation 
       annos = annos :+ VerilatorCFlags(Seq("--std=c++17"))
     }
+    annos = annos :+ TargetDirAnnotation(testDir)
 
     annos
   }
@@ -162,7 +171,14 @@ class GPIOTest
         val testConfig = myParams.dataWidth.toString + "_" +
           myParams.addrWidth.toString
 
-        val verCoverageDir = new File("generated/verilogCoverage")
+        val buildRoot = sys.env.get("BUILD_ROOT")
+        if (buildRoot.isEmpty) {
+          println("BUILD_ROOT not set, please set and run again")
+          System.exit(1)
+        }
+        // path join
+        val scalaCoverageDir = new File(buildRoot.get + "/cov/scala")
+        val verCoverageDir = new File(buildRoot.get + "/cov/verilog")
         verCoverageDir.mkdir()
         val coverageFile = verCoverageDir.toString + "/" + testName + "_" +
           testConfig + ".cov"
@@ -185,9 +201,4 @@ class GPIOTest
     virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
     virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
   }
-
-  // Create a directory for storing coverage reports
-  val scalaCoverageDir = new File("generated/scalaCoverage")
-  scalaCoverageDir.mkdir()
-
 }
