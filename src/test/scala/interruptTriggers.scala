@@ -15,12 +15,12 @@ object interruptTriggers extends APBUtils{
     writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 12.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
-    dut.io.pins.gpioInput.poke(3.U)
+    dut.io.in.poke(3.U)
     dut.clock.step(2) // Wait for synchronizer
     var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 3)
-    var irqOutput = dut.io.pins.irqOutput.peekInt()
+    var irqOutput = dut.io.irq.peekInt()
     println(s"irqOutput Read Value: ${irqOutput.toString()}")
     require(irqOutput == 1)
 
@@ -32,12 +32,12 @@ object interruptTriggers extends APBUtils{
     println("Test: Trigger Level When Low")
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 12.U)
-    dut.io.pins.gpioInput.poke(2.U)
+    dut.io.in.poke(2.U)
     dut.clock.step(2) // Wait for synchronizer
     var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 1)
-    var irqOutput = dut.io.pins.irqOutput.peekInt()
+    var irqOutput = dut.io.irq.peekInt()
     println(s"irqOutput Read Value: ${irqOutput.toString()}")
     require(irqOutput == 1)
 
@@ -56,9 +56,9 @@ object interruptTriggers extends APBUtils{
     writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 0.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
-    dut.io.pins.gpioInput.poke(0.U) // Need to go low to trigger edge det
+    dut.io.in.poke(0.U) // Need to go low to trigger edge det
     dut.clock.step(2) // Wait for synchronizer
-    dut.io.pins.gpioInput.poke(7.U)
+    dut.io.in.poke(7.U)
     dut.clock.step(
       1
     ) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
@@ -72,9 +72,9 @@ object interruptTriggers extends APBUtils{
     println("Test: Edge Trigger on Falling Edge")
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
     writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 0.U)
-    dut.io.pins.gpioInput.poke(2.U) // Need to go high to trigger edge det
+    dut.io.in.poke(2.U) // Need to go high to trigger edge det
     dut.clock.step(2) // Wait for synchronizer
-    dut.io.pins.gpioInput.poke(0.U)
+    dut.io.in.poke(0.U)
     dut.clock.step(
       1
     ) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle

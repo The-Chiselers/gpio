@@ -18,7 +18,7 @@ object modeOperation extends APBUtils{
         Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
       writeAPB(dut, dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
       val expectedValOutput = randomDirectionData & data.litValue
-      val actualValOutput = dut.io.pins.gpioOutput.peekInt()
+      val actualValOutput = dut.io.out.peekInt()
       println(
         s"Expected Output Register after PPL Set: ${expectedValOutput.toString()}"
       )
@@ -26,7 +26,7 @@ object modeOperation extends APBUtils{
         s"Output Register after PPL Set: ${actualValOutput.toString()}"
       )
       require(expectedValOutput == actualValOutput) // Failing :(
-      val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
+      val actualValOutputEnable = dut.io.enable.peekInt()
       println(
         s"Direction Register after PPL Set: ${actualValOutputEnable.toString()}"
       )
@@ -43,11 +43,11 @@ object modeOperation extends APBUtils{
       val randomDirectionData = Random
         .nextInt(Math.pow(2, myParams.dataWidth).toInt)
       writeAPB(dut, dut.regs.DIRECTION_ADDR.U, randomDirectionData.U)
-      val actualValOutput = dut.io.pins.gpioOutput.peekInt()
+      val actualValOutput = dut.io.out.peekInt()
       println(s"Output after PPL Set: ${actualValOutput.toString()}")
       require(0 == actualValOutput)
       val expectedValOutputEnable = ~data.litValue & randomDirectionData
-      val actualValOutputEnable = dut.io.pins.gpioOutputEnable.peekInt()
+      val actualValOutputEnable = dut.io.enable.peekInt()
       println(
         s"Expected Output Enable after PPL Set: ${expectedValOutputEnable.toString()}"
       )

@@ -134,7 +134,7 @@ object virtualPorts extends APBUtils {
     // Test: when virtual port is input
     println("Test: Virtual Port as Input")
     writeAPB(dut, dut.regs.DIRECTION_ADDR.U, 0.U) // Set direction to input
-    dut.io.pins.gpioInput.poke(32.U) // write 32 to input
+    dut.io.in.poke(32.U) // write 32 to input
     writeAPB(dut, dut.regs.VIRTUAL_PORT_MAP_ADDR.U, 5.U) // Map virtual port 0 to physical port 5
     writeAPB(dut, dut.regs.VIRTUAL_PORT_ENABLE_ADDR.U, 1.U) // Enable virtual port
     val physicalPortOutputInput =
