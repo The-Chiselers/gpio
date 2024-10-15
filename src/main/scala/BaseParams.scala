@@ -32,5 +32,6 @@ case class BaseParams(
     addrWidth: Int = 32,
     numVirtualPorts: Int = 8,
     sizeOfVirtualPorts: Int = log2Ceil(32),
-    coverage: Boolean = false
+    coverage: Boolean = false,
+    verbose: Boolean = false
 )
