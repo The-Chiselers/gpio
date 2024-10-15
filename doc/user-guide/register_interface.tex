@@ -126,17 +126,7 @@ of the \textit{gpioOutput} and \textit{gpioOutputEnable} busses as either push-p
 %       1 p3 p2
 \paragraph{ATOMIC\_OPERATION:}
 ATOMIC\_OPERATION is a 4 bits wide read/write register. This register sets the atomic operation to be performed on the
-of gpio registers. The operation is performed on the \textit{OUTPUT} register and is performed atomically.\newline\newline
-For some bit string $\text{p}_3\text{p}_2\text{p}_1\text{p}_0$, the operation is as follows:
-\begin{equation*}
-  \begin{split}
-    \text{OUTPUT[i] }\leftarrow\text{ }&\text{OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_2\\
-                        &\text{OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_1\\
-                        &\text{!OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_3\\
-                        &\text{!OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_0
-  \end{split}
-\end{equation*}
-
+of gpio registers. The operation is performed on the \textit{OUTPUT} register and is performed atomically.
 
 \paragraph{ATOMIC\_MASK:}
 ATOMIC\_MASK is a \textit{dataWidth} bits wide read/write register. This register is used to mask the atomic operation on the \textit{OUTPUT} register. 

@@ -3,11 +3,6 @@
 \subsubsection{Introduction}
 Atomic Operations allow the Gpio Module to set ports atomically without the need for multiple transactions. This section details how atomic operations work, how they are configured, and how they can be used to set multiple ports simultaneously.
 
-\subsubsection{Atomic Operation Registers}
-
-\paragraph{ATOMIC\_OPERATION:}
-ATOMIC\_OPERATION is a 4 bits wide read/write register. This register sets the atomic operation to be performed on the
-of gpio registers. The operation is performed on the \textit{OUTPUT} register and is performed atomically.\newline\newline
 For some bit string $\text{p}_3\text{p}_2\text{p}_1\text{p}_0$, the operation is as follows:
 \begin{equation*}
   \begin{split}
@@ -17,15 +12,6 @@ For some bit string $\text{p}_3\text{p}_2\text{p}_1\text{p}_0$, the operation is
                         &\text{!OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_0
   \end{split}
 \end{equation*}
-
-
-\paragraph{ATOMIC\_MASK:}
-ATOMIC\_MASK is a \textit{dataWidth} bits wide read/write register. This register is used to mask the atomic operation on the \textit{OUTPUT} register. 
-The specific operation used is determined by the ATOMIC\_OPERATION register seen in the above table.
-
-\paragraph{ATOMIC\_SET:}
-ATOMIC\_SET is a 1 bit wide read/write register. This register is used to trigger the atomic operation on the \textit{OUTPUT} register. 
-When ATOMIC\_SET is written to, the operation specified in ATOMIC\_OPERATION is performed on the \textit{OUTPUT} register.
 
 \subsubsection{Example Transaction}
 
