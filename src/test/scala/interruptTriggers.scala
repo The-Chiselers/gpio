@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import chisel3._
 import chisel3.util._
@@ -8,7 +8,7 @@ import scala.math.pow
 import TestUtils._
 object interruptTriggers extends APBUtils{
 
-  def triggerHigh(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerHigh(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test: Trigger Level When High
     println("Test: Trigger Level When High")
     writeAPB(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
@@ -27,7 +27,7 @@ object interruptTriggers extends APBUtils{
     clearInterrupt(dut, 0.U, 3.U)
   }
 
-  def triggerLow(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerLow(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test: Trigger Level When Low
     println("Test: Trigger Level When Low")
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
@@ -49,7 +49,7 @@ object interruptTriggers extends APBUtils{
     // Otherwise trigger register will keep on getting updated (not cleared)
   }
 
-  def triggerRising(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerRising(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
 
     // Test: Edge Trigger on Rising Edge
     println("Test: Edge Trigger on Rising Edge")
@@ -67,7 +67,7 @@ object interruptTriggers extends APBUtils{
     require(triggerStatus == 3)
   }
 
-  def triggerFalling(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerFalling(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test: Edge Trigger on Falling Edge
     println("Test: Edge Trigger on Falling Edge")
     writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
@@ -83,7 +83,7 @@ object interruptTriggers extends APBUtils{
     require(triggerStatus == 2)
   }
 
-  def interruptTriggers(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def interruptTriggers(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     triggerHigh(dut, gpioDataBuffer, myParams)
     triggerLow(dut, gpioDataBuffer, myParams)
     triggerRising(dut, gpioDataBuffer, myParams)

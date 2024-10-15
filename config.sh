@@ -1,6 +1,6 @@
 
 #### USER SET VARS ####
-export TOP=GPIO
+export TOP=Gpio
 export BUILD_ROOT_RELATIVE="out"
 
 #### CALCUATED VARS ####

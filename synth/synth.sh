@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Example Usage: synth.sh GPIO
+# Example Usage: synth.sh Gpio
 
 # The Following Vars are set by the development flake:
 # - BUILD_ROOT

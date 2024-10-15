@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import scala.math.pow
 import scala.util.Random
@@ -10,7 +10,7 @@ import chiseltest._
 
 object basicRegisterRW extends APBUtils {
   def directionRegister(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -27,7 +27,7 @@ object basicRegisterRW extends APBUtils {
   }
 
   def outputRegister(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -44,7 +44,7 @@ object basicRegisterRW extends APBUtils {
   }
 
   def inputRegister(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -59,7 +59,7 @@ object basicRegisterRW extends APBUtils {
   }
 
   def modeRegister(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -76,7 +76,7 @@ object basicRegisterRW extends APBUtils {
   }
 
   def invalidAddress(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -94,7 +94,7 @@ object basicRegisterRW extends APBUtils {
   }
 
   def basicRegisterRW(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {

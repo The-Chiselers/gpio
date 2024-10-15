@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import chisel3._
 import chisel3.util._

@@ -1,10 +1,10 @@
 \section{Operating Modes}
 
 \subsection{Introduction}
-The GPIO core supports bidirectional IO pads, and each IO can be programmed to operate in 
+The Gpio core supports bidirectional IO pads, and each IO can be programmed to operate in 
 push-pull or open drain mode, as defined by te MODE register.
 
-Note: IO Pads are not implemented within the GPIO core - this is the responsiblity of the designer
+Note: IO Pads are not implemented within the Gpio core - this is the responsiblity of the designer
 
 \subsection{Push-Pull Mode}
 In this mode, each bit of gpioOutput is driven from the internal OUTPUT register. The gpioOutputEnable bus is controlled via the DIRECTION register and 

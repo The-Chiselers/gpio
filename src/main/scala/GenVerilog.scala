@@ -2,7 +2,7 @@
 //> using dep "org.chipsalliance::chisel:6.5.0"
 //> using plugin "org.chipsalliance:::chisel-plugin:6.5.0"
 //> using options "-unchecked", "-deprecation", "-language:reflectiveCalls", "-feature", "-Xcheckinit", "-Xfatal-warnings", "-Ywarn-dead-code", "-Ymacro-annotations"
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import _root_.circt.stage.ChiselStage
 import _root_.circt.stage.FirtoolOption
@@ -31,9 +31,9 @@ object Main extends App {
   if (!javaOutputDir.exists) javaOutputDir.mkdirs
 
   // ######### Set Up Top Module HERE #########
-  val top_name = "GPIO.sv"
+  val top_name = "Gpio.sv"
   ChiselStage.emitSystemVerilog(
-    new GPIO(myParams),
+    new Gpio(myParams),
     firtoolOpts = Array(
       "--lowering-options=disallowLocalVariables,disallowPackedArrays",
       "--disable-all-randomization",

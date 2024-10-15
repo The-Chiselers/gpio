@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import chisel3._
 import chisel3.util._
@@ -9,7 +9,7 @@ import TestUtils._
 
 object maskingRegisters extends APBUtils{
 
-  def maskingAnd(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def maskingAnd(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     println("Test: Test Atomic AND Register")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.ATOMIC_SET_ADDR.U, 0.U)
@@ -38,7 +38,7 @@ object maskingRegisters extends APBUtils{
     ) // When set to 1 it affects Push-Pull Mode, Interesting
   }
 
-  def maskingRegisters(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def maskingRegisters(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     maskingAnd(dut, gpioDataBuffer, myParams)
   }
 }

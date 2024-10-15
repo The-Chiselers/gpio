@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import java.io.BufferedWriter
 import java.io.File
@@ -29,7 +29,7 @@ import firrtl2.options.TargetDirAnnotation
   * code coverage for all top-level ports. Inspired by the DynamicFifo
   */
 
-class GPIOTest
+class GpioTest
     extends AnyFlatSpec with ChiselScalatestTester with Matchers with APBUtils {
 
   val verbose = false
@@ -86,7 +86,7 @@ class GPIOTest
       info(s"Data Width = $dataWidth")
       info(s"Address Width = $addrWidth")
       info("--------------------------------")
-      val cov = test(new GPIO(myParams))
+      val cov = test(new Gpio(myParams))
         .withAnnotations(backendAnnotations) { dut =>
           dut.clock.setTimeout(0)
 
@@ -193,7 +193,7 @@ class GPIOTest
     }
   }
 
-  def allTests(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def allTests(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, myParams)
     modeOperation.modeOperation(dut, gpioDataBuffer, myParams)
     interruptTriggers.interruptTriggers(dut, gpioDataBuffer, myParams)

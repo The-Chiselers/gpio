@@ -2,7 +2,7 @@
 
 \section{Parameter Descriptions}
 
-The parameters for \textbf{GPIO} are shown below in
+The parameters for \textbf{Gpio} are shown below in
 Table 3.
 
 \renewcommand*{\arraystretch}{1.4}
@@ -24,7 +24,7 @@ Table 3.
   Int       &
   1         &
   $\leq$ 32          &
-  The data width of GPIO ports, PWDATA, and PRDATA. Can be 8, 6, or 32 bits wide \\ \hline
+  The data width of Gpio ports, PWDATA, and PRDATA. Can be 8, 6, or 32 bits wide \\ \hline
 
   addrWidth     &
   Int           &
@@ -35,12 +35,12 @@ Table 3.
   \caption{Parameter Descriptions}\label{table:params}
 \end{longtable}
 
-The GPIO is instantiated into a design as follows:
+The Gpio is instantiated into a design as follows:
 
 \begin{lstlisting}[language=Scala]
 
-  // Valid GPIO Instantiation Example
-  val myGPIO = new GPIO(
+  // Valid Gpio Instantiation Example
+  val myGpio = new Gpio(
     dataWidth = 32, 
     addrWidth = 32 ) 
 

@@ -1,11 +1,11 @@
 \section{Theory of Operations}
 
 \subsection{Introduction}
-The \textbf{GPIO} module is configurable with parameters for setting data and address widths. It interfaces with the CPU via the APB3 bus. The signals \textbf{gpioInput}, \textbf{gpioOutput} and \textbf{gpioOutputEnable} are designed to interface with external hardware, such as a tri-state buffer, to facilitate bi-directional communication on physical pins.
+The \textbf{Gpio} module is configurable with parameters for setting data and address widths. It interfaces with the CPU via the APB3 bus. The signals \textbf{gpioInput}, \textbf{gpioOutput} and \textbf{gpioOutputEnable} are designed to interface with external hardware, such as a tri-state buffer, to facilitate bi-directional communication on physical pins.
 
 \begin{figure}[h]
   \includegraphics[width=0.90\textwidth]{images/block-diagram-gpio.png}
-  \caption{GPIO Block Diagram}\label{fig:block-diagram}
+  \caption{Gpio Block Diagram}\label{fig:block-diagram}
 \end{figure}
 
 % It features the following status flags which are described in
@@ -40,18 +40,18 @@ The \textbf{GPIO} module is configurable with parameters for setting data and ad
 \newpage
 \subsection{Interface Timing}
 
-GPIO has a synchronous APB3 interface, and a GPIO interface. The timing diagram shown below
+Gpio has a synchronous APB3 interface, and a Gpio interface. The timing diagram shown below
 in Figure~\ref{fig:timing} represents an instantiation with the following
 parameters.
 
 \begin{lstlisting}[language=Scala]
-val myGPIO = new GPIO(
+val myGpio = new Gpio(
   dataWidth = 16, 
   addrWidth = 16 ) 
 \end{lstlisting}
 
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{images/GPIO-timing.png}
+  \includegraphics[width=\textwidth]{images/Gpio-timing.png}
   \caption{Timing Diagram}\label{fig:timing}
 \end{figure}
 

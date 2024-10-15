@@ -1,7 +1,7 @@
 \section{Virtual Ports}
 
 \subsection{Introduction}
-Virtual ports in the GPIO module allow for the abstraction of physical pins, enabling flexible control without altering the underlying hardware behavior. A virtual port can be mapped to a physical pin, and its behavior will correspond to the mode (input or output) of the pin it is mapped to.
+Virtual ports in the Gpio module allow for the abstraction of physical pins, enabling flexible control without altering the underlying hardware behavior. A virtual port can be mapped to a physical pin, and its behavior will correspond to the mode (input or output) of the pin it is mapped to.
 
 This section details how virtual ports should behave when mapped to physical pins, how data flows between them, and how enable signals are managed.
 
@@ -80,4 +80,4 @@ The following table summarizes the behavior of virtual ports when mapped to phys
     \item \textbf{Enable Flag}: The virtual port enable flag should be checked to ensure that virtual ports are supported. If not enabled, virtual ports should not interact with physical pins.
 \end{itemize}
 
-By maintaining consistent mapping and handling between virtual and physical ports, you ensure that virtual ports act as an abstraction layer, extending GPIO functionality without altering the behavior of the physical pins.
+By maintaining consistent mapping and handling between virtual and physical ports, you ensure that virtual ports act as an abstraction layer, extending Gpio functionality without altering the behavior of the physical pins.

@@ -85,7 +85,7 @@ STA requires an SDC file to define the constraints of the design. The SDC file i
 If you would like to generate this manually, run the following command:
 
 ```bash
-python3 synth/sdc.py --top GPIO --out out/sta/GPIO.sdc --clock clock=5.0
+python3 synth/sdc.py --top Gpio --out out/sta/Gpio.sdc --clock clock=5.0
 ```
 
 - Top is the name of the top module

@@ -1,6 +1,6 @@
 // (c) 2024 Rocksavage Technology, Inc.
 // This code is licensed under the Apache Software License 2.0 (see LICENSE.MD)
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import java.io.File
 import java.io.PrintWriter
@@ -9,7 +9,7 @@ import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
 
-class GPIO(p: BaseParams) extends Module {
+class Gpio(p: BaseParams) extends Module {
   val io = IO(new Bundle {
     val apb = new ApbInterface(p)
     val pins = new Bundle {
@@ -20,14 +20,14 @@ class GPIO(p: BaseParams) extends Module {
     }
   })
 
-  val regs = new GPIORegs(p)
+  val regs = new GpioRegs(p)
   // Intermediary Signals/Registers
   val gpioOutputVec = Wire(Vec(p.dataWidth, UInt(1.W)))
   val gpioOutputEnableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
   val triggerStatusVec = Wire(Vec(p.dataWidth, UInt(1.W)))
 
   val gpioInputSyncPrev = RegInit(0.U(p.dataWidth.W))
-  // Synchronize GPIO Input
+  // Synchronize Gpio Input
   val gpioInputSync = RegNext(RegNext(io.pins.gpioInput))
 
   // Main loop for assigning virtual ports to physical pins

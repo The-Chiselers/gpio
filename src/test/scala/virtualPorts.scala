@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import scala.math.pow
 import scala.util.Random
@@ -11,7 +11,7 @@ import chiseltest._
 object virtualPorts extends APBUtils {
 
   def virtualMapping(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -24,7 +24,7 @@ object virtualPorts extends APBUtils {
   }
 
   def virtualWritting(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -37,7 +37,7 @@ object virtualPorts extends APBUtils {
   }
 
   def virtualToPhysical(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -55,7 +55,7 @@ object virtualPorts extends APBUtils {
   }
 
   def disableVirtual(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -69,7 +69,7 @@ object virtualPorts extends APBUtils {
   }
 
   def invalidVirtual(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -86,7 +86,7 @@ object virtualPorts extends APBUtils {
   }
 
   def disabledVirtualRead(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -100,7 +100,7 @@ object virtualPorts extends APBUtils {
   }
 
   def overlappingVirtualPorts(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -127,7 +127,7 @@ object virtualPorts extends APBUtils {
   }
 
   def virtualInput(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {
@@ -144,7 +144,7 @@ object virtualPorts extends APBUtils {
   }
 
   def virtualPorts(
-      dut: GPIO,
+      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       myParams: BaseParams,
   ): Unit = {

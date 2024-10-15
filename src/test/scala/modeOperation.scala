@@ -1,4 +1,4 @@
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import chisel3._
 import chisel3.util._
@@ -9,7 +9,7 @@ import TestUtils._
 
 object modeOperation extends APBUtils{
 
-  def pushPullMode(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def pushPullMode(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     println("Test: Push-Pull Mode Operation")
     gpioDataBuffer.foreach { data =>
       writeAPB(dut, dut.regs.MODE_ADDR.U, 0.U(myParams.dataWidth.W))
@@ -34,7 +34,7 @@ object modeOperation extends APBUtils{
     }
   }
 
-  def drainMode(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def drainMode(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     println("Test: Drain Mode Operation")
     val fullOnes = (BigInt(1) << myParams.dataWidth) - 1
     gpioDataBuffer.foreach { data =>
@@ -58,7 +58,7 @@ object modeOperation extends APBUtils{
     }
   }
 
-  def modeOperation(dut: GPIO, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def modeOperation(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     pushPullMode(dut, gpioDataBuffer, myParams)
     drainMode(dut, gpioDataBuffer, myParams)
   }

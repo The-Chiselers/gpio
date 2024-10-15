@@ -1,10 +1,10 @@
 
-package tech.rocksavage.chiselware.GPIO
+package tech.rocksavage.chiselware.Gpio
 
 import chisel3._
 import chisel3.util._
 
-class GPIORegs(p: BaseParams) extends Bundle {
+class GpioRegs(p: BaseParams) extends Bundle {
 
   // Internal Register Sizes
   val REG_SIZE: Int = p.wordWidth
