@@ -85,6 +85,7 @@
 
                     # Other
                     python3
+                    nodePackages_latest.wavedrom-cli
                 ];
                 shellHook = env_exports + ''
                     export CXX=/usr/bin/c++
@@ -163,6 +164,7 @@
                     # Other
                     gcc
                     python3
+                    nodePackages_latest.wavedrom-cli
                 ];
                 shellHook = env_exports + ''
                     export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"

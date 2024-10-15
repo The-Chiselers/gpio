@@ -57,6 +57,10 @@ clean:
 # 	rm -rf /home/tws/.ivy2/local/tech.rocksavage/$(TOP)_2.13
 # 	$(SBT) "publishLocal" | tee doc/publish.rpt
 
+wavedrom_diag:
+	@echo Generating wavedrom diagrams
+	wavedrom-cli --input doc/user-guide/wavedrom/timing.json --svg out/doc/timing.svg
+
 # Generate the documentation
 docs: validate
 	@echo Generating docs
