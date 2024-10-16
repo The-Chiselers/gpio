@@ -67,8 +67,8 @@ class GpioTest
   }
 
   // Execute the regressigiyon across a randomized range of configurations
-  if (testName == "regression") (1 to numTests).foreach(config => main(testName))
-  else main(testName)
+  //if (testName == "regression") (1 to numTests).foreach(config => main(testName))
+  main(testName)
 
   def main(testName: String): Unit = {
     behavior of testName

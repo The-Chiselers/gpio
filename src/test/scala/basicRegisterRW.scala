@@ -50,7 +50,7 @@ object basicRegisterRW extends APBUtils {
   ): Unit = {
     println("Test: Write to INPUT register")
     gpioDataBuffer.foreach { data =>
-      dut.io.pins.gpioInput.poke(data)
+      dut.io.in.poke(data)
       dut.clock.step(2) // Wait for synchronizer
       val inputData = readAPB(dut, dut.regs.INPUT_ADDR.U)
       println(s"Input Register Read: ${inputData.toString()}")

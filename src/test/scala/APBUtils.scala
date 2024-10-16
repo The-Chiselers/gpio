@@ -35,11 +35,11 @@ trait APBUtils {
 
   def clearInterrupt(dut: Gpio, inputWrite: UInt, data: UInt): Unit = {
     // Clearing Interrupt
-    dut.io.pins.gpioInput.poke(inputWrite)
+    dut.io.in.poke(inputWrite)
     writeAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U, data)
     readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     dut.clock.step(2) // Wait for synchronizer
-    var irqOutput = dut.io.pins.irqOutput.peekInt()
+    var irqOutput = dut.io.irq.peekInt()
     println(
       s"Clearing Interrupt, irqOutput Read Value: ${irqOutput.toString()}"
     )
