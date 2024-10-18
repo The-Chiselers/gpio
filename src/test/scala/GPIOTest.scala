@@ -30,7 +30,7 @@ import firrtl2.options.TargetDirAnnotation
   */
 
 class GpioTest
-    extends AnyFlatSpec with ChiselScalatestTester with Matchers with APBUtils {
+    extends AnyFlatSpec with ChiselScalatestTester with Matchers with ApbUtils {
 
   val verbose = false
   val numTests = 1

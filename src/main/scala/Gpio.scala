@@ -47,7 +47,7 @@ class Gpio(p: BaseParams) extends Module {
         }
       }
   }
-  // APB Handling
+  // Apb Handling
   io.apb.PRDATA := 0.U // Needs to be initialized
   when(io.apb.PSEL && io.apb.PENABLE) {
     when(io.apb.PWRITE) { // Write Operation
@@ -180,7 +180,7 @@ class Gpio(p: BaseParams) extends Module {
     cover(io.apb.PSLVERR).suggestName("io__PSLVERR")
   }
 
-  // function to take addr and data from APB and write to gpio register space and or child modules if applicable
+  // function to take addr and data from Apb and write to gpio register space and or child modules if applicable
   def registerDecodeWrite(addr: UInt): Unit = {
 
     when(addr >= regs.DIRECTION_ADDR.U && addr <= regs.DIRECTION_ADDR_MAX.U) {
@@ -405,7 +405,7 @@ class Gpio(p: BaseParams) extends Module {
     }
   }
 
-  // function to take addr and data from APB and write to gpio register space and or child modules if applicable
+  // function to take addr and data from Apb and write to gpio register space and or child modules if applicable
   def registerDecodeRead(addr: UInt): Unit = {
     if (p.verbose) {
       printf("Reading Register, addr: %x\n", addr)

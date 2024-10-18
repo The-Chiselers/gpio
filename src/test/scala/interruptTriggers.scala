@@ -6,18 +6,18 @@ import chiseltest._
 import scala.util.Random
 import scala.math.pow
 import TestUtils._
-object interruptTriggers extends APBUtils{
+object interruptTriggers extends ApbUtils{
 
   def triggerHigh(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test: Trigger Level When High
     println("Test: Trigger Level When High")
-    writeAPB(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
-    writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
-    writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 12.U)
-    writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
+    writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 12.U)
+    writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
     dut.io.in.poke(3.U)
     dut.clock.step(2) // Wait for synchronizer
-    var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+    var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 3)
     var irqOutput = dut.io.irq.peekInt()
@@ -30,11 +30,11 @@ object interruptTriggers extends APBUtils{
   def triggerLow(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test: Trigger Level When Low
     println("Test: Trigger Level When Low")
-    writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
-    writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 12.U)
+    writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 12.U)
     dut.io.in.poke(2.U)
     dut.clock.step(2) // Wait for synchronizer
-    var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+    var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 1)
     var irqOutput = dut.io.irq.peekInt()
@@ -53,16 +53,16 @@ object interruptTriggers extends APBUtils{
 
     // Test: Edge Trigger on Rising Edge
     println("Test: Edge Trigger on Rising Edge")
-    writeAPB(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
-    writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 0.U)
-    writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 0.U)
+    writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 3.U)
     dut.io.in.poke(0.U) // Need to go low to trigger edge det
     dut.clock.step(2) // Wait for synchronizer
     dut.io.in.poke(7.U)
     dut.clock.step(
       1
     ) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
-    var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+    var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 3)
   }
@@ -70,15 +70,15 @@ object interruptTriggers extends APBUtils{
   def triggerFalling(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
     // Test: Edge Trigger on Falling Edge
     println("Test: Edge Trigger on Falling Edge")
-    writeAPB(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
-    writeAPB(dut, dut.regs.TRIGGER_HI_ADDR.U, 0.U)
+    writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 0.U)
     dut.io.in.poke(2.U) // Need to go high to trigger edge det
     dut.clock.step(2) // Wait for synchronizer
     dut.io.in.poke(0.U)
     dut.clock.step(
       1
     ) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
-    var triggerStatus = readAPB(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+    var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 2)
   }
