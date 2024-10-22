@@ -30,7 +30,10 @@ import firrtl2.options.TargetDirAnnotation
   */
 
 class GpioTest
-    extends AnyFlatSpec with ChiselScalatestTester with Matchers with ApbUtils {
+    extends AnyFlatSpec
+    with ChiselScalatestTester
+    with Matchers
+    with ApbUtils {
 
   val verbose = false
   val numTests = 1
@@ -49,16 +52,18 @@ class GpioTest
   }
   val testDir = buildRoot.get + "/test"
 
-  println(s"Test: $testName, VCD: $enableVcd, FST: $enableFst, Verilator: $useVerilator")
+  println(
+    s"Test: $testName, VCD: $enableVcd, FST: $enableFst, Verilator: $useVerilator"
+  )
 
   // Constructing the backend annotations based on the flags
   val backendAnnotations = {
     var annos: Seq[Annotation] = Seq() // Initialize with correct type
 
-    if (enableVcd) annos = annos :+ chiseltest.simulator.WriteVcdAnnotation 
+    if (enableVcd) annos = annos :+ chiseltest.simulator.WriteVcdAnnotation
     if (enableFst) annos = annos :+ chiseltest.simulator.WriteFstAnnotation
     if (useVerilator) {
-      annos = annos :+ chiseltest.simulator.VerilatorBackendAnnotation 
+      annos = annos :+ chiseltest.simulator.VerilatorBackendAnnotation
       annos = annos :+ VerilatorCFlags(Seq("--std=c++17"))
     }
     annos = annos :+ TargetDirAnnotation(testDir)
@@ -67,24 +72,38 @@ class GpioTest
   }
 
   // Execute the regressigiyon across a randomized range of configurations
-  //if (testName == "regression") (1 to numTests).foreach(config => main(testName))
+  // if (testName == "regression") (1 to numTests).foreach(config => main(testName))
   main(testName)
 
   def main(testName: String): Unit = {
     behavior of testName
 
     // Randomize Input Variables
-    val validDataWidths = Seq(8, 16, 32)
+    // Randomize Input Variables
+    val validGpioWidths = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
+    val validPDataWidths = Seq(8, 16, 32)
     val validPAddrWidths = Seq(8, 16, 32)
-    val dataWidth = validDataWidths(Random.nextInt(validDataWidths.length))
-    val addrWidth = validPAddrWidths(Random.nextInt(validPAddrWidths.length))
+    val PDATA_WIDTH = validPDataWidths(Random.nextInt(validPDataWidths.length))
+    val PADDR_WIDTH = validPAddrWidths(Random.nextInt(validPAddrWidths.length))
+    val gpioWidth = {
+      val eligibleWidths = validGpioWidths.filter(_ <= PDATA_WIDTH)
+      eligibleWidths(Random.nextInt(eligibleWidths.length))
+    }
+    // Ensure PDATA_WIDTH is equal to dataWidth
+    assert(
+      gpioWidth <= PDATA_WIDTH,
+      s"PDATA_WIDTH ($PDATA_WIDTH) should be >= gpioWidth ($gpioWidth)"
+    )
 
     // Pass in randomly selected values to DUT
-    val myParams = BaseParams(8, dataWidth, addrWidth, coverage = true)
+    val myParams =
+      BaseParams(8, gpioWidth, PDATA_WIDTH, PADDR_WIDTH, coverage = true)
 
     it should "pass" in {
-      info(s"Data Width = $dataWidth")
-      info(s"Address Width = $addrWidth")
+      info(s"Gpio Width = $gpioWidth")
+      info(s"APB Data Width = $PDATA_WIDTH")
+      info(s"Address Width = $PADDR_WIDTH")
       info("--------------------------------")
       val cov = test(new Gpio(myParams))
         .withAnnotations(backendAnnotations) { dut =>
@@ -99,77 +118,107 @@ class GpioTest
 
           val bufferLength = 5
           val gpioDataBuffer = Seq
-            .fill(bufferLength)(randData(myParams.dataWidth))
+            .fill(bufferLength)(randData(myParams.gpioWidth))
+          val apbDataBuffer = Seq
+            .fill(bufferLength)(randData(myParams.PDATA_WIDTH))
 
           testName match {
-            case "directionRegister" => basicRegisterRW
-                .directionRegister(dut, gpioDataBuffer, myParams)
-            case "modeRegister" => basicRegisterRW
-                .modeRegister(dut, gpioDataBuffer, myParams)
-            case "outputRegister" => basicRegisterRW
-                .outputRegister(dut, gpioDataBuffer, myParams)
-            case "inputRegister" => basicRegisterRW
-                .inputRegister(dut, gpioDataBuffer, myParams)
-            case "invalidAddress" => basicRegisterRW
-                .invalidAddress(dut, gpioDataBuffer, myParams)
-            case "basicRegisterRW" => basicRegisterRW
-                .basicRegisterRW(dut, gpioDataBuffer, myParams)
+            case "directionRegister" =>
+              basicRegisterRW
+                .directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "modeRegister" =>
+              basicRegisterRW
+                .modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "outputRegister" =>
+              basicRegisterRW
+                .outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "inputRegister" =>
+              basicRegisterRW
+                .inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "invalidAddress" =>
+              basicRegisterRW
+                .invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "basicRegisterRW" =>
+              basicRegisterRW
+                .basicRegisterRW(dut, gpioDataBuffer, apbDataBuffer, myParams)
 
-            case "maskingAnd" => maskingRegisters
-                .maskingAnd(dut, gpioDataBuffer, myParams)
-            case "maskingRegisters" => maskingRegisters
-                .maskingRegisters(dut, gpioDataBuffer, myParams)
+            case "maskingAnd" =>
+              maskingRegisters
+                .maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "maskingRegisters" =>
+              maskingRegisters
+                .maskingRegisters(dut, gpioDataBuffer, apbDataBuffer, myParams)
 
-            case "triggerHigh" => interruptTriggers
-                .triggerHigh(dut, gpioDataBuffer, myParams)
-            case "triggerLow" => interruptTriggers
-                .triggerLow(dut, gpioDataBuffer, myParams)
-            case "triggerRising" => interruptTriggers
-                .triggerRising(dut, gpioDataBuffer, myParams)
-            case "triggerFalling" => interruptTriggers
-                .triggerFalling(dut, gpioDataBuffer, myParams)
-            case "interruptTriggers" => interruptTriggers
-                .interruptTriggers(dut, gpioDataBuffer, myParams)
+            case "triggerHigh" =>
+              interruptTriggers
+                .triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "triggerLow" =>
+              interruptTriggers
+                .triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "triggerRising" =>
+              interruptTriggers
+                .triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "triggerFalling" =>
+              interruptTriggers
+                .triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "interruptTriggers" =>
+              interruptTriggers
+                .interruptTriggers(dut, gpioDataBuffer, apbDataBuffer, myParams)
 
-            case "virtualMapping" => virtualPorts
-                .virtualMapping(dut, gpioDataBuffer, myParams)
-            case "virtualInput" => virtualPorts
-                .virtualInput(dut, gpioDataBuffer, myParams)
-            case "virtualToPhysical" => virtualPorts
-                .virtualToPhysical(dut, gpioDataBuffer, myParams)
-            case "virtualWritting" => virtualPorts
-                .virtualWritting(dut, gpioDataBuffer, myParams)
-            case "disableVirtual" => virtualPorts
-                .disableVirtual(dut, gpioDataBuffer, myParams)
-            case "invalidVirtual" => virtualPorts
-                .invalidVirtual(dut, gpioDataBuffer, myParams)
-            case "disabledVirtualRead" => virtualPorts
-                .disabledVirtualRead(dut, gpioDataBuffer, myParams)
-            case "overlappingVirtualPorts" => virtualPorts
-                .overlappingVirtualPorts(dut, gpioDataBuffer, myParams)
-            case "virtualPorts" => virtualPorts
-                .virtualPorts(dut, gpioDataBuffer, myParams)
+            case "virtualMapping" =>
+              virtualPorts
+                .virtualMapping(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "virtualInput" =>
+              virtualPorts
+                .virtualInput(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "virtualToPhysical" =>
+              virtualPorts
+                .virtualToPhysical(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "virtualWritting" =>
+              virtualPorts
+                .virtualWritting(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "disableVirtual" =>
+              virtualPorts
+                .disableVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "invalidVirtual" =>
+              virtualPorts
+                .invalidVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "disabledVirtualRead" =>
+              virtualPorts
+                .disabledVirtualRead(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "overlappingVirtualPorts" =>
+              virtualPorts
+                .overlappingVirtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "virtualPorts" =>
+              virtualPorts
+                .virtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
 
-            case "pushPullMode" => modeOperation
-                .pushPullMode(dut, gpioDataBuffer, myParams)
-            case "openDrainMode" => modeOperation
-                .drainMode(dut, gpioDataBuffer, myParams)
-            case "modeOperation" => modeOperation
-                .modeOperation(dut, gpioDataBuffer, myParams)
+            case "pushPullMode" =>
+              modeOperation
+                .pushPullMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "openDrainMode" =>
+              modeOperation
+                .drainMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "modeOperation" =>
+              modeOperation
+                .modeOperation(dut, gpioDataBuffer, apbDataBuffer, myParams)
 
-            case "allTests" => allTests(dut, gpioDataBuffer, myParams)
-            case "regression" => allTests(dut, gpioDataBuffer, myParams)
-            case _ => println("Invalid group specified.")
+            case "allTests"   => allTests(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case "regression" => allTests(dut, gpioDataBuffer, apbDataBuffer, myParams)
+            case _            => println("Invalid group specified.")
           }
         }
 
       // Check that all ports have toggled and print report
       if (myParams.coverage) {
         val coverage = cov.getAnnotationSeq
-          .collectFirst { case a: TestCoverage => a.counts }.get.toMap
+          .collectFirst { case a: TestCoverage => a.counts }
+          .get
+          .toMap
 
-        val testConfig = myParams.dataWidth.toString + "_" +
-          myParams.addrWidth.toString
+        val testConfig =
+          myParams.gpioWidth.toString + "_" + myParams.PDATA_WIDTH.toString + "_" +
+            myParams.PADDR_WIDTH.toString
 
         val buildRoot = sys.env.get("BUILD_ROOT")
         if (buildRoot.isEmpty) {
@@ -184,21 +233,27 @@ class GpioTest
           testConfig + ".cov"
 
         val stuckAtFault = checkCoverage(coverage, coverageFile)
-        if (stuckAtFault) println(
-          s"WARNING: At least one IO port did not toggle -- see $coverageFile",
-        )
+        if (stuckAtFault)
+          println(
+            s"WARNING: At least one IO port did not toggle -- see $coverageFile"
+          )
         info(s"Verilog Coverage report written to $coverageFile")
       }
 
     }
   }
 
-  def allTests(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, myParams)
-    modeOperation.modeOperation(dut, gpioDataBuffer, myParams)
-    interruptTriggers.interruptTriggers(dut, gpioDataBuffer, myParams)
-    maskingRegisters.maskingRegisters(dut, gpioDataBuffer, myParams)
-    virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
-    virtualPorts.virtualPorts(dut, gpioDataBuffer, myParams)
+  def allTests(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    modeOperation.modeOperation(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    interruptTriggers.interruptTriggers(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    maskingRegisters.maskingRegisters(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    virtualPorts.virtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    virtualPorts.virtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
   }
 }

@@ -7,16 +7,21 @@ import scala.util.Random
 import scala.math.pow
 import TestUtils._
 
-object maskingRegisters extends ApbUtils{
+object maskingRegisters extends ApbUtils {
 
-  def maskingAnd(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def maskingAnd(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
     println("Test: Test Atomic AND Register")
     gpioDataBuffer.foreach { data =>
       writeApb(dut, dut.regs.ATOMIC_SET_ADDR.U, 0.U)
       writeApb(dut, dut.regs.ATOMIC_OPERATION_ADDR.U, 4.U)
       writeApb(dut, dut.regs.ATOMIC_MASK_ADDR.U, data)
       val randomOutputData =
-        Random.nextInt(Math.pow(2, myParams.dataWidth).toInt)
+        Random.nextInt(Math.pow(2, myParams.PDATA_WIDTH).toInt)
       writeApb(dut, dut.regs.OUTPUT_ADDR.U, randomOutputData.U)
       val outputDataBeforeSet = readApb(dut, dut.regs.OUTPUT_ADDR.U)
       println(
@@ -38,7 +43,12 @@ object maskingRegisters extends ApbUtils{
     ) // When set to 1 it affects Push-Pull Mode, Interesting
   }
 
-  def maskingRegisters(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    maskingAnd(dut, gpioDataBuffer, myParams)
+  def maskingRegisters(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
   }
 }

@@ -25,7 +25,7 @@ object Main extends App {
   // firtool options for generating verilog
   // val firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
   val myParams =
-    BaseParams(wordWidth = 8, dataWidth = 32, addrWidth = 32, coverage = false)
+    BaseParams(wordWidth = 8, gpioWidth = 32, PDATA_WIDTH = 32, PADDR_WIDTH = 32, coverage = false)
   // if output dir does not exist, make path
   val javaOutputDir = new java.io.File(outputDir)
   if (!javaOutputDir.exists) javaOutputDir.mkdirs

@@ -6,9 +6,14 @@ import chiseltest._
 import scala.util.Random
 import scala.math.pow
 import TestUtils._
-object interruptTriggers extends ApbUtils{
+object interruptTriggers extends ApbUtils {
 
-  def triggerHigh(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerHigh(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
     // Test: Trigger Level When High
     println("Test: Trigger Level When High")
     writeApb(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
@@ -27,7 +32,12 @@ object interruptTriggers extends ApbUtils{
     clearInterrupt(dut, 0.U, 3.U)
   }
 
-  def triggerLow(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerLow(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
     // Test: Trigger Level When Low
     println("Test: Trigger Level When Low")
     writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
@@ -49,7 +59,12 @@ object interruptTriggers extends ApbUtils{
     // Otherwise trigger register will keep on getting updated (not cleared)
   }
 
-  def triggerRising(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerRising(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
 
     // Test: Edge Trigger on Rising Edge
     println("Test: Edge Trigger on Rising Edge")
@@ -67,7 +82,12 @@ object interruptTriggers extends ApbUtils{
     require(triggerStatus == 3)
   }
 
-  def triggerFalling(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
+  def triggerFalling(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
     // Test: Edge Trigger on Falling Edge
     println("Test: Edge Trigger on Falling Edge")
     writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
@@ -83,10 +103,15 @@ object interruptTriggers extends ApbUtils{
     require(triggerStatus == 2)
   }
 
-  def interruptTriggers(dut: Gpio, gpioDataBuffer: Seq[UInt], myParams: BaseParams): Unit = {
-    triggerHigh(dut, gpioDataBuffer, myParams)
-    triggerLow(dut, gpioDataBuffer, myParams)
-    triggerRising(dut, gpioDataBuffer, myParams)
-    triggerFalling(dut, gpioDataBuffer, myParams)
+  def interruptTriggers(
+      dut: Gpio,
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
   }
 }

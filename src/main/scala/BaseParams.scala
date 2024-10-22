@@ -28,10 +28,23 @@ import chisel3.util._
   */
 case class BaseParams(
     wordWidth: Int = 8,
-    dataWidth: Int = 32,
-    addrWidth: Int = 32,
+    gpioWidth: Int = 32,
+    PDATA_WIDTH: Int = 32,
+    PADDR_WIDTH: Int = 32,
     numVirtualPorts: Int = 8,
     sizeOfVirtualPorts: Int = log2Ceil(32),
     coverage: Boolean = false,
     verbose: Boolean = false
-)
+) {
+
+  require(wordWidth == 8, "wordWidth must be 8")
+  require(
+    PDATA_WIDTH == 8 || PDATA_WIDTH == 16 || PDATA_WIDTH == 32,
+    "PDATA_WIDTH must be 8, 16, or 32"
+  )
+  require(
+    gpioWidth <= PDATA_WIDTH,
+    "gpioWidth must be less than or equal to PDATA_WIDTH"
+  )
+  require(PADDR_WIDTH <= 32, "PADDR_WIDTH must be less than or equal to 32")
+}

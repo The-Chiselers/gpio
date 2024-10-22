@@ -12,25 +12,25 @@ import chisel3.util._
 class Gpio(p: BaseParams) extends Module {
   val io = IO(new Bundle {
     val apb = new ApbInterface(p)
-    val in = Input(UInt(p.dataWidth.W))
-    val out = Output(UInt(p.dataWidth.W))
-    val enable = Output(UInt(p.dataWidth.W))
+    val in = Input(UInt(p.gpioWidth.W))
+    val out = Output(UInt(p.gpioWidth.W))
+    val enable = Output(UInt(p.gpioWidth.W))
     val irq = Output(UInt(1.W))
 
   })
 
   val regs = new GpioRegs(p)
   // Intermediary Signals/Registers
-  val outVec = Wire(Vec(p.dataWidth, UInt(1.W)))
-  val enableVec = Wire(Vec(p.dataWidth, UInt(1.W)))
-  val triggerStatusVec = Wire(Vec(p.dataWidth, UInt(1.W)))
+  val outVec = Wire(Vec(p.gpioWidth, UInt(1.W)))
+  val enableVec = Wire(Vec(p.gpioWidth, UInt(1.W)))
+  val triggerStatusVec = Wire(Vec(p.gpioWidth, UInt(1.W)))
 
-  val inSyncPrev = RegInit(0.U(p.dataWidth.W))
+  val inSyncPrev = RegInit(0.U(p.gpioWidth.W))
   // Synchronize Gpio Input
   val inSync = RegNext(RegNext(io.in))
 
   // Main loop for assigning virtual ports to physical ports
-  for (i <- 0 until p.dataWidth) when(regs.virtualPortEnable === 1.U) {
+  for (i <- 0 until p.gpioWidth) when(regs.virtualPortEnable === 1.U) {
     for (v <- (p.numVirtualPorts - 1) to 0 by -1)
       when(regs.virtualToPhysicalMap(v) === i.U) {
         // Sync direction with the physical pin direction
@@ -70,7 +70,7 @@ class Gpio(p: BaseParams) extends Module {
     * checking if the & of both registers returns a value greater than or equal
     * to 1.
     */
-  for (i <- 0 until p.dataWidth) {
+  for (i <- 0 until p.gpioWidth) {
     val condition =
       Cat(regs.TRIGGER_TYPE(i), regs.TRIGGER_LO(i), regs.TRIGGER_HI(i))
     triggerStatusVec(i) := 0.U
@@ -121,8 +121,8 @@ class Gpio(p: BaseParams) extends Module {
     //         0  1
     //  Mask 0 p1 p0
     //       1 p3 p2
-    val output_inner = Wire(Vec(p.dataWidth, UInt(1.W)))
-    for (i <- 0 until p.dataWidth)
+    val output_inner = Wire(Vec(p.gpioWidth, UInt(1.W)))
+    for (i <- 0 until p.gpioWidth)
       output_inner(i) :=
         atomicOperationTruthTable(regs.ATOMIC_MASK(i))(regs.OUTPUT(i))
 
@@ -130,13 +130,13 @@ class Gpio(p: BaseParams) extends Module {
   }
 
   // MODE
-  for (i <- 0 until p.dataWidth)
+  for (i <- 0 until p.gpioWidth)
     when(regs.MODE(i) === 0.U) { // AND each bit of DIRECTION to mask bits that are not set as OUTPUT in out
-      outVec(p.dataWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
-      enableVec(p.dataWidth - i - 1) := regs.DIRECTION(i)
+      outVec(p.gpioWidth - i - 1) := regs.OUTPUT(i) & regs.DIRECTION(i)
+      enableVec(p.gpioWidth - i - 1) := regs.DIRECTION(i)
     }.otherwise {
-      outVec(p.dataWidth - i - 1) := 0.U
-      enableVec(p.dataWidth - i - 1) := ~regs.OUTPUT(i) &
+      outVec(p.gpioWidth - i - 1) := 0.U
+      enableVec(p.gpioWidth - i - 1) := ~regs.OUTPUT(i) &
         regs.DIRECTION(i)
     }
 
@@ -159,7 +159,7 @@ class Gpio(p: BaseParams) extends Module {
     // count clock ticks to allow for coverage computation
     val tick = true.B
 
-    for (bit <- 0 to p.dataWidth - 1) {
+    for (bit <- 0 to p.gpioWidth - 1) {
       cover(io.in(bit)).suggestName(s"io_in_$bit")
       cover(io.out(bit)).suggestName(s"io_out_$bit")
       cover(io.enable(bit))
@@ -168,7 +168,7 @@ class Gpio(p: BaseParams) extends Module {
       cover(io.apb.PWDATA(bit)).suggestName(s"apb_PWDATA_$bit")
     }
 
-    for (bit <- 0 to p.addrWidth - 1)
+    for (bit <- 0 to p.PADDR_WIDTH - 1)
       cover(io.apb.PADDR(bit))
         .suggestName(s"apb_ADDR_$bit")
 
@@ -193,8 +193,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.DIRECTION_ADDR.U
       regs.DIRECTION :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
-          (shiftAddr(regs.DIRECTION_REG_SIZE - 1, 0) * 8.U))
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) << (shiftAddr(regs.DIRECTION_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.INPUT_ADDR.U && addr <= regs.INPUT_ADDR_MAX.U) {
       if (p.verbose) {
@@ -206,7 +205,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.INPUT_ADDR.U
       regs.INPUT :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.INPUT_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.OUTPUT_ADDR.U && addr <= regs.OUTPUT_ADDR_MAX.U) {
@@ -219,7 +218,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.OUTPUT_ADDR.U
       regs.OUTPUT :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.OUTPUT_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.MODE_ADDR.U && addr <= regs.MODE_ADDR_MAX.U) {
@@ -232,7 +231,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.MODE_ADDR.U
       regs.MODE :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.MODE_REG_SIZE - 1, 0) * 8.U))
     }
     when(
@@ -263,7 +262,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.ATOMIC_MASK_ADDR.U
       regs.ATOMIC_MASK :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.ATOMIC_MASK_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.ATOMIC_SET_ADDR.U && addr <= regs.ATOMIC_SET_ADDR_MAX.U) {
@@ -340,7 +339,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.TRIGGER_TYPE_ADDR.U
       regs.TRIGGER_TYPE :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.TRIGGER_TYPE_REG_SIZE - 1, 0) * 8.U))
     }
     when(
@@ -355,7 +354,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.TRIGGER_LO_ADDR.U
       regs.TRIGGER_LO :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.TRIGGER_LO_REG_SIZE - 1, 0) * 8.U))
     }
     when(addr >= regs.TRIGGER_HI_ADDR.U && addr <= regs.TRIGGER_HI_ADDR_MAX.U) {
@@ -368,7 +367,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.TRIGGER_HI_ADDR.U
       regs.TRIGGER_HI :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.TRIGGER_HI_REG_SIZE - 1, 0) * 8.U))
     }
     when(
@@ -384,7 +383,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.TRIGGER_STATUS_ADDR.U
       regs.TRIGGER_STATUS := regs.TRIGGER_STATUS &
-        ~(io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        ~(io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(
             regs.TRIGGER_STATUS_REG_SIZE - 1,
             0
@@ -400,7 +399,7 @@ class Gpio(p: BaseParams) extends Module {
       }
       val shiftAddr = addr - regs.IRQ_ENABLE_ADDR.U
       regs.IRQ_ENABLE :=
-        (io.apb.PWDATA(p.dataWidth - 1, 0) <<
+        (io.apb.PWDATA(p.PDATA_WIDTH - 1, 0) <<
           (shiftAddr(regs.IRQ_ENABLE_REG_SIZE - 1, 0) * 8.U))
     }
   }
