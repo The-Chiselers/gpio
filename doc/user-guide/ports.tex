@@ -8,43 +8,65 @@ Table 1. The width of several ports is controlled
 by the following input parameters:
 
 \textit{dataWidth} is the width of the gpioInput, gpioOutput, and gpioOutputEnable ports in bits
+\renewcommand*{\arraystretch}{1.4}  % Adjust row height
  
-\renewcommand*{\arraystretch}{1.4}
-\begin{longtable}[H]{
+\begingroup
+\small
+% \setlength{\arrayrulewidth}{1pt}
+\rowcolors{2}{gray!30}{gray!10} % Alternating colors start from the second row
+\arrayrulecolor{gray!80}
+
+\begin{longtable}[H]{ 
   | p{0.20\textwidth}
   | p{0.20\textwidth}
   | p{0.12\textwidth}
   | p{0.43\textwidth} |
   }
-  \hline
-  \textbf{Port Name} &   
-  \textbf{Width} &   
-  \textbf{Direction} &   
-  \textbf{Description} \\ \hline \hline
 
-  gpioInput &       
-  \textit{dataWidth} & 
-  Input &       
-  Data to be sent to the Gpio\\ \hline
+\hline
+\rowcolor{dark-gray}
+\textcolor{white}{\textbf{Port Name}} & 
+\textcolor{white}{\textbf{Width}} & 
+\textcolor{white}{\textbf{Direction}} & 
+\textcolor{white}{\textbf{Description}} \\ \hline
+\endfirsthead
 
-  gpioOutput &        
-  \textit{dataWidth} & 
-  Output &       
-  Data to be recieved from the Gpio \\ \hline
+\hline
+\rowcolor{dark-gray}
+\textcolor{white}{\textbf{Port Name}} & 
+\textcolor{white}{\textbf{Width}} & 
+\textcolor{white}{\textbf{Direction}} & 
+\textcolor{white}{\textbf{Description}}\\ \hline
+\endhead
 
-  gpioOutputEnable &      
-  \textit{dataWidth} & 
-  Output &     
-  Enable data to be recieved from the Gpio \\ \hline
+\hline
+\endfoot
 
-  irqOutput &      
-  1 & 
-  Output &     
-  Sent when interrupt is triggered on the Gpio \\ \hline
- 
- 
-  \caption{Gpio Ports Descriptions}\label{table:ports}
+gpioInput &       
+\textit{dataWidth} & 
+Input &       
+Data to be sent to the Gpio \\ \hline
+
+gpioOutput &        
+\textit{dataWidth} & 
+Output &       
+Data to be received from the Gpio \\ \hline
+
+gpioOutputEnable &      
+\textit{dataWidth} & 
+Output &     
+Enable data to be received from the Gpio \\ \hline
+
+irqOutput &      
+1 & 
+Output &     
+Sent when interrupt is triggered on the Gpio \\ \hline
+
 \end{longtable}
+\captionsetup{aboveskip=0pt}
+\captionof{table}{Gpio Ports Descriptions}\label{table:ports}
+\endgroup
+
 
 \subsection{Apb3 Interface}
 The \textbf{Apb3 Interface} is a regular Apb3 Slave Interface. All signals supported are shown below in 
@@ -57,17 +79,36 @@ by the following input parameters:
 \end{itemize}
  
 \renewcommand*{\arraystretch}{1.4}
+
+\begingroup
+\small
+\rowcolors{2}{gray!30}{gray!10} % Alternating colors start from the second row
 \begin{longtable}[H]{
   | p{0.20\textwidth}
   | p{0.20\textwidth}
   | p{0.12\textwidth}
   | p{0.43\textwidth} |
   }
+
   \hline
-  \textbf{Port Name} &   
-  \textbf{Width} &   
-  \textbf{Direction} &   
-  \textbf{Description} \\ \hline \hline
+  \rowcolor{dark-gray}
+  \textcolor{white}{\textbf{Port Name}} & 
+  \textcolor{white}{\textbf{Width}} & 
+  \textcolor{white}{\textbf{Direction}} & 
+  \textcolor{white}{\textbf{Description}} \\ \hline
+  \endfirsthead
+
+  \hline
+  \rowcolor{dark-gray}
+  \textcolor{white}{\textbf{Port Name}} & 
+  \textcolor{white}{\textbf{Width}} & 
+  \textcolor{white}{\textbf{Direction}} & 
+  \textcolor{white}{\textbf{Description}}\\ \hline
+  \endhead
+
+  \hline
+  \endfoot
+
 
   PCLK &       
   1 &       
@@ -118,7 +159,8 @@ by the following input parameters:
   1 & 
   Output &       
   Transfer error \\ \hline
-
-  \caption{Apb Ports Descriptions}\label{table:interface}
+  
 \end{longtable}
-
+\captionsetup{aboveskip=0pt}
+\captionof{table}{Apb Ports Descriptions}\label{table:interface}
+\endgroup

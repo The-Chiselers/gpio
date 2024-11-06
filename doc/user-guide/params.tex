@@ -6,6 +6,10 @@ The parameters for \textbf{Gpio} are shown below in
 Table 3.
 
 \renewcommand*{\arraystretch}{1.4}
+\begingroup
+\small
+\rowcolors{2}{gray!30}{gray!10} % Alternating colors start from the second row
+\arrayrulecolor{gray!50}
 \begin{longtable}[H]{
     | p{0.25\textwidth}
     | p{0.10\textwidth}
@@ -14,11 +18,24 @@ Table 3.
     | p{0.47\textwidth} |
   }
   \hline
-  \textbf{Name} &
-  \textbf{Type} &
-  \textbf{Min}  &
-  \textbf{Max}  &
-  \textbf{Description}            \\ \hline \hline
+  \rowcolor{dark-gray}
+
+  \textcolor{white}{\textbf{Name}} &
+  \textcolor{white}{\textbf{Type}} &
+  \textcolor{white}{\textbf{Min}} &
+  \textcolor{white}{\textbf{Max}} &
+  \textcolor{white}{\textbf{Description}} \\ \hline
+  \endfirsthead
+
+  \textcolor{white}{\textbf{Name}} &
+  \textcolor{white}{\textbf{Type}} &
+  \textcolor{white}{\textbf{Min}} &
+  \textcolor{white}{\textbf{Max}} &
+  \textcolor{white}{\textbf{Description}}            \\ \hline
+  \endhead
+
+
+  \endfoot
 
   dataWidth   &
   Int       &
@@ -32,8 +49,10 @@ Table 3.
   $\leq$ 32       &
   The Apb address bus width  \\ \hline
 
-  \caption{Parameter Descriptions}\label{table:params}
 \end{longtable}
+\captionsetup{aboveskip=0pt}
+\captionof{table}{Parameter Descriptions}\label{table:params}
+\endgroup
 
 The Gpio is instantiated into a design as follows:
 

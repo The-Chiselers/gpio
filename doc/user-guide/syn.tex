@@ -8,6 +8,8 @@ results should be representative of what a user should see in their own
 technology.
 
 \renewcommand*{\arraystretch}{1.4}
+\begingroup
+\small
 \begin{longtable}[H]{
     | p{0.20\textwidth}
     | p{0.15\textwidth}
@@ -16,11 +18,23 @@ technology.
     | p{0.15\textwidth} |
   }
   \hline
-  \textbf{Config Name}   &
-  \textbf{externalRAM}   &
-  \textbf{dataWidth}     &
-  \textbf{fifoDepth}     &
-  \textbf{Gates}           \\ \hline \hline
+  \rowcolor{dark-gray}
+  \textcolor{white}{\textbf{Config Name}}   &
+  \textcolor{white}{\textbf{externalRAM}}   &
+  \textcolor{white}{\textbf{dataWidth}}     &
+  \textcolor{white}{\textbf{fifoDepth}}     &
+  \textcolor{white}{\textbf{Gates}}           \\ \hline \hline
+  \endfirsthead
+
+  \textcolor{white}{\textbf{Config Name}}   &
+  \textcolor{white}{\textbf{externalRAM}}   &
+  \textcolor{white}{\textbf{dataWidth}}     &
+  \textcolor{white}{\textbf{fifoDepth}}     &
+  \textcolor{white}{\textbf{Gates}}           \\ \hline \hline
+  \endhead
+
+  \hline
+  \endfoot
 
   small\_false\_8\_8     &
   false                  &
@@ -57,8 +71,11 @@ technology.
   256                    &
   2048                   &
   502                      \\ \hline
-  \caption{Synthesis results}\label{table:area}
+
 \end{longtable}
+\captionsetup{aboveskip=0pt}
+\captionof{table}{Synthesis results}\label{table:area}
+\endgroup
 
 \subsection{SDC File}
 An \texttt{.sdc} file is generated to provide synthesis and static timing
@@ -82,12 +99,13 @@ Nangate 45nm free library.
     | p{0.15\textwidth} |
   }
   \hline
-  \textbf{Config Name}   &
-  \textbf{Period}        &
-  \textbf{Duty Cycle}    &
-  \textbf{Input Delay}   &
-  \textbf{Output Delay}  &
-  \textbf{Slack}           \\ \hline \hline
+  \rowcolor{dark-gray}
+  \textcolor{white}{\textbf{Config Name}}   &
+  \textcolor{white}{\textbf{Period}}        &
+  \textcolor{white}{\textbf{Duty Cycle}}    &
+  \textcolor{white}{\textbf{Input Delay}}   &
+  \textcolor{white}{\textbf{Output Delay}}  &
+  \textcolor{white}{\textbf{Slack}}           \\ \hline \hline
 
   small\_false\_8\_8     &
   5ns                    &
@@ -130,8 +148,11 @@ Nangate 45nm free library.
   20\%                   &
   20\%                   &
   2.77 (MET)               \\ \hline
-  \caption{Static Timing Analysis results}\label{table:timing}
+  
 \end{longtable}
+\captionsetup{aboveskip=0pt}
+\captionof{table}{Static Timing Analysis results}\label{table:timing}
+\endgroup
 
 \subsection{Multicycle Paths}
 None.

@@ -2,17 +2,30 @@
 \subsection{Register Interface}
  
 When programming registers, each register starts on a byte address, and the last bits it would take up in its final byte based on its size are unused. To find the size in bytes for any register, divide by the register size, and round up to the nearest whole number. For example, a 32-bit register would take up 4 bytes, and a 1-bit register would take up 1 byte.
- 
+\renewcommand*{\arraystretch}{1.4}
+\begingroup
+\small
+\rowcolors{2}{gray!30}{gray!10} % Alternating colors start from the second row
+\arrayrulecolor{gray!50}
 \begin{longtable}[H]{
   | p{0.27\textwidth}
   | p{0.18\textwidth}
   | p{0.50\textwidth} |
   }
   \hline
-  \textbf{Name} &   
-  \textbf{Size (Bits)} &   
-  \textbf{Description} \\ \hline \hline
+  \rowcolor{dark-gray}
 
+  \textcolor{white}{\textbf{Name}} &   
+  \textcolor{white}{\textbf{Size (Bits)}} &   
+  \textcolor{white}{\textbf{Description}} \\ \hline \hline
+  \endfirsthead
+
+  \textcolor{white}{\textbf{Name}} &   
+  \textcolor{white}{\textbf{Size (Bits)}} &   
+  \textcolor{white}{\textbf{Description}} \\ \hline \hline
+  \endhead
+
+  
   DIRECTION  &   
   dataWidth &   
   DESC TODO \\ \hline
@@ -74,6 +87,8 @@ When programming registers, each register starts on a byte address, and the last
   DESC TODO \\ \hline
 
 \end{longtable}
+\captionsetup{aboveskip=0pt}
+\captionof{table}{Register Interface}\label{table:register}
 
   \newpage
 
@@ -81,15 +96,21 @@ When programming registers, each register starts on a byte address, and the last
   \paragraph{DIRECTION:}
   DIRECTION is a \textit{dataWidth} bits wide active-high read/write register. This register controls the 
   output enable bus \textit{gpioOutputEnable}. Operation can be seen in Table
-  \begin{table}[h]
-    \centering
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{DIRECTION[n]} & \textbf{Direction} \\ \hline
-        0 & Input \\ \hline
-        1 & Output \\ \hline
-    \end{tabular}
-    \caption{DIRECTION Register}
+
+\begin{table}[h]
+  \begin{center}
+    \caption{Register Summary}
+    \label{tab:wdt-reg}  % Label the table here, if needed to reference it as a table.
+    \arrayrulecolor{gray!80}  % Set the border color
+    \begin{tabularx}{0.5\textwidth}{|>{\centering\arraybackslash}c|>{\centering\arraybackslash}X|} % Full width, centered text
+      \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{DIRECTION[n]}} & 
+      \textcolor{white}{\textbf{Direction}} \\ \hline
+      0 & Input \\ \hline
+      1 & Output \\ \hline
+    \end{tabularx}
+  \end{center}
 \end{table}
 
 \paragraph{OUTPUT:}
@@ -107,14 +128,17 @@ through PRDATA.
 MODE is a \textit{dataWidth} bits wide read/write register. This register sets the operating mode for each bit
 of the \textit{gpioOutput} and \textit{gpioOutputEnable} busses as either push-pull or open drain mode. Operation can be seen in Table
 \begin{table}[h]
-  \centering
-  \begin{tabular}{|c|c|}
+  \begin{center}
+  \begin{tabularx}{0.5\textwidth}{|>{\centering\arraybackslash}c|>{\centering\arraybackslash}X|}
       \hline
-      \textbf{MODE[n]} & \textbf{Operating Mode} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{MODE[n]}} & \textcolor{white}{\textbf{Operating Mode}} \\ \hline
       0 & Push-Pull \\ \hline
       1 & Open Drain\\ \hline
-  \end{tabular}
-  \caption{MODE Register}
+\end{tabularx}
+\caption{MODE Register}
+
+\end{center}
 \end{table}
 
 % truth table for atomic set from atomic operation
@@ -144,7 +168,8 @@ according to the following table by default:
   \centering
   \begin{tabular}{|c|c|}
       \hline
-      \textbf{VIRTUAL\_PORT\_MAP[n]} & \textbf{Physical Pin} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{VIRTUAL\_PORT\_MAP[n]}} & \textcolor{white}{\textbf{Physical Pin}} \\ \hline
       0 & Pin 0 \\ \hline
       1 & Pin 0 \\ \hline
       2 & Pin 0 \\ \hline
@@ -172,7 +197,8 @@ interrupt trigger as seen below:
   \centering
   \begin{tabular}{|c|c|}
       \hline
-      \textbf{TRIGGER\_TYPE[n]} & \textbf{Type} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{TRIGGER\_TYPE[n]}} & \textcolor{white}{\textbf{Type}} \\ \hline
       0 & Level \\ \hline
       1 & Edge \\ \hline
   \end{tabular}
@@ -188,7 +214,8 @@ of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be se
   \centering
   \begin{tabular}{|c|c|c|}
       \hline
-      \textbf{TRIGGER\_LO[n]} & \textbf{Level Trigger} & \textbf{Edge Trigger} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{TRIGGER\_LO[n]}} & \textcolor{white}{\textbf{Level Trigger}} & \textcolor{white}{\textbf{Edge Trigger}} \\ \hline
       0 & No Trigger when Low & No Trigger on Falling Edge\\ \hline
       1 & Trigger when Low & Trigger on Falling Edge\\ \hline
   \end{tabular}
@@ -202,7 +229,8 @@ of \textit{gpioInput} depending on how TRIGGER\_TYPE is set. Operation can be se
   \centering
   \begin{tabular}{|c|c|c|}
       \hline
-      \textbf{TRIGGER\_HI[n]} & \textbf{Level Trigger} & \textbf{Edge Trigger} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{TRIGGER\_HI[n]}} & \textcolor{white}{\textbf{Level Trigger}} & \textcolor{white}{\textbf{Edge Trigger}} \\ \hline
       0 & No Trigger when High & No Trigger on Rising Edge\\ \hline
       1 & Trigger when High & Trigger on Rising Edge\\ \hline
   \end{tabular}
@@ -220,7 +248,8 @@ status of the corresponding bit. If a new trigger is detected simulatenously dur
   \centering
   \begin{tabular}{|c|c|}
       \hline
-      \textbf{TRIGGER\_STATUS[n]} & \textbf{Status} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{TRIGGER\_STATUS[n]}} & \textcolor{white}{\textbf{Status}} \\ \hline
       0 & No Trigger Detected \\ \hline
       1 & Trigger Detected\\ \hline
   \end{tabular}
@@ -235,7 +264,8 @@ occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for e
   \centering
   \begin{tabular}{|c|c|}
       \hline
-      \textbf{IRQ\_ENABLE[n]} & \textbf{Definition} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{IRQ\_ENABLE[n]}} & \textcolor{white}{\textbf{Definition}} \\ \hline
       0 & Disable IRQ Generation\\ \hline
       1 & Enable IRQ Generation \\ \hline
   \end{tabular}
@@ -250,7 +280,8 @@ occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for e
   \centering
   \begin{tabular}{|c|c|c|}
       \hline
-      \textbf{Register Name} & \textbf{Address Start} & \textbf{Address End} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{Register Name}} & \textcolor{white}{\textbf{Address Start}} & \textcolor{white}{\textbf{Address End}} \\ \hline
       DIRECTION & 0x0 & 0x0 \\ \hline
       OUTPUT & 0x1 & 0x1\\ \hline
       INPUT & 0x2 & 0x2 \\ \hline
@@ -277,7 +308,8 @@ occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for e
   \centering
   \begin{tabular}{|c|c|c|}
       \hline
-      \textbf{Register Name} & \textbf{Address Start} & \textbf{Address End} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{Register Name}} & \textcolor{white}{\textbf{Address Start}} & \textcolor{white}{\textbf{Address End}} \\ \hline
       DIRECTION & 0x00 & 0x01 \\ \hline
       OUTPUT & 0x02 & 0x03\\ \hline
       INPUT & 0x04 & 0x05 \\ \hline
@@ -305,7 +337,8 @@ occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for e
   \centering
   \begin{tabular}{|c|c|c|}
       \hline
-      \textbf{Register Name} & \textbf{Address Start} & \textbf{Address End} \\ \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{Register Name}} & \textcolor{white}{\textbf{Address Start}} & \textcolor{white}{\textbf{Address End}} \\ \hline
       DIRECTION & 0x0000 & 0x0003 \\ \hline
       OUTPUT & 0x0004 & 0x0007 \\ \hline
       INPUT & 0x0008 & 0x00B0 \\ \hline
@@ -324,4 +357,3 @@ occurs on the corresponding TRIGGER\_STATUS[n]. IRQ\_ENABLE is responsible for e
   \end{tabular}
   \caption{32-bit Register Addressing}
 \end{table}
-

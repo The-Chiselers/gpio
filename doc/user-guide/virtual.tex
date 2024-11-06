@@ -60,12 +60,18 @@ If the direction of the physical pin changes dynamically during runtime, the vir
 
 \subsubsection{Summary of Correspondence}
 The following table summarizes the behavior of virtual ports when mapped to physical pins.
+\renewcommand*{\arraystretch}{1.4}
+
 \begin{table}[ht]
     \centering
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{|c|c|c|c|}
         \hline
-        \textbf{Physical Pin Mode} & \textbf{Virtual Port Behavior} & \textbf{Direction} & \textbf{Enable Behavior} \\ \hline
+        \rowcolor{dark-gray}  % Dark grey background for header row
+        \textcolor{white}{\textbf{Physical Pin Mode}} & 
+        \textcolor{white}{\textbf{Virtual Port Behavior}} & 
+        \textcolor{white}{\textbf{Direction}} & 
+        \textcolor{white}{\textbf{Enable Behavior}} \\ \hline
         \textbf{Output}            & Writes to virtual port propagate to physical pin & Implicit Output & Enabled if physical pin output is enabled \\ \hline
         \textbf{Input}             & Reads from virtual port reflect the physical pin value & Implicit Input  & Enabled if physical pin input is enabled  \\ \hline
     \end{tabular}%
