@@ -6,12 +6,53 @@ Atomic Operations allow the Gpio Module to set ports atomically without the need
 For some bit string $\text{p}_3\text{p}_2\text{p}_1\text{p}_0$, the operation is as follows:
 \begin{equation*}
   \begin{split}
-    \text{OUTPUT[i] }\leftarrow\text{ }&\text{OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_2\\
-                        &\text{OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_1\\
-                        &\text{!OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_3\\
-                        &\text{!OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_0
+    \text{OUTPUT[i] }\leftarrow\text{ }&(\text{OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{ p}_2) \text{ OR} \\
+                        &(\text{OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_1) \text{ OR}\\
+                        &(\text{!OUTPUT[i]} \text{ \& } \text{MASK[i]} \text{ \& } \text{p}_3) \text{ OR}\\
+                        &(\text{!OUTPUT[i]} \text{ \& } \text{!MASK[i]} \text{ \& } \text{p}_0)
   \end{split}
 \end{equation*}
+
+\subsubsection{Diagram of Atomic Operations}
+Below is a diagram of the atomic operation.
+
+% circuit diagram w/ circuitikz
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}
+    \draw 
+    (0,0) node[and port, number inputs=3] (and1) {}
+    (0,2) node[and port, number inputs=3] (and2) {}
+    (0,4) node[and port, number inputs=3] (and3) {}
+    (0,6) node[and port, number inputs=3] (and4) {}
+
+    (and1.in 1) -- ++(-1,0) node[left] {OUTPUT[i]}
+    (and1.in 2) -- ++(-1,0) node[left] {MASK[i]}
+    (and1.in 3) -- ++(-1,0) node[left] {$p_2$}
+
+    (and2.in 1) -- ++(-1,0) node[left] {OUTPUT[i]}
+    (and2.in 2) -- ++(-1,0) node[left] {!MASK[i]}
+    (and2.in 3) -- ++(-1,0) node[left] {$p_1$}
+
+    (and3.in 1) -- ++(-1,0) node[left] {!OUTPUT[i]}
+    (and3.in 2) -- ++(-1,0) node[left] {MASK[i]}
+    (and3.in 3) -- ++(-1,0) node[left] {$p_3$}
+
+    (and4.in 1) -- ++(-1,0) node[left] {!OUTPUT[i]}
+    (and4.in 2) -- ++(-1,0) node[left] {!MASK[i]}
+    (and4.in 3) -- ++(-1,0) node[left] {$p_0$}
+
+    (2,3) node[or port, number inputs=4] (or1) {}
+
+    (and1.out) -- (or1.in 4)
+    (and2.out) -- (or1.in 3)
+    (and3.out) -- (or1.in 2)
+    (and4.out) -- (or1.in 1)
+    (or1.out) -- ++(1,0) node[right] {OUTPUT[i]}
+    ;
+  \end{circuitikz}
+  \caption{Atomic Operation Diagram}
+\end{figure}
 
 % \subsection{Atomic Operations}
 
