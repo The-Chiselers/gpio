@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Example Usage: synth.sh Gpio
+# Example Usage: synth.sh GPIO
 
 # The Following Vars are set by the development flake:
 # - BUILD_ROOT
@@ -52,6 +52,8 @@ echo "opt_clean -purge" >> ${BUILD_ROOT}/synth/synth.tcl
 echo "write_verilog -noattr \$top\_net.v" >> ${BUILD_ROOT}/synth/synth.tcl
 echo "stat -liberty \$techLib" >> ${BUILD_ROOT}/synth/synth.tcl
 
+
 # Running Synthesis
 cd ${BUILD_ROOT}/synth
-yosys -Qv 1 ${BUILD_ROOT}/synth/synth.tcl
+mkdir -p ${BUILD_ROOT}/synth/
+yosys -Qv 1 ${BUILD_ROOT}/synth/synth.tcl -p "tee -o ${BUILD_ROOT}/synth/synth.rpt stat"
