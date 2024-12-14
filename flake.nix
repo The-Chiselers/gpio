@@ -168,6 +168,8 @@
                 ];
                 shellHook = env_exports + ''
                     export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"
+                    export CXX=g++
+                    export CC=gcc
                     if [ -e config.sh ]; then
                         source config.sh
                     fi
