@@ -4,6 +4,10 @@ import chisel3._
 import chisel3.util._
 
 class GpioRegs(p: BaseParams) extends Bundle {
+
+  val addressSpaceSize = 0x10000
+  val memCells = VecInit(Seq.fill(addressSpaceSize)(0.U(p.PDATA_WIDTH.W)))
+
   // #####################################################################
   // REGS
   // #####################################################################
@@ -37,45 +41,15 @@ class GpioRegs(p: BaseParams) extends Bundle {
 
   // #####################################################################
 
-  val DIRECTION_ADDR: Int = 0
-  val DIRECTION_REG_SIZE: Int = (p.PDATA_WIDTH + p.wordWidth - 1) / p.wordWidth
-  val DIRECTION_ADDR_MAX: Int = DIRECTION_ADDR + DIRECTION_REG_SIZE - 1
-
-  val OUTPUT_ADDR: Int = DIRECTION_ADDR_MAX + 1
-  val OUTPUT_REG_SIZE: Int = (p.PDATA_WIDTH + p.wordWidth - 1) / p.wordWidth
-  val OUTPUT_ADDR_MAX: Int = OUTPUT_ADDR + OUTPUT_REG_SIZE - 1
-
-  val INPUT_ADDR: Int = OUTPUT_ADDR_MAX + 1
-  val INPUT_REG_SIZE: Int = (p.PDATA_WIDTH + p.wordWidth - 1) / p.wordWidth
-  val INPUT_ADDR_MAX: Int = INPUT_ADDR + INPUT_REG_SIZE - 1
-
-  val MODE_ADDR: Int = INPUT_ADDR_MAX + 1
-  val MODE_REG_SIZE: Int = (p.PDATA_WIDTH + p.wordWidth - 1) / p.wordWidth
-  val MODE_ADDR_MAX: Int = MODE_ADDR + MODE_REG_SIZE - 1
-
-  val ATOMIC_OPERATION_ADDR: Int = MODE_ADDR_MAX + 1
-  val ATOMIC_OPERATION_REG_SIZE: Int = (4 + p.wordWidth - 1) / p.wordWidth
-  val ATOMIC_OPERATION_ADDR_MAX: Int =
-    ATOMIC_OPERATION_ADDR + ATOMIC_OPERATION_REG_SIZE - 1
-
-  val ATOMIC_MASK_ADDR: Int = ATOMIC_OPERATION_ADDR_MAX + 1
-  val ATOMIC_MASK_REG_SIZE: Int = (p.PDATA_WIDTH + p.wordWidth - 1) / p.wordWidth
-  val ATOMIC_MASK_ADDR_MAX: Int = ATOMIC_MASK_ADDR + ATOMIC_MASK_REG_SIZE - 1
-
-  val ATOMIC_SET_ADDR: Int = ATOMIC_MASK_ADDR_MAX + 1
-  val ATOMIC_SET_REG_SIZE: Int = (1 + p.wordWidth - 1) / p.wordWidth
-  val ATOMIC_SET_ADDR_MAX: Int = ATOMIC_SET_ADDR + ATOMIC_SET_REG_SIZE - 1
-
-  // virtual port registers
-  val VIRTUAL_PORT_MAP_ADDR: Int = ATOMIC_SET_ADDR_MAX + 1
-  val VIRTUAL_PORT_MAP_REG_SIZE: Int =
-    (p.sizeOfVirtualPorts + p.wordWidth - 1) / p.wordWidth
-  val VIRTUAL_PORT_MAP_ADDR_MAX: Int =
-    VIRTUAL_PORT_MAP_ADDR + p.numVirtualPorts * VIRTUAL_PORT_MAP_REG_SIZE - 1
-
-  val VIRTUAL_PORT_OUTPUT_ADDR: Int = VIRTUAL_PORT_MAP_ADDR_MAX + 1
-  val VIRTUAL_PORT_OUTPUT_REG_SIZE: Int =
-    (p.numVirtualPorts + p.wordWidth - 1) / p.wordWidth
+  val DIRECTION_REG_SIZE: Int = 1
+  val OUTPUT_REG_SIZE: Int = 1
+  val INPUT_REG_SIZE: Int = 1
+  val MODE_REG_SIZE: Int = 1
+  val ATOMIC_OPERATION_REG_SIZE: Int = 1
+  val ATOMIC_MASK_REG_SIZE: Int = 1
+  val ATOMIC_SET_REG_SIZE: Int = 1
+  val VIRTUAL_PORT_MAP_REG_SIZE: Int = (p.sizeOfVirtualPorts + p.wordWidth - 1) / p.wordWidth
+  val VIRTUAL_PORT_OUTPUT_REG_SIZE: Int = (p.numVirtualPorts + p.wordWidth - 1) / p.wordWidth
   val VIRTUAL_PORT_OUTPUT_ADDR_MAX: Int =
     VIRTUAL_PORT_OUTPUT_ADDR + VIRTUAL_PORT_OUTPUT_REG_SIZE - 1
 
