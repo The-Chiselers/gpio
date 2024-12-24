@@ -71,13 +71,4 @@ object modeOperation extends ApbUtils {
     }
   }
 
-  def modeOperation(
-      dut: Gpio,
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-    pushPullMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    drainMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
-  }
 }

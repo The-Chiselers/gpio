@@ -102,16 +102,4 @@ object interruptTriggers extends ApbUtils {
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 2)
   }
-
-  def interruptTriggers(
-      dut: Gpio,
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-    triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
-  }
 }
