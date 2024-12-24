@@ -12,7 +12,6 @@ import scala.util.Random
 import org.scalatest.Assertions._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import scala.collection.mutable.ListBuffer
 
 //import tech.rocksavage.chiselware.util.TestUtils.{randData, checkCoverage}
 import TestUtils.checkCoverage
@@ -344,57 +343,51 @@ class GpioTest
     virtualPortsFull(gpioDataBuffer, apbDataBuffer, myParams)
   }
 
-
   def basicRegisterRWFull(
-    gpioDataBuffer: Seq[UInt],
-    apbDataBuffer: Seq[UInt],
-    myParams: BaseParams
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
   ): Unit = {
-    // Create a mutable collection to store all coverage results
-    val accumulatedCov = ListBuffer[Annotation]()
 
     it should "test directionRegister" in {
       val cov = test(new Gpio(myParams))
-        .withAnnotations(backendAnnotations) { dut =>
-          basicRegisterRW.directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-        }
-      accumulatedCov ++= cov.getAnnotationSeq  // Append coverage to accumulatedCov
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollection(cov.getAnnotationSeq, myParams, testName)
     }
 
     it should "test modeRegister" in {
       val cov = test(new Gpio(myParams))
-        .withAnnotations(backendAnnotations) { dut =>
-          basicRegisterRW.modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-        }
-      accumulatedCov ++= cov.getAnnotationSeq  // Append coverage to accumulatedCov
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollection(cov.getAnnotationSeq, myParams, testName)
     }
 
     it should "test outputRegister" in {
       val cov = test(new Gpio(myParams))
-        .withAnnotations(backendAnnotations) { dut =>
-          basicRegisterRW.outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-        }
-      accumulatedCov ++= cov.getAnnotationSeq  // Append coverage to accumulatedCov
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollection(cov.getAnnotationSeq, myParams, testName)
     }
 
     it should "test inputRegister" in {
       val cov = test(new Gpio(myParams))
-        .withAnnotations(backendAnnotations) { dut =>
-          basicRegisterRW.inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-        }
-      accumulatedCov ++= cov.getAnnotationSeq  // Append coverage to accumulatedCov
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollection(cov.getAnnotationSeq, myParams, testName)
     }
 
     it should "test invalidAddress" in {
       val cov = test(new Gpio(myParams))
-        .withAnnotations(backendAnnotations) { dut =>
+      .withAnnotations(backendAnnotations) { dut =>
           basicRegisterRW.invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
-        }
-      accumulatedCov ++= cov.getAnnotationSeq  // Append coverage to accumulatedCov
-      coverageCollection(accumulatedCov.toSeq, myParams, testName)   
+      }
+      coverageCollection(cov.getAnnotationSeq, myParams, testName)
     }
-
-    // After all tests are complete, pass the accumulated coverage to the coverageCollection function
   }
 
   def interruptTriggersFull(
