@@ -16,49 +16,52 @@ import chiseltest.simulator._
 object coverageCollector {
   private val cumulativeCoverage: mutable.Map[String, BigInt] = mutable.Map()
 
-  def collectCoverage(
-      cov: Seq[Annotation],
-      myParams: BaseParams,
-      testName: String
-  ): Unit = {
-    if (myParams.coverage) {
-      // Convert coverage counts to BigInt to match expected types and ensure it's a Map
-      val coverage: Map[String, BigInt] = cov
-        .collectFirst { case a: TestCoverage => a.counts }
-        .getOrElse(Map.empty)
-        .map { case (key, value) => key -> BigInt(value) }
-        .toMap // Ensure the result is a Map
+def collectCoverage(
+    cov: Seq[Annotation],
+    myParams: BaseParams,
+    testName: String
+): Unit = {
+  if (myParams.coverage) {
+    val coverage = cov
+      .collectFirst { case a: TestCoverage => a.counts }
+      .getOrElse(Map.empty)
+      .toMap
 
-      // Merge the test coverage into the cumulative coverage
-      for ((key, value) <- coverage) {
-        cumulativeCoverage.update(key, cumulativeCoverage.getOrElse(key, BigInt(0)) + value)
-      }
+    // Convert Map[String, Long] to Map[String, BigInt]
+    val bigIntCoverage = coverage.map { case (key, value) => key -> BigInt(value) }
 
-      val testConfig =
-        s"${myParams.gpioWidth}_${myParams.PDATA_WIDTH}_${myParams.PADDR_WIDTH}"
-
-      val buildRoot = sys.env.get("BUILD_ROOT")
-      if (buildRoot.isEmpty) {
-        println("BUILD_ROOT not set, please set and run again")
-        System.exit(1)
-      }
-
-      val verCoverageDir = new File(s"${buildRoot.get}/cov/verilog")
-      verCoverageDir.mkdirs()
-      val coverageFile = s"$verCoverageDir/${testName}_$testConfig.cov"
-
-      // Save individual test coverage
-      saveCoverageToFile(coverage, coverageFile)
-
-      val stuckAtFault = checkCoverage(coverage, coverageFile)
-      if (stuckAtFault) {
-        println(
-          s"WARNING: At least one IO port did not toggle -- see $coverageFile"
-        )
-      }
-      info(s"Verilog Coverage report written to $coverageFile")
+    // Merge the test coverage into the cumulative coverage
+    for ((key, value) <- bigIntCoverage) {
+      cumulativeCoverage.update(key, cumulativeCoverage.getOrElse(key, BigInt(0)) + value)
     }
+
+    val testConfig =
+      myParams.gpioWidth.toString + "_" + myParams.PDATA_WIDTH.toString + "_" +
+        myParams.PADDR_WIDTH.toString
+
+    val buildRoot = sys.env.get("BUILD_ROOT")
+    if (buildRoot.isEmpty) {
+      println("BUILD_ROOT not set, please set and run again")
+      System.exit(1)
+    }
+
+    val verCoverageDir = new File(buildRoot.get + "/cov/verilog")
+    verCoverageDir.mkdirs()
+    val coverageFile = verCoverageDir.toString + "/" + testName + "_" +
+      testConfig + ".cov"
+
+    // Save individual test coverage
+    saveCoverageToFile(bigIntCoverage, coverageFile)
+
+    val stuckAtFault = TestUtils.checkCoverage(bigIntCoverage.map { case (k, v) => k -> v.toLong }.toMap, coverageFile)
+    if (stuckAtFault)
+      println(
+        s"WARNING: At least one IO port did not toggle -- see $coverageFile"
+      )
+    info(s"Verilog Coverage report written to $coverageFile")
   }
+}
+
 
   def saveCumulativeCoverage(myParams: BaseParams): Unit = {
     if (myParams.coverage) {
@@ -68,9 +71,8 @@ object coverageCollector {
         System.exit(1)
       }
 
-      val verCoverageDir = new File(s"${buildRoot.get}/cov/verilog")
-      verCoverageDir.mkdirs()
-      val cumulativeFile = s"$verCoverageDir/cumulative_coverage.cov"
+      val verCoverageDir = new File(buildRoot.get + "/cov/verilog")
+      val cumulativeFile = verCoverageDir.toString + "/cumulative_coverage.cov"
 
       // Write the cumulative coverage to a file
       saveCoverageToFile(cumulativeCoverage.toMap, cumulativeFile)
@@ -92,11 +94,7 @@ object coverageCollector {
   private def info(message: String): Unit = {
     println(message)
   }
-
-  private def checkCoverage(coverage: Map[String, BigInt], filePath: String): Boolean = {
-    // Stub: Implement your logic to check for stuck-at faults in coverage
-    false
-  }
 }
+
 
 
