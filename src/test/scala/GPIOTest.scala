@@ -327,7 +327,12 @@ class GpioTest
 
             case _ => allTests(gpioDataBuffer, apbDataBuffer, myParams)
           }
+          it should "generate cumulative coverage report" in {
+            coverageCollector.saveCumulativeCoverage(myParams)
+          }
         }
+
+
       
     //}
 
@@ -354,7 +359,7 @@ class GpioTest
       .withAnnotations(backendAnnotations) { dut =>
         basicRegisterRW.directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
       }
-      coverageCollection(cov.getAnnotationSeq, myParams, testName)
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "directionRegister")
     }
 
     it should "test modeRegister" in {
@@ -362,7 +367,7 @@ class GpioTest
       .withAnnotations(backendAnnotations) { dut =>
         basicRegisterRW.modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
       }
-      coverageCollection(cov.getAnnotationSeq, myParams, testName)
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "modeRegister")
     }
 
     it should "test outputRegister" in {
@@ -370,7 +375,7 @@ class GpioTest
       .withAnnotations(backendAnnotations) { dut =>
         basicRegisterRW.outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
       }
-      coverageCollection(cov.getAnnotationSeq, myParams, testName)
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "outputRegister")
     }
 
     it should "test inputRegister" in {
@@ -378,7 +383,7 @@ class GpioTest
       .withAnnotations(backendAnnotations) { dut =>
         basicRegisterRW.inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
       }
-      coverageCollection(cov.getAnnotationSeq, myParams, testName)
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "inputRegister")
     }
 
     it should "test invalidAddress" in {
@@ -386,10 +391,11 @@ class GpioTest
       .withAnnotations(backendAnnotations) { dut =>
           basicRegisterRW.invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
       }
-      coverageCollection(cov.getAnnotationSeq, myParams, testName)
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "invalidAddress")
     }
   }
 
+  
   def interruptTriggersFull(
       gpioDataBuffer: Seq[UInt],
       apbDataBuffer: Seq[UInt],
@@ -400,7 +406,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           interruptTriggers.triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerHigh")
     }
 
     it should "test triggerLow" in {
@@ -408,7 +414,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           interruptTriggers.triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerLow")
     }
 
     it should "test triggerRising" in {
@@ -416,7 +422,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           interruptTriggers.triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerRising")
     }
 
     it should "test triggerFalling" in {
@@ -424,7 +430,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           interruptTriggers.triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerFalling")
     }
   }
 
@@ -438,7 +444,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           maskingRegisters.maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "maskingAnd")
     }
   }
 
@@ -452,7 +458,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.virtualMapping(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualMapping")
     }
 
     it should "test virtualInput" in {
@@ -460,7 +466,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.virtualInput(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualInput")
     }
 
     it should "test virtualToPhysical" in {
@@ -468,15 +474,15 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.virtualToPhysical(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualToPhysical")
     }
 
-    it should "test virtualWritting" in {
+    it should "test virtualWriting" in {
       val cov = test(new Gpio(myParams))
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.virtualWritting(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualWriting")
     }
 
     it should "test disableVirtual" in {
@@ -484,7 +490,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.disableVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "disableVirtual")
     }
 
     it should "test invalidVirtual" in {
@@ -492,7 +498,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.invalidVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "invalidVirtual")
     }
 
     it should "test disabledVirtualRead" in {
@@ -500,7 +506,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.disabledVirtualRead(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "disableVirtualRead")
     }
 
     it should "test overlappingVirtualPorts" in {
@@ -508,7 +514,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           virtualPorts.overlappingVirtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "overlappingVirtualPorts")
     }
   }
 
@@ -522,7 +528,7 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           modeOperation.pushPullMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "pushPullMode")
     }
 
     it should "test openDrainMode" in {
@@ -530,9 +536,10 @@ class GpioTest
         .withAnnotations(backendAnnotations) { dut =>
           modeOperation.drainMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
-        coverageCollection(cov.getAnnotationSeq, myParams, testName)
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "openDrainMode")
     }
   }
+
 
   def coverageCollection(
     cov: Seq[Annotation],
