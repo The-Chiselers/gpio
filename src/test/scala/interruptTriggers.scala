@@ -40,6 +40,8 @@ object interruptTriggers extends ApbUtils {
   ): Unit = {
     // Test: Trigger Level When Low
     println("Test: Trigger Level When Low")
+    writeApb(dut, dut.regs.IRQ_ENABLE_ADDR.U, 3.U)
+    writeApb(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)
     writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
     writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 12.U)
     dut.io.in.poke(2.U)
@@ -90,6 +92,7 @@ object interruptTriggers extends ApbUtils {
   ): Unit = {
     // Test: Edge Trigger on Falling Edge
     println("Test: Edge Trigger on Falling Edge")
+    writeApb(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 3.U)
     writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 3.U)
     writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 0.U)
     dut.io.in.poke(2.U) // Need to go high to trigger edge det
@@ -101,17 +104,5 @@ object interruptTriggers extends ApbUtils {
     var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 2)
-  }
-
-  def interruptTriggers(
-      dut: Gpio,
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-    triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
   }
 }

@@ -43,12 +43,4 @@ object maskingRegisters extends ApbUtils {
     ) // When set to 1 it affects Push-Pull Mode, Interesting
   }
 
-  def maskingRegisters(
-      dut: Gpio,
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-    maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
-  }
 }

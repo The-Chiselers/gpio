@@ -254,19 +254,4 @@ object virtualPorts extends ApbUtils {
     require(physicalPortOutputInput == 1) // Expect physical port 5 to be 0
   }
 
-  def virtualPorts(
-      dut: Gpio,
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-    virtualMapping(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    virtualInput(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    virtualToPhysical(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    virtualWritting(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    disableVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    invalidVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    disabledVirtualRead(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    overlappingVirtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
-  }
 }

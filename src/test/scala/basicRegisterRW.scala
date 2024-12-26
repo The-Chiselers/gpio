@@ -107,17 +107,4 @@ object basicRegisterRW extends ApbUtils {
     require(readData == 0)
   }
 
-  def basicRegisterRW(
-      dut: Gpio,
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-    directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
-  }
-
 }

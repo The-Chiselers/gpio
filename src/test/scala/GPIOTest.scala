@@ -36,13 +36,13 @@ class GpioTest
     with ApbUtils {
 
   val verbose = false
-  val numTests = 1
+  val numTests = 2
   val testName = System.getProperty("testName")
   println(s"Argument passed: $testName")
 
   // System properties for flags
   val enableVcd = System.getProperty("enableVcd", "false").toBoolean
-  val enableFst = System.getProperty("enableFst", "false").toBoolean
+  val enableFst = System.getProperty("enableFst", "true").toBoolean
   val useVerilator = System.getProperty("useVerilator", "false").toBoolean
 
   val buildRoot = sys.env.get("BUILD_ROOT_RELATIVE")
@@ -72,8 +72,12 @@ class GpioTest
   }
 
   // Execute the regressigiyon across a randomized range of configurations
-  // if (testName == "regression") (1 to numTests).foreach(config => main(testName))
-  main(testName)
+  if (testName == "regression") (1 to numTests).foreach { config => 
+    main(s"GPIO_test_config_$config")
+  }
+  else {
+    main(testName)
+  }
 
   def main(testName: String): Unit = {
     behavior of testName
@@ -100,19 +104,19 @@ class GpioTest
     val myParams =
       BaseParams(8, gpioWidth, PDATA_WIDTH, PADDR_WIDTH, coverage = true)
 
-    it should "pass" in {
+    //it should "pass" in {
       info(s"Gpio Width = $gpioWidth")
       info(s"APB Data Width = $PDATA_WIDTH")
       info(s"Address Width = $PADDR_WIDTH")
       info("--------------------------------")
-      val cov = test(new Gpio(myParams))
-        .withAnnotations(backendAnnotations) { dut =>
-          dut.clock.setTimeout(0)
+      //val cov = test(new Gpio(myParams))
+      //  .withAnnotations(backendAnnotations) { dut =>
+      //    dut.clock.setTimeout(0)
 
           // Reset Sequence
-          dut.reset.poke(true.B)
-          dut.clock.step()
-          dut.reset.poke(false.B)
+          //dut.reset.poke(true.B)
+          //dut.clock.step()
+          //dut.reset.poke(false.B)
 
           // Buffer of randomized test data to apply in the test
 
@@ -124,136 +128,520 @@ class GpioTest
 
           testName match {
             case "directionRegister" =>
-              basicRegisterRW
-                .directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test directionRegister" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    basicRegisterRW.directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "modeRegister" =>
-              basicRegisterRW
-                .modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test modeRegister" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    basicRegisterRW.modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)                  
+              }
+
             case "outputRegister" =>
-              basicRegisterRW
-                .outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test outputRegister" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    basicRegisterRW.outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)                
+              }
+
             case "inputRegister" =>
-              basicRegisterRW
-                .inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test inputRegister" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    basicRegisterRW.inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "invalidAddress" =>
-              basicRegisterRW
-                .invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test invalidAddress" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    basicRegisterRW.invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "basicRegisterRW" =>
-              basicRegisterRW
-                .basicRegisterRW(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              basicRegisterRWFull(gpioDataBuffer, apbDataBuffer, myParams)
 
             case "maskingAnd" =>
-              maskingRegisters
-                .maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test maskingAnd" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    maskingRegisters.maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "maskingRegisters" =>
-              maskingRegisters
-                .maskingRegisters(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              maskingRegistersFull(gpioDataBuffer, apbDataBuffer, myParams)
 
             case "triggerHigh" =>
-              interruptTriggers
-                .triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test triggerHigh" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    interruptTriggers.triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "triggerLow" =>
-              interruptTriggers
-                .triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test triggerLow" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    interruptTriggers.triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "triggerRising" =>
-              interruptTriggers
-                .triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test triggerRising" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    interruptTriggers.triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "triggerFalling" =>
-              interruptTriggers
-                .triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test triggerFalling" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    interruptTriggers.triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "interruptTriggers" =>
-              interruptTriggers
-                .interruptTriggers(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              interruptTriggersFull(gpioDataBuffer, apbDataBuffer, myParams)
 
             case "virtualMapping" =>
-              virtualPorts
-                .virtualMapping(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test virtualMapping" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.virtualMapping(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "virtualInput" =>
-              virtualPorts
-                .virtualInput(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test virtualInput" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.virtualInput(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "virtualToPhysical" =>
-              virtualPorts
-                .virtualToPhysical(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test virtualToPhysical" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.virtualToPhysical(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "virtualWritting" =>
-              virtualPorts
-                .virtualWritting(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test virtualWritting" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.virtualWritting(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "disableVirtual" =>
-              virtualPorts
-                .disableVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test disableVirtual" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.disableVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "invalidVirtual" =>
-              virtualPorts
-                .invalidVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test invalidVirtual" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.invalidVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "disabledVirtualRead" =>
-              virtualPorts
-                .disabledVirtualRead(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test disabledVirtualRead" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.disabledVirtualRead(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "overlappingVirtualPorts" =>
-              virtualPorts
-                .overlappingVirtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test overlappingVirtualPorts" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    virtualPorts.overlappingVirtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "virtualPorts" =>
-              virtualPorts
-                .virtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              virtualPortsFull(gpioDataBuffer, apbDataBuffer, myParams)
 
             case "pushPullMode" =>
-              modeOperation
-                .pushPullMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
-            case "openDrainMode" =>
-              modeOperation
-                .drainMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
-            case "modeOperation" =>
-              modeOperation
-                .modeOperation(dut, gpioDataBuffer, apbDataBuffer, myParams)
+              it should "test pushPullMode" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    modeOperation.pushPullMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
 
-            case "allTests"   => allTests(dut, gpioDataBuffer, apbDataBuffer, myParams)
-            case "regression" => allTests(dut, gpioDataBuffer, apbDataBuffer, myParams)
-            case _            => println("Invalid group specified.")
+            case "openDrainMode" =>
+              it should "test openDrainMode" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    modeOperation.drainMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                  coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
+            case "modeOperation" =>
+              modeOperationFull(gpioDataBuffer, apbDataBuffer, myParams)
+
+            case "randomTests" =>
+              randomTestsFull(gpioDataBuffer, apbDataBuffer, myParams)
+
+            case "allTests" =>
+              allTests(gpioDataBuffer, apbDataBuffer, myParams)
+
+            case _ => allTests(gpioDataBuffer, apbDataBuffer, myParams)
+          }
+          it should "generate cumulative coverage report" in {
+            coverageCollector.saveCumulativeCoverage(myParams)
           }
         }
 
-      // Check that all ports have toggled and print report
-      if (myParams.coverage) {
-        val coverage = cov.getAnnotationSeq
-          .collectFirst { case a: TestCoverage => a.counts }
-          .get
-          .toMap
 
-        val testConfig =
-          myParams.gpioWidth.toString + "_" + myParams.PDATA_WIDTH.toString + "_" +
-            myParams.PADDR_WIDTH.toString
-
-        val buildRoot = sys.env.get("BUILD_ROOT")
-        if (buildRoot.isEmpty) {
-          println("BUILD_ROOT not set, please set and run again")
-          System.exit(1)
-        }
-        // path join
-        val scalaCoverageDir = new File(buildRoot.get + "/cov/scala")
-        val verCoverageDir = new File(buildRoot.get + "/cov/verilog")
-        verCoverageDir.mkdir()
-        val coverageFile = verCoverageDir.toString + "/" + testName + "_" +
-          testConfig + ".cov"
-
-        val stuckAtFault = checkCoverage(coverage, coverageFile)
-        if (stuckAtFault)
-          println(
-            s"WARNING: At least one IO port did not toggle -- see $coverageFile"
-          )
-        info(s"Verilog Coverage report written to $coverageFile")
-      }
-
-    }
-  }
+      
+    //}
 
   def allTests(
-      dut: Gpio,
       gpioDataBuffer: Seq[UInt],
       apbDataBuffer: Seq[UInt],
       myParams: BaseParams
   ): Unit = {
-    basicRegisterRW.basicRegisterRW(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    modeOperation.modeOperation(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    interruptTriggers.interruptTriggers(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    maskingRegisters.maskingRegisters(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    virtualPorts.virtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
-    virtualPorts.virtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+    basicRegisterRWFull(gpioDataBuffer, apbDataBuffer, myParams)
+    modeOperationFull(gpioDataBuffer, apbDataBuffer, myParams)
+    interruptTriggersFull(gpioDataBuffer, apbDataBuffer, myParams)
+    maskingRegistersFull(gpioDataBuffer, apbDataBuffer, myParams)
+    virtualPortsFull(gpioDataBuffer, apbDataBuffer, myParams)
+  }
+
+  def randomTestsFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+
+    it should "test combinedTriggerLevel" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.combinedTriggerLevel(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedTriggerLevel")
+    }
+
+    it should "test edgeTriggerWithAtomicAnd" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.edgeTriggerWithAtomicAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "edgeTriggerWithAtomicAnd")
+    }
+
+    it should "test pushPullAndDrain" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.pushPullAndDrain(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "pushPullAndDrain")
+    }
+
+    it should "test virtualPortAndTriggerTest" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.virtualPortAndTriggerTest(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualPortAndTriggerTest")
+    }
+
+    it should "test overlappingVirtualPortsAndAtomic" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+          randomTests.overlappingVirtualPortsAndAtomic(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "overlappingVirtualPortsAndAtomic")
+    }
+
+    it should "test combinedModeAndTrigger" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.combinedModeAndTrigger(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedModeAndTrigger")
+    }
+
+    it should "test virtualAndDrain" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.virtualAndDrain(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualAndDrain")
+    }
+  } 
+
+  def basicRegisterRWFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+
+    it should "test directionRegister" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.directionRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "directionRegister")
+    }
+
+    it should "test modeRegister" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.modeRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "modeRegister")
+    }
+
+    it should "test outputRegister" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.outputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "outputRegister")
+    }
+
+    it should "test inputRegister" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        basicRegisterRW.inputRegister(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "inputRegister")
+    }
+
+    it should "test invalidAddress" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+          basicRegisterRW.invalidAddress(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "invalidAddress")
+    }
+  }
+
+  
+  def interruptTriggersFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    it should "test triggerHigh" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          interruptTriggers.triggerHigh(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerHigh")
+    }
+
+    it should "test triggerLow" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          interruptTriggers.triggerLow(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerLow")
+    }
+
+    it should "test triggerRising" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          interruptTriggers.triggerRising(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerRising")
+    }
+
+    it should "test triggerFalling" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          interruptTriggers.triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerFalling")
+    }
+  }
+
+  def maskingRegistersFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    it should "test maskingAnd" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          maskingRegisters.maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "maskingAnd")
+    }
+  }
+
+  def virtualPortsFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    it should "test virtualMapping" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.virtualMapping(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualMapping")
+    }
+
+    it should "test virtualInput" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.virtualInput(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualInput")
+    }
+
+    it should "test virtualToPhysical" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.virtualToPhysical(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualToPhysical")
+    }
+
+    it should "test virtualWriting" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.virtualWritting(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualWriting")
+    }
+
+    it should "test disableVirtual" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.disableVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "disableVirtual")
+    }
+
+    it should "test invalidVirtual" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.invalidVirtual(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "invalidVirtual")
+    }
+
+    it should "test disabledVirtualRead" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.disabledVirtualRead(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "disableVirtualRead")
+    }
+
+    it should "test overlappingVirtualPorts" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          virtualPorts.overlappingVirtualPorts(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "overlappingVirtualPorts")
+    }
+  }
+
+  def modeOperationFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+    it should "test pushPullMode" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          modeOperation.pushPullMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "pushPullMode")
+    }
+
+    it should "test openDrainMode" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          modeOperation.drainMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "openDrainMode")
+    }
+  }
+
+
+  def coverageCollection(
+    cov: Seq[Annotation],
+    myParams: BaseParams,
+    testName: String
+    ): Unit = {
+    if (myParams.coverage) {
+      val coverage = cov
+        .collectFirst { case a: TestCoverage => a.counts }
+        .get
+        .toMap
+
+      val testConfig =
+        myParams.gpioWidth.toString + "_" + myParams.PDATA_WIDTH.toString + "_" +
+          myParams.PADDR_WIDTH.toString
+
+      val buildRoot = sys.env.get("BUILD_ROOT")
+      if (buildRoot.isEmpty) {
+        println("BUILD_ROOT not set, please set and run again")
+        System.exit(1)
+      }
+      // path join
+      val scalaCoverageDir = new File(buildRoot.get + "/cov/scala")
+      val verCoverageDir = new File(buildRoot.get + "/cov/verilog")
+      verCoverageDir.mkdirs()
+      val coverageFile = verCoverageDir.toString + "/" + testName + "_" +
+        testConfig + ".cov"
+
+      val stuckAtFault = checkCoverage(coverage, coverageFile)
+      if (stuckAtFault)
+        println(
+          s"WARNING: At least one IO port did not toggle -- see $coverageFile"
+        )
+      info(s"Verilog Coverage report written to $coverageFile")
+    }
   }
 }
+
+

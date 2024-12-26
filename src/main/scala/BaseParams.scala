@@ -34,7 +34,7 @@ case class BaseParams(
     numVirtualPorts: Int = 8,
     sizeOfVirtualPorts: Int = log2Ceil(32),
     coverage: Boolean = false,
-    verbose: Boolean = false
+    verbose: Boolean = true
 ) {
 
   require(wordWidth == 8, "wordWidth must be 8")
