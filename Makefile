@@ -103,9 +103,9 @@ synth: verilog
 	sh $(PROJECT_ROOT)/synth/synth.sh
 
 # Generate timing analysis
-sta: synth
+#sta: synth
+sta:
 	# Uses a python script to generate the SDC file
 	mkdir -p $(BUILD_ROOT)/sta
-	python3 $(PROJECT_ROOT)/synth/sdc.py --top $(TOP) --out $(BUILD_ROOT)/sta/$(TOP).sdc --clock clock=5.0
 	sh $(PROJECT_ROOT)/synth/sta.sh
 

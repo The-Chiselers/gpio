@@ -3,7 +3,7 @@
 
 \subsection{Area}
 
-The DynamicFifo has been tested in a number of configurations and the following
+The Gpio has been tested in a number of configurations and the following
 results should be representative of what a user should see in their own
 technology.
 
@@ -11,10 +11,10 @@ technology.
 \begingroup
 \small
 \begin{longtable}[H]{
+    | p{0.15\textwidth}
+    | p{0.15\textwidth}
+    | p{0.17\textwidth}
     | p{0.20\textwidth}
-    | p{0.15\textwidth}
-    | p{0.15\textwidth}
-    | p{0.15\textwidth}
     | p{0.15\textwidth} |
   }
   \hline
@@ -63,8 +63,8 @@ technology.
 An \texttt{.sdc} file is generated to provide synthesis and static timing
 analysis tools guidance for synthesis.
 
-The \texttt{DynamicFifo.sdc} file is emitted and found in the
-\texttt{./syn} directory.
+The \texttt{Gpio.sdc} file is emitted and found in the
+\texttt{./out/sta} directory.
 
 \subsection{Timing}
 
@@ -89,47 +89,27 @@ Nangate 45nm free library.
   \textcolor{white}{\textbf{Output Delay}}  &
   \textcolor{white}{\textbf{Slack}}           \\ \hline \hline
 
-  small\_false\_8\_8     &
+  8\_8\_8     &
   5ns                    &
   50\%                   &
   20\%                   &
   20\%                   &
-  2.93 (MET)               \\ \hline
+  1.79 (MET)               \\ \hline
 
-  medium\_false\_32\_64  &
+  8\_8\_8  &
   5ns                    &
   50\%                   &
   20\%                   &
   20\%                   &
-  2.69 (MET)               \\ \hline
+  1.79 (MET)               \\ \hline
 
-  large\_false\_64\_256  &
+  8\_8\_8  &
   5ns                    &
   50\%                   &
   20\%                   &
   20\%                   &
-  2.80 (MET)               \\ \hline
+  1.81 (MET)               \\ \hline
 
-  small\_true\_64\_256   &
-  5ns                    &
-  50\%                   &
-  20\%                   &
-  20\%                   &
-  2.80 (MET)               \\ \hline
-
-  medium\_true\_128\_128 &
-  5ns                    &
-  50\%                   &
-  20\%                   &
-  20\%                   &
-  2.70 (MET)               \\ \hline
-
-  large\_true\_256\_2048 &
-  5ns                    &
-  50\%                   &
-  20\%                   &
-  20\%                   &
-  2.77 (MET)               \\ \hline
   
 \end{longtable}
 \captionsetup{aboveskip=0pt}

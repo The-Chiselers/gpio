@@ -64,7 +64,7 @@ do
   echo "dfflibmap -liberty \$techLib" >> ${BUILD_ROOT}/synth/$testCase/synth.tcl
   echo "abc -liberty \$techLib" >> ${BUILD_ROOT}/synth/$testCase/synth.tcl
   echo "opt_clean -purge" >> ${BUILD_ROOT}/synth/$testCase/synth.tcl
-  echo "write_verilog -noattr \$top\_net.v" >> ${BUILD_ROOT}/synth/$testCase/synth.tcl
+  echo "write_verilog -noattr ./$testCase/\$top\_net.v" >> ${BUILD_ROOT}/synth/$testCase/synth.tcl
   echo "stat -liberty \$techLib" >> ${BUILD_ROOT}/synth/$testCase/synth.tcl
 
   echo "*** Synthesizing test case:  " $testCase
@@ -80,6 +80,9 @@ do
   floatArea=$(echo $areaLine| cut -d':' -f 2)
   intArea=$(echo ${floatArea%.*})
   gates=$(echo "$intArea/$nand2Area" | bc)
+  if [ -e ${BUILD_ROOT}/synth/area.rpt ]; then
+      rm -f ${BUILD_ROOT}/synth/area.rpt
+  fi
   echo -e "$testCase = \t $gates gates" >> ./area.rpt
   echo -e "$testCase = \t $gates gates"
 
