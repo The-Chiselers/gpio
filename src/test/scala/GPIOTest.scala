@@ -322,6 +322,9 @@ class GpioTest
             case "modeOperation" =>
               modeOperationFull(gpioDataBuffer, apbDataBuffer, myParams)
 
+            case "randomTests" =>
+              randomTestsFull(gpioDataBuffer, apbDataBuffer, myParams)
+
             case "allTests" =>
               allTests(gpioDataBuffer, apbDataBuffer, myParams)
 
@@ -347,6 +350,69 @@ class GpioTest
     maskingRegistersFull(gpioDataBuffer, apbDataBuffer, myParams)
     virtualPortsFull(gpioDataBuffer, apbDataBuffer, myParams)
   }
+
+  def randomTestsFull(
+      gpioDataBuffer: Seq[UInt],
+      apbDataBuffer: Seq[UInt],
+      myParams: BaseParams
+  ): Unit = {
+
+    it should "test combinedTriggerLevel" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.combinedTriggerLevel(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedTriggerLevel")
+    }
+
+    it should "test edgeTriggerWithAtomicAnd" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.edgeTriggerWithAtomicAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "edgeTriggerWithAtomicAnd")
+    }
+
+    it should "test pushPullAndDrain" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.pushPullAndDrain(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "pushPullAndDrain")
+    }
+
+    it should "test virtualPortAndTriggerTest" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.virtualPortAndTriggerTest(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualPortAndTriggerTest")
+    }
+
+    it should "test overlappingVirtualPortsAndAtomic" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+          randomTests.overlappingVirtualPortsAndAtomic(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "overlappingVirtualPortsAndAtomic")
+    }
+
+    it should "test combinedModeAndTrigger" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.combinedModeAndTrigger(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedModeAndTrigger")
+    }
+
+    it should "test virtualAndDrain" in {
+      val cov = test(new Gpio(myParams))
+      .withAnnotations(backendAnnotations) { dut =>
+        randomTests.virtualAndDrain(dut, gpioDataBuffer, apbDataBuffer, myParams)
+      }
+      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualAndDrain")
+    }
+  } 
 
   def basicRegisterRWFull(
       gpioDataBuffer: Seq[UInt],
