@@ -30,18 +30,34 @@ object Main extends App {
   val javaOutputDir = new java.io.File(outputDir)
   if (!javaOutputDir.exists) javaOutputDir.mkdirs
 
-  // ######### Set Up Top Module HERE #########
-  val top_name = "Gpio.sv"
-  ChiselStage.emitSystemVerilog(
-    new Gpio(myParams),
-    firtoolOpts = Array(
-      "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-      "--disable-all-randomization",
-      "--strip-debug-info",
-      "--split-verilog",
-      s"-o=$outputDir/",
-    ),
+  val config = Map(
+    // name  -> externalRam, dataWidth, fifoDepth
+    "8_8_8"      -> BaseParams(gpioWidth = 8,  numVirtualPorts = 8, sizeOfVirtualPorts = 8, wordWidth = 8, PDATA_WIDTH = 32, PADDR_WIDTH = 32),
+    "16_8_8"     -> BaseParams(gpioWidth = 16, numVirtualPorts = 8, sizeOfVirtualPorts = 8, wordWidth = 8, PDATA_WIDTH = 32, PADDR_WIDTH = 32),
+    "32_8_8"     -> BaseParams(gpioWidth = 32, numVirtualPorts = 8, sizeOfVirtualPorts = 8, wordWidth = 8, PDATA_WIDTH = 32, PADDR_WIDTH = 32),
   )
+
+  // ######### Set Up Top Module HERE #########
+  config.foreach { case (testName, param) =>
+
+    println(
+      s"Generating Verilog config: $testName\t"
+    )
+
+    // Generate basic Verilog (suppress SV features with lowering, etc)
+    val top_name = s"${testName}.sv"
+    ChiselStage.emitSystemVerilog(
+      new Gpio(param),
+      firtoolOpts = Array(
+        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+        "--disable-all-randomization",
+        "--strip-debug-info",
+        "--split-verilog",
+        s"-o=$outputDir/$testName/",
+      ),
+    )
+  }
+
   // ##########################################
   System.exit(0)
 }

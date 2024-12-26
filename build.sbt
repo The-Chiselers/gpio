@@ -29,9 +29,6 @@ lazy val root = (project in file("."))
       "org.chipsalliance" % "chisel-plugin" % "6.6.0" cross CrossVersion.full
     )
   )
-  .dependsOn(addrdecode)
-
-lazy val addrdecode = RootProject(uri("https://github.com/The-Chiselers/addrdecode.git"))
 
 // Scala coverage settings
 val build_root = sys.env("BUILD_ROOT")
