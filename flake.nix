@@ -86,7 +86,6 @@
                     # Other
                     python3
                     nodePackages_latest.wavedrom-cli
-                    bc
                 ];
                 shellHook = env_exports + ''
                     export CXX=/usr/bin/c++
@@ -101,15 +100,15 @@
                 packages = with pkgs; [
                     # Chisel
                     (let
-                        circtpkgs = import (builtins.fetchTree { 
-                        type = "github"; 
-                        owner = "nixos"; 
-                        repo = "nixpkgs"; 
-                        rev = circt_rev; }) 
+                        circtpkgs = import (builtins.fetchTree {
+                        type = "github";
+                        owner = "nixos";
+                        repo = "nixpkgs";
+                        rev = circt_rev; })
                         { inherit (pkgs) system; };
                     in circtpkgs.circt)
-                                    
-                    # Scala 
+
+                    # Scala
                     sbt
                     scala-cli
 
@@ -128,10 +127,10 @@
                             rev = opensta_rev;
                             sha256 = opensta_sha256;
                         };
-                        buildInputs = [ 
-                            pkgs.cmake 
-                            pkgs.gcc 
-                            pkgs.tcl 
+                        buildInputs = [
+                            pkgs.cmake
+                            pkgs.gcc
+                            pkgs.tcl
 
                             pkgs.bison
                             pkgs.flex
@@ -142,9 +141,9 @@
                             pkgs.zlib
                             pkgs.tcllib
                         ];
-                        nativeBuildInputs = [ 
-                            pkgs.cmake 
-                            pkgs.tcl 
+                        nativeBuildInputs = [
+                            pkgs.cmake
+                            pkgs.tcl
                         ];
                         cmakeFlags = [
                             "-DTCL_LIBRARY=${pkgs.tcl}/lib/libtcl8.6.so"
@@ -166,12 +165,11 @@
                     gcc
                     python3
                     nodePackages_latest.wavedrom-cli
-                    bc
                 ];
                 shellHook = env_exports + ''
                     export CHISEL_FIRTOOL_PATH="${pkgs.circt}/bin"
-                    export CXX=g++
-                    export CC=gcc
+#                    export CXX=g++
+#                    export CC=gcc
                     if [ -e config.sh ]; then
                         source config.sh
                     fi
