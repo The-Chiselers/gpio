@@ -3,7 +3,7 @@
 
 \subsection{Area}
 
-The DynamicFifo has been tested in a number of configurations and the following
+The Gpio has been tested in a number of configurations and the following
 results should be representative of what a user should see in their own
 technology.
 
@@ -11,66 +11,48 @@ technology.
 \begingroup
 \small
 \begin{longtable}[H]{
+    | p{0.15\textwidth}
+    | p{0.15\textwidth}
+    | p{0.17\textwidth}
     | p{0.20\textwidth}
-    | p{0.15\textwidth}
-    | p{0.15\textwidth}
-    | p{0.15\textwidth}
     | p{0.15\textwidth} |
   }
   \hline
   \rowcolor{dark-gray}
   \textcolor{white}{\textbf{Config Name}}   &
-  \textcolor{white}{\textbf{externalRAM}}   &
-  \textcolor{white}{\textbf{dataWidth}}     &
-  \textcolor{white}{\textbf{fifoDepth}}     &
+  \textcolor{white}{\textbf{gpioWidth}}   &
+  \textcolor{white}{\textbf{numVirtualPorts}}     &
+  \textcolor{white}{\textbf{sizeOfVirtualPorts}}     &
   \textcolor{white}{\textbf{Gates}}           \\ \hline \hline
   \endfirsthead
 
   \textcolor{white}{\textbf{Config Name}}   &
-  \textcolor{white}{\textbf{externalRAM}}   &
-  \textcolor{white}{\textbf{dataWidth}}     &
-  \textcolor{white}{\textbf{fifoDepth}}     &
-  \textcolor{white}{\textbf{Gates}}           \\ \hline \hline
+    \textcolor{white}{\textbf{gpioWidth}}   &
+    \textcolor{white}{\textbf{numVirtualPorts}}     &
+    \textcolor{white}{\textbf{sizeOfVirtualPorts}}     &
+    \textcolor{white}{\textbf{Gates}}           \\ \hline \hline
   \endhead
 
   \hline
   \endfoot
 
-  small\_false\_8\_8     &
-  false                  &
+  8\_8\_8   &
   8                      &
   8                      &
-  769                      \\ \hline
+  8                      &
+  6734                   \\ \hline
 
-  medium\_false\_32\_64  &
-  false                  &
+  16\_8\_8  &
+  16                     &
+  8                      &
+  8                      &
+  9325                   \\ \hline
+
+  32\_8\_8  &
   32                     &
-  64                     &
-  19,283                   \\ \hline
-
-  large\_false\_64\_256  &
-  false                  &
-  64                     &
-  256                    &
-  152,808                  \\ \hline
-
-  small\_true\_64\_256   &
-  true                   &
-  64                     &
-  256                    &
-  355                      \\ \hline
-
-  medium\_true\_128\_128 &
-  true                   &
-  128                    &
-  128                    &
-  477                      \\ \hline
-
-  large\_true\_256\_2048 &
-  true                   &
-  256                    &
-  2048                   &
-  502                      \\ \hline
+  8                      &
+  8                      &
+  14981                  \\ \hline
 
 \end{longtable}
 \captionsetup{aboveskip=0pt}
@@ -81,8 +63,8 @@ technology.
 An \texttt{.sdc} file is generated to provide synthesis and static timing
 analysis tools guidance for synthesis.
 
-The \texttt{DynamicFifo.sdc} file is emitted and found in the
-\texttt{./syn} directory.
+The \texttt{Gpio.sdc} file is emitted and found in the
+\texttt{./out/sta} directory.
 
 \subsection{Timing}
 
@@ -107,47 +89,27 @@ Nangate 45nm free library.
   \textcolor{white}{\textbf{Output Delay}}  &
   \textcolor{white}{\textbf{Slack}}           \\ \hline \hline
 
-  small\_false\_8\_8     &
+  8\_8\_8     &
   5ns                    &
   50\%                   &
   20\%                   &
   20\%                   &
-  2.93 (MET)               \\ \hline
+  1.79 (MET)               \\ \hline
 
-  medium\_false\_32\_64  &
+  8\_8\_8  &
   5ns                    &
   50\%                   &
   20\%                   &
   20\%                   &
-  2.69 (MET)               \\ \hline
+  1.79 (MET)               \\ \hline
 
-  large\_false\_64\_256  &
+  8\_8\_8  &
   5ns                    &
   50\%                   &
   20\%                   &
   20\%                   &
-  2.80 (MET)               \\ \hline
+  1.81 (MET)               \\ \hline
 
-  small\_true\_64\_256   &
-  5ns                    &
-  50\%                   &
-  20\%                   &
-  20\%                   &
-  2.80 (MET)               \\ \hline
-
-  medium\_true\_128\_128 &
-  5ns                    &
-  50\%                   &
-  20\%                   &
-  20\%                   &
-  2.70 (MET)               \\ \hline
-
-  large\_true\_256\_2048 &
-  5ns                    &
-  50\%                   &
-  20\%                   &
-  20\%                   &
-  2.77 (MET)               \\ \hline
   
 \end{longtable}
 \captionsetup{aboveskip=0pt}
