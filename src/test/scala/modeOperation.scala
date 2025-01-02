@@ -8,7 +8,7 @@ import scala.math.pow
 import TestUtils._
 
 object modeOperation extends ApbUtils {
-
+    //Testing Direction, Mode, Output, and dut.io.out
   def pushPullMode(
       dut: Gpio,
       gpioDataBuffer: Seq[UInt],
@@ -30,7 +30,7 @@ object modeOperation extends ApbUtils {
       println(
         s"Output Register after PPL Set: ${actualValOutput.toString()}"
       )
-      require(expectedValOutput == actualValOutput) // Failing :(
+      require(expectedValOutput == actualValOutput)
       val actualValOutputEnable = dut.io.enable.peekInt()
       println(
         s"Expected Direction Register after PPL Set: ${randomDirectionData.toString()}"

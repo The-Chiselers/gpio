@@ -76,9 +76,7 @@ object interruptTriggers extends ApbUtils {
     dut.io.in.poke(0.U) // Need to go low to trigger edge det
     dut.clock.step(2) // Wait for synchronizer
     dut.io.in.poke(7.U)
-    dut.clock.step(
-      1
-    ) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+    dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
     var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 3)
@@ -105,4 +103,41 @@ object interruptTriggers extends ApbUtils {
     println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
     require(triggerStatus == 2)
   }
+
+  def combinedTriggerLevel(
+        dut: Gpio,
+        gpioDataBuffer: Seq[UInt],
+        apbDataBuffer: Seq[UInt],
+        myParams: BaseParams
+    ): Unit = {
+        println("Test: Combined Trigger Level High and Low")
+        writeApb(dut, dut.regs.IRQ_ENABLE_ADDR.U, 15.U)  //Enable interrupts on first 4 
+        writeApb(dut, dut.regs.TRIGGER_TYPE_ADDR.U, 12.U)   //1100 -> Edge Edge Level Level
+        writeApb(dut, dut.regs.TRIGGER_LO_ADDR.U, 9.U)  //1001 -> Fall, No, No, Low
+        writeApb(dut, dut.regs.TRIGGER_HI_ADDR.U, 10.U) //1010 -> Rise, No, High, No
+
+        // Test high level trigger
+        dut.io.in.poke(0.U)
+        dut.clock.step(2) // Wait for synchronizer
+        dut.io.in.poke(15.U)
+        dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+        var triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+        println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
+        require(triggerStatus == 10)
+        var irqOutput = dut.io.irq.peekInt()
+        println(s"irqOutput Read Value: ${irqOutput.toString()}")
+        require(irqOutput == 1)
+        //clearInterrupt(dut, 0.U, 1.U)
+
+        // Test low level trigger
+        dut.io.in.poke(15.U)
+        dut.clock.step(2) // Wait for synchronizer
+        dut.io.in.poke(0.U)
+        dut.clock.step(1) // Wait for synchronizer, triggerStatus and irqOut only high for one clock cycle
+        triggerStatus = readApb(dut, dut.regs.TRIGGER_STATUS_ADDR.U)
+        println(s"Trigger Status Read Value: ${triggerStatus.toString()}")
+        require(triggerStatus == 9)
+
+        //clearInterrupt(dut, 0.U, 3.U)
+    }
 }

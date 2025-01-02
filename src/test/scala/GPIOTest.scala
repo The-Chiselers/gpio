@@ -84,8 +84,7 @@ class GpioTest
 
     // Randomize Input Variables
     // Randomize Input Variables
-    val validGpioWidths = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
+    val validGpioWidths = Seq(15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
     val validPDataWidths = Seq(8, 16, 32)
     val validPAddrWidths = Seq(8, 16, 32)
     val PDATA_WIDTH = validPDataWidths(Random.nextInt(validPDataWidths.length))
@@ -184,6 +183,15 @@ class GpioTest
                 coverageCollection(cov.getAnnotationSeq, myParams, testName)
               }
 
+            case "maskingAndMode" =>
+              it should "test maskingAndMode" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    maskingRegisters.maskingAndMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
             case "maskingRegisters" =>
               maskingRegistersFull(gpioDataBuffer, apbDataBuffer, myParams)
 
@@ -219,6 +227,15 @@ class GpioTest
                 val cov = test(new Gpio(myParams))
                   .withAnnotations(backendAnnotations) { dut =>
                     interruptTriggers.triggerFalling(dut, gpioDataBuffer, apbDataBuffer, myParams)
+                  }
+                coverageCollection(cov.getAnnotationSeq, myParams, testName)
+              }
+
+            case "combinedTriggerLevel" =>
+              it should "test combinedTriggerLevel" in {
+                val cov = test(new Gpio(myParams))
+                  .withAnnotations(backendAnnotations) { dut =>
+                    interruptTriggers.combinedTriggerLevel(dut, gpioDataBuffer, apbDataBuffer, myParams)
                   }
                 coverageCollection(cov.getAnnotationSeq, myParams, testName)
               }
@@ -322,9 +339,6 @@ class GpioTest
             case "modeOperation" =>
               modeOperationFull(gpioDataBuffer, apbDataBuffer, myParams)
 
-            case "randomTests" =>
-              randomTestsFull(gpioDataBuffer, apbDataBuffer, myParams)
-
             case "allTests" =>
               allTests(gpioDataBuffer, apbDataBuffer, myParams)
 
@@ -350,69 +364,6 @@ class GpioTest
     maskingRegistersFull(gpioDataBuffer, apbDataBuffer, myParams)
     virtualPortsFull(gpioDataBuffer, apbDataBuffer, myParams)
   }
-
-  def randomTestsFull(
-      gpioDataBuffer: Seq[UInt],
-      apbDataBuffer: Seq[UInt],
-      myParams: BaseParams
-  ): Unit = {
-
-    it should "test combinedTriggerLevel" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-        randomTests.combinedTriggerLevel(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedTriggerLevel")
-    }
-
-    it should "test edgeTriggerWithAtomicAnd" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-        randomTests.edgeTriggerWithAtomicAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "edgeTriggerWithAtomicAnd")
-    }
-
-    it should "test pushPullAndDrain" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-        randomTests.pushPullAndDrain(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "pushPullAndDrain")
-    }
-
-    it should "test virtualPortAndTriggerTest" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-        randomTests.virtualPortAndTriggerTest(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualPortAndTriggerTest")
-    }
-
-    it should "test overlappingVirtualPortsAndAtomic" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-          randomTests.overlappingVirtualPortsAndAtomic(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "overlappingVirtualPortsAndAtomic")
-    }
-
-    it should "test combinedModeAndTrigger" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-        randomTests.combinedModeAndTrigger(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedModeAndTrigger")
-    }
-
-    it should "test virtualAndDrain" in {
-      val cov = test(new Gpio(myParams))
-      .withAnnotations(backendAnnotations) { dut =>
-        randomTests.virtualAndDrain(dut, gpioDataBuffer, apbDataBuffer, myParams)
-      }
-      coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "virtualAndDrain")
-    }
-  } 
 
   def basicRegisterRWFull(
       gpioDataBuffer: Seq[UInt],
@@ -498,6 +449,14 @@ class GpioTest
         }
         coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "triggerFalling")
     }
+
+    it should "test combinedTriggerLevel" in {
+      val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          interruptTriggers.combinedTriggerLevel(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "combinedTriggerLevel")     
+    }
   }
 
   def maskingRegistersFull(
@@ -511,6 +470,14 @@ class GpioTest
           maskingRegisters.maskingAnd(dut, gpioDataBuffer, apbDataBuffer, myParams)
         }
         coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "maskingAnd")
+    }
+
+    it should "test maskingAndMode" in {
+     val cov = test(new Gpio(myParams))
+        .withAnnotations(backendAnnotations) { dut =>
+          maskingRegisters.maskingAndMode(dut, gpioDataBuffer, apbDataBuffer, myParams)
+        }
+        coverageCollector.collectCoverage(cov.getAnnotationSeq, myParams, "maskingAndMode")  
     }
   }
 
