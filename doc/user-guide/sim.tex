@@ -1,15 +1,47 @@
 \section{Simulation}
 
 \subsection{Tests}
-The test bench generates a number (default is 50) configurations of the
-DynamicFifo that are highly randomized. There are two flavors of tests:
+The test bench generates a number (default is 2) configurations of the
+GPIO that are highly randomized. The user can run the full test-suite  
+with n-configurations using "sbt "test" -DtestName="regression"".
 
-\begin{itemize}
-  \item {Directed tests that fill the FIFO with random data and then read back
-        the results to verify that the read data matches the writted data.}
-  \item {Lengthy random tests that are used to check odd combinations of
-        configurations and to compile code coverage data.}
-\end{itemize}
+User can also run individual tests or test groups by substituting "regression" with
+the relevant test name. A description of the tests is below:
+
+\begin{table}[h]
+  \resizebox{\textwidth}{!}{
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+      \hline
+      \rowcolor{dark-gray}  % Dark grey background for header row
+      \textcolor{white}{\textbf{Test Group Name}} & \textcolor{white}{\textbf{Test Name}} & \textcolor{white}{\textbf{Test Type}} & \textcolor{white}{\textbf{Test Description}} \\ \hline
+      basicRegisterRW & directionRegister & Directed & Writes and Reads Direction Register w/ Random Data \\ \hline
+      basicRegisterRW & modeRegister & Directed & Writes and Reads Mode Register w/ Random Data \\ \hline
+      basicRegisterRW & outputRegister & Directed & Writes and Reads Output Register w/ Random Data \\ \hline
+      basicRegisterRW & inputRegister & Directed & Writes and Reads Input Register w/ Random Data \\ \hline
+      basicRegisterRW & invalidAddress  & Directed & Writes and Reads from Invalid Address Space \\ \hline
+      maskingRegisters & maskingAnd & Directed & Atomic Register "AND" Operation \\ \hline
+      maskingRegisters & maskingAndMode & Random & Set "AND" Atomic Register, Configure Mode, Test Output\\ \hline
+      interruptTriggers & triggerHigh & Directed & Test Interrupt Trigger on Level High \\ \hline
+      interruptTriggers & triggerLow & Directed & Test Interrupt Trigger on Level Low\\ \hline
+      interruptTriggers & triggerRising & Directed & Test Interrupt Trigger on Rising Edge\\ \hline
+      interruptTriggers & triggerFalling & Directed & Test Interrupt Trigger on Falling Edge \\ \hline
+      interruptTriggers & combinedTriggerLevel & Random & Test All Interrupt Triggers at Same Time on Different Ports \\ \hline
+      virtualPorts & virtualMapping & Directed & Test Virtual Port to Physical Port Mapping\\ \hline
+      virtualPorts & virtualWriting & Directed & Writing to a Virtual Port w/ Random Data\\ \hline
+      virtualPorts & virtualToPhysical & Directed & Verify Physcial Port Output after Virtual Port Write\\ \hline
+      virtualPorts & disableVirtual & Directed & Disable Virtual Port and Verify Physical Port Output \\ \hline
+      virtualPorts & invalidVirtual & Directed & Invalid Virtual Port Mapping \\ \hline
+      virtualPorts & disabledVirtualRead & Directed & Read from Disabled Virtual Port \\ \hline
+      virtualPorts & overlappingVirtualPorts & Random & Overlaping Virtual Ports Mapped to the Same Physical Port \\ \hline
+      virtualPorts & virtualInput & Directed & Virtual Port as Input \\ \hline
+      modeOperation & pushPullMode & Random & Write to random ports, set random ports to PPL, test output \\ \hline
+      modeOperation & drainMode & Random & Write to random ports, set random ports to open drain mode, test output \\ \hline
+  \end{tabular}
+  }
+  \caption{Test Suite}
+\end{table}
+
 
 \subsection{Code coverage}
 All inputs and outputs are checked to insure each toggle at least once. An error

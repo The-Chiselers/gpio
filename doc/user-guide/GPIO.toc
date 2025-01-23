@@ -1,0 +1,55 @@
+\contentsline {section}{\numberline {1}Errata and Known Issues}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Errata}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Known Issues}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Port Descriptions}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Gpio Interface}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Apb3 Interface}{4}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Parameter Descriptions}{5}{section.3}%
+\contentsline {section}{\numberline {4}Operating Modes}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Introduction}{6}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Push-Pull Mode}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Open Drain Mode}{6}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Theory of Operations}{7}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Introduction}{7}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Interface Timing}{8}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Register Interface}{9}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Register Operation}{10}{subsubsection.5.3.1}%
+\contentsline {paragraph}{DIRECTION:}{10}{section*.6}%
+\contentsline {paragraph}{OUTPUT:}{10}{section*.8}%
+\contentsline {paragraph}{INPUT:}{10}{section*.9}%
+\contentsline {paragraph}{MODE:}{10}{section*.10}%
+\contentsline {paragraph}{ATOMIC\_OPERATION:}{10}{section*.12}%
+\contentsline {paragraph}{ATOMIC\_MASK:}{10}{section*.13}%
+\contentsline {paragraph}{ATOMIC\_SET:}{10}{section*.14}%
+\contentsline {paragraph}{VIRTUAL\_PORT\_MAP:}{10}{section*.15}%
+\contentsline {paragraph}{VIRTUAL\_PORT\_OUTPUT:}{10}{section*.17}%
+\contentsline {paragraph}{VIRTUAL\_PORT\_ENABLE:}{10}{section*.18}%
+\contentsline {paragraph}{TRIGGER\_TYPE:}{11}{section*.19}%
+\contentsline {paragraph}{TRIGGER\_LO:}{12}{section*.21}%
+\contentsline {paragraph}{TRIGGER\_HI:}{12}{section*.23}%
+\contentsline {paragraph}{TRIGGER\_STATUS:}{12}{section*.25}%
+\contentsline {paragraph}{IRQ\_ENABLE:}{13}{section*.27}%
+\contentsline {subsubsection}{\numberline {5.3.2}Register Addresses:}{14}{subsubsection.5.3.2}%
+\contentsline {paragraph}{dataWidth: 8}{14}{table.caption.30}%
+\contentsline {paragraph}{dataWidth: 16}{15}{table.caption.32}%
+\contentsline {paragraph}{dataWidth: 32}{16}{table.caption.34}%
+\contentsline {subsection}{\numberline {5.4}Virtual Ports}{17}{subsection.5.4}%
+\contentsline {subsubsection}{\numberline {5.4.1}Introduction}{17}{subsubsection.5.4.1}%
+\contentsline {subsubsection}{\numberline {5.4.2}Physical Pin Configured as Output}{17}{subsubsection.5.4.2}%
+\contentsline {subsubsection}{\numberline {5.4.3}Physical Pin Configured as Input}{17}{subsubsection.5.4.3}%
+\contentsline {subsubsection}{\numberline {5.4.4}Physical Pin Reconfiguration (Dynamic Behavior)}{17}{subsubsection.5.4.4}%
+\contentsline {subsubsection}{\numberline {5.4.5}Summary of Correspondence}{18}{subsubsection.5.4.5}%
+\contentsline {subsubsection}{\numberline {5.4.6}Additional Considerations}{18}{subsubsection.5.4.6}%
+\contentsline {subsection}{\numberline {5.5}Atomic Operations}{19}{subsection.5.5}%
+\contentsline {subsubsection}{\numberline {5.5.1}Introduction}{19}{subsubsection.5.5.1}%
+\contentsline {subsubsection}{\numberline {5.5.2}Diagram of Atomic Operations}{19}{subsubsection.5.5.2}%
+\contentsline {section}{\numberline {6}Simulation}{20}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Tests}{20}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Code coverage}{20}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Running simulation}{20}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Viewing the waveforms}{20}{subsection.6.4}%
+\contentsline {section}{\numberline {7}Synthesis}{21}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Area}{21}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}SDC File}{21}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Timing}{21}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Multicycle Paths}{21}{subsection.7.4}%
