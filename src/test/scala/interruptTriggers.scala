@@ -5,7 +5,7 @@ import chisel3.util._
 import chiseltest._
 import scala.util.Random
 import scala.math.pow
-import TestUtils._
+//import TestUtils._
 object interruptTriggers extends ApbUtils {
 
   def triggerHigh(

@@ -8,6 +8,8 @@ import java.io.PrintWriter
 import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
+import tech.rocksavage.test.TestUtils.coverAll
+
 
 /**
  * The `Gpio` module represents a General Purpose Input/Output (GPIO) controller.
@@ -155,25 +157,10 @@ class Gpio(p: BaseParams) extends Module {
   }
 
   // Collect code coverage points
-  if (p.coverage) {
-    // Count clock ticks to allow for coverage computation
-    val tick = true.B
-    for (bit <- 0 to p.gpioWidth - 1) {
-      cover(io.in(bit)).suggestName(s"io_in_$bit")
-      cover(io.out(bit)).suggestName(s"io_out_$bit")
-      cover(io.enable(bit)).suggestName(s"io_enable_$bit")
-      cover(io.apb.PRDATA(bit)).suggestName(s"apb_PRDATA_$bit")
-      cover(io.apb.PWDATA(bit)).suggestName(s"apb_PWDATA_$bit")
+    if (p.coverage) {
+        // Cover the entire IO bundle recursively.
+        coverAll(io, "_io")
     }
-    for (bit <- 0 to p.PADDR_WIDTH - 1)
-      cover(io.apb.PADDR(bit)).suggestName(s"apb_ADDR_$bit")
-    cover(tick).suggestName("tick")
-    cover(io.apb.PSEL).suggestName("io__PSEL")
-    cover(io.apb.PENABLE).suggestName("io__PENABLE")
-    cover(io.apb.PWRITE).suggestName("io__PWRITE")
-    cover(io.apb.PREADY).suggestName("io__PREADY")
-    cover(io.apb.PSLVERR).suggestName("io__PSLVERR")
-  }
 
   /**
    * Decodes the APB address and writes data to the corresponding GPIO register.

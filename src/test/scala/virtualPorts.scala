@@ -3,7 +3,7 @@ package tech.rocksavage.chiselware.Gpio
 import scala.math.pow
 import scala.util.Random
 
-import TestUtils._
+//import TestUtils._
 import chisel3._
 import chisel3.util._
 import chiseltest._
