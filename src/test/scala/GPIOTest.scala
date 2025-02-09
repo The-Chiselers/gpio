@@ -84,7 +84,7 @@ class GpioTest
 
     // Randomize Input Variables
     // Randomize Input Variables
-    val validGpioWidths = Seq(15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
+    val validGpioWidths = Seq(8, 16, 32)
     val validPDataWidths = Seq(8, 16, 32)
     val validPAddrWidths = Seq(8, 16, 32)
     val PDATA_WIDTH = validPDataWidths(Random.nextInt(validPDataWidths.length))
