@@ -43,20 +43,33 @@ the relevant test name. A description of the tests is below:
 \end{table}
 
 
-\subsection{Code coverage}
-All inputs and outputs are checked to insure each toggle at least once. An error
-will be thrown in case any port fails to toggle.
+\subsection{Toggle Coverage}
+Current Score: 100\%
 
-The only exception are the \emph{almostEmptyLevel} and \emph{almostFullLevel}
+All inputs and outputs are checked to insure each toggle at least once. If coverage is enabled
+during core instantiation, a cumulative coverage report of all tests is generated under ./out/cov/verliog.
+
+Exceptions are higher bits of the \emph{PADDR}, \emph{PWDATA}, and \emph{PRDATA}
 which are intended to be static during each simulation. These signals are
 excluded from coverage checks.
+
+\subsection{Code Coverage}
+Current Score: 82.17\%
+
+Code coverage for all tests can be generated as follows:
+\begin{verbatim}
+  $ sbt coverage test -DtestName="allTests"
+  $ sbt coverageReport
+  $ python3 -m http.server 8000 --directory target/scoverage-report/
+  View report on local host: http://localhost:8000/index.html
+\end{verbatim}
 
 \subsection{Running simulation}
 
 Simulations can be run directly from the command prompt as follows:
 
 \begin{verbatim}
-  $ sbt "test"
+  $ sbt test -DtestName="allTests"
 \end{verbatim}
 
 or from make as follows:
