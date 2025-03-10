@@ -28,63 +28,63 @@ When programming registers, each register starts on a byte address, and the last
   
   DIRECTION  &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Controls whether the GPIO acts as an Input or Output \\ \hline
 
   OUTPUT &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Controls the output bus gpioOutput \\ \hline
 
   INPUT &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Controls the input bus gpioInput \\ \hline
 
   MODE &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Sets operating mode as push-pull or open drain mode \\ \hline
 
   ATOMIC\_OPERATION &   
   4 &   
-  DESC TODO \\ \hline
+  Sets the atomic operation to be performed \\ \hline
 
   ATOMIC\_MASK &   
   p.dataWidth &   
-  DESC TODO \\ \hline
+  Masks the atomic operation on the OUTPUT register \\ \hline
 
   ATOMIC\_SET &   
   1 &   
-  DESC TODO \\ \hline
+  Triggers the atomic operation on the OUTPUT register \\ \hline
 
   VIRTUAL\_PORT\_MAP &   
   sizeOfVirtualPorts &   
-  DESC TODO \\ \hline
+  Maps virtual ports to physical ports \\ \hline
 
   VIRTUAL\_PORT\_OUTPUT &   
   numVirtualPorts &   
-  DESC TODO \\ \hline
+  Sets output value of virtual ports \\ \hline
 
   VIRTUAL\_PORT\_ENABLE &   
   1 &   
-  DESC TODO \\ \hline
+  Enables the virtual ports \\ \hline
 
   TRIGGER\_TYPE &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Configures gpio interrupts as edge or level triggered \\ \hline
   
   TRIGGER\_LO &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Configures whether interrupt is triggered on level low or falling edge \\ \hline
   
   TRIGGER\_HI &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Configures whether interrupt is triggered on level high or rising edge \\ \hline
   
   TRIGGER\_STATUS &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Displays status of interrupt trigger condition on input bus \\ \hline
   
   IRQ\_ENABLE &   
   dataWidth &   
-  DESC TODO \\ \hline
+  Enables or disables interrupts \\ \hline
 
 \end{longtable}
 \captionsetup{aboveskip=0pt}
