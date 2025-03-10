@@ -115,8 +115,8 @@ object virtualPorts extends ApbUtils {
       s"Physical Port Output after disabling virtual port: ${disabledPhysicalPortOutput.toString()}"
     )
     require(
-      disabledPhysicalPortOutput == 32
-    ) // Expect physical port output to be as before
+      disabledPhysicalPortOutput == 0
+    ) // Expect physical port output to be set back after disabling virtual port
   }
 
   def invalidVirtual(
