@@ -1,0 +1,98 @@
+\section{Usage Examples}
+
+\subsection{Direction Register Configuration}
+The following example demonstrates how to configure GPIO pin directions:
+
+\begin{verbatim}
+// 1. Configure GPIO pins 0-7 as outputs, 8-15 as inputs
+write(GPIO_DIRECTION_0, 0x00FF);    // Lower byte = outputs
+write(GPIO_DIRECTION_1, 0xFF00);    // Upper byte = inputs
+
+// 2. Verify configuration
+uint16_t dir0 = read(GPIO_DIRECTION_0);
+uint16_t dir1 = read(GPIO_DIRECTION_1);
+
+if ((dir0 != 0x00FF) || (dir1 != 0xFF00)) {
+    // Configuration error
+    // ...
+    return;
+}
+\end{verbatim}
+
+\subsection{Output Register Operation}
+The following example demonstrates writing to output pins:
+
+\begin{verbatim}
+// 1. Set pins 0-3 high, others low (assuming pins are configured as outputs)
+write(GPIO_OUTPUT_0, 0x000F);
+
+// 2. Toggle output pins
+uint16_t current = read(GPIO_OUTPUT_0);
+write(GPIO_OUTPUT_0, ~current & 0xFFFF);
+
+// 3. Write to specific pin (bit 5)
+uint16_t new_value = (read(GPIO_OUTPUT_0) | (1 << 5));
+write(GPIO_OUTPUT_0, new_value);
+\end{verbatim}
+
+\subsection{Input Register Operation}
+The following example demonstrates reading input pins:
+
+\begin{verbatim}
+// 1. Read all input pins (assuming pins are configured as inputs)
+uint16_t inputs = read(GPIO_INPUT_0);
+
+// 2. Check specific pin state (bit 7)
+if (inputs & (1 << 7)) {
+    // Pin is high
+    // ...
+} else {
+    // Pin is low
+    // ...
+}
+
+// 3. Wait for pin state change
+uint16_t previous = read(GPIO_INPUT_0);
+while ((read(GPIO_INPUT_0) & 0x0100) == (previous & 0x0100)) {
+    // Wait for bit 8 to change
+}
+\end{verbatim}
+
+\subsection{Mode Register Configuration}
+The following example demonstrates configuring pin modes:
+
+\begin{verbatim}
+// 1. Configure pins 0-3 as push-pull, 4-7 as open-drain
+write(GPIO_MODE_0, 0x00F0);    // 00001111 (0-3: push-pull, 4-7: open-drain)
+
+// 2. Configure pins 8-11 with pull-up, 12-15 with pull-down
+write(GPIO_MODE_1, 0x0F00);    // 00001111 (8-11: pull-up, 12-15: pull-down)
+
+// 3. Verify configuration
+if ((read(GPIO_MODE_0) != 0x00F0) || (read(GPIO_MODE_1) != 0x0F00)) {
+    // Handle configuration error
+    // ...
+}
+\end{verbatim}
+
+\subsection{Error Handling}
+The following example demonstrates invalid address handling:
+
+\begin{verbatim}
+// 1. Attempt to write to invalid address
+uint32_t status = write(INVALID_ADDR, 0x1234);
+
+// 2. Check for error
+if (status & ERROR_BIT) {
+    // Handle invalid address error
+    printf("Error: Invalid address accessed\n");
+    // ...
+}
+
+// 3. Attempt to read from invalid address
+uint16_t data = read(INVALID_ADDR);
+if (data != 0) {
+    // Handle unexpected data
+    // ...
+}
+\end{verbatim}

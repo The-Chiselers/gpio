@@ -54,3 +54,9 @@
 \contentsline {subsection}{\numberline {7.2}SDC File}{22}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Timing}{22}{subsection.7.3}%
 \contentsline {subsection}{\numberline {7.4}Multicycle Paths}{22}{subsection.7.4}%
+\contentsline {section}{\numberline {8}Usage Examples}{23}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Direction Register Configuration}{23}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Output Register Operation}{23}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Input Register Operation}{23}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Mode Register Configuration}{24}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Error Handling}{24}{subsection.8.5}%
